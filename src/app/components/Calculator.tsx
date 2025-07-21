@@ -609,10 +609,7 @@ const requestRef = useRef<number | null>(null);
 
   return (
 
-    <div  style={{
-    background:
-      "linear-gradient(180deg, rgba(255,255,255,0.28) 18%, rgba(252,220,84,0.24) 100%)",
-  }} className="">
+    <div  className="">
 <div
   className="w-full h-[500px] md:h-[700px] relative bg-no-repeat bg-center bg-cover px-4 py-10 md:py-0"
 >
