@@ -1556,13 +1556,8 @@ const handleSubmit = async () => {
             id="phone"
             name="phone"
             value={formData.phone}
-            onChange={(e) =>
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.phone]: e.target.value,
-    }))
-  }
-            // onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+           
+            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
             className={`px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
               errors.phone ? "border-red-500 focus:ring-red-300" : "border-[#1E1E1E] focus:ring-[#F9B31B]"
             }`}
@@ -1579,13 +1574,8 @@ const handleSubmit = async () => {
             id="email"
             name="email"
             value={formData.email}
-            onChange={(e) =>
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.email]: e.target.value,
-    }))
-  }
-            // onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+           
+            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
             className={`px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
               errors.email ? "border-red-500 focus:ring-red-300" : "border-[#1E1E1E] focus:ring-[#F9B31B]"
             }`}
