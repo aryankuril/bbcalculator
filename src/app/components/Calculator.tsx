@@ -30,19 +30,19 @@ const includedItems = [
 // }
 
 /* --- simple placeholder icons --- */
-const Briefcase: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+const Briefcase: React.FC = () => (
  <svg xmlns="http://www.w3.org/2000/svg" width="21" height="20" viewBox="0 0 20 20" fill="none">
   <path d="M17.1976 15.8333H18.7971V17.5H1.20276V15.8333H2.80225V3.33333C2.80225 3.1 2.87956 2.90278 3.03417 2.74167C3.18879 2.58055 3.37806 2.5 3.60199 2.5H11.5994C11.8234 2.5 12.0126 2.58055 12.1673 2.74167C12.3219 2.90278 12.3992 3.1 12.3992 3.33333V15.8333H15.5982V9.16667H13.9987V7.5H16.3979C16.6218 7.5 16.8111 7.58056 16.9657 7.74167C17.1203 7.90278 17.1976 8.1 17.1976 8.33333V15.8333ZM4.40174 4.16667V15.8333H10.7997V4.16667H4.40174ZM6.00122 9.16667H9.2002V10.8333H6.00122V9.16667ZM6.00122 5.83333H9.2002V7.5H6.00122V5.83333Z" fill="#1E1E1E"/>
 </svg>
 );
 
-const Cart: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+const Cart: React.FC = () => (
 <svg xmlns="http://www.w3.org/2000/svg" width="21" height="20" viewBox="0 0 21 20" fill="none">
   <path d="M3.45169 12.9105V2.91529H1.78583V1.24943H4.28463C4.51785 1.24943 4.71498 1.32994 4.87601 1.49098C5.03704 1.65201 5.11756 1.84914 5.11756 2.08236V12.0776H15.4793L17.1451 5.41409H6.78343V3.74823H18.2113C18.4445 3.74823 18.6416 3.82874 18.8027 3.98978C18.9637 4.15081 19.0442 4.34794 19.0442 4.58116C19.0442 4.64779 19.0331 4.71443 19.0109 4.78106L16.9286 13.1104C16.8841 13.2992 16.787 13.4519 16.637 13.5685C16.4871 13.6851 16.3177 13.7434 16.1289 13.7434H4.28463C4.05141 13.7434 3.85428 13.6629 3.69325 13.5019C3.53221 13.3408 3.45169 13.1437 3.45169 12.9105ZM5.11756 18.741C4.81771 18.741 4.54006 18.6661 4.28463 18.5161C4.0292 18.3662 3.82651 18.1635 3.67659 17.9081C3.52666 17.6527 3.45169 17.375 3.45169 17.0752C3.45169 16.7753 3.52666 16.4977 3.67659 16.2422C3.82651 15.9868 4.0292 15.7841 4.28463 15.6342C4.54006 15.4843 4.81771 15.4093 5.11756 15.4093C5.41742 15.4093 5.69506 15.4843 5.9505 15.6342C6.20593 15.7841 6.40861 15.9868 6.55854 16.2422C6.70846 16.4977 6.78343 16.7753 6.78343 17.0752C6.78343 17.375 6.70846 17.6527 6.55854 17.9081C6.40861 18.1635 6.20593 18.3662 5.9505 18.5161C5.69506 18.6661 5.41742 18.741 5.11756 18.741ZM15.1128 18.741C14.8129 18.741 14.5353 18.6661 14.2798 18.5161C14.0244 18.3662 13.8217 18.1635 13.6718 17.9081C13.5219 17.6527 13.4469 17.375 13.4469 17.0752C13.4469 16.7753 13.5219 16.4977 13.6718 16.2422C13.8217 15.9868 14.0244 15.7841 14.2798 15.6342C14.5353 15.4843 14.8129 15.4093 15.1128 15.4093C15.4126 15.4093 15.6903 15.4843 15.9457 15.6342C16.2011 15.7841 16.4038 15.9868 16.5537 16.2422C16.7037 16.4977 16.7786 16.7753 16.7786 17.0752C16.7786 17.375 16.7037 17.6527 16.5537 17.9081C16.4038 18.1635 16.2011 18.3662 15.9457 18.5161C15.6903 18.6661 15.4126 18.741 15.1128 18.741Z" fill="#1E1E1E"/>
 </svg>
 );
 
-const Pen: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+const Pen: React.FC = () => (
  <svg xmlns="http://www.w3.org/2000/svg" width="21" height="20" viewBox="0 0 21 20" fill="none">
   <g clipPath="url(#clip0_132_106)">
     <path d="M2.0367 18.7852H18.8033C19.6947 18.7852 20.42 18.06 20.42 17.1685V2.81215C20.42 1.92071 19.6948 1.19543 18.8033 1.19543H2.0367C1.14522 1.19543 0.419983 1.92067 0.419983 2.81215V17.1685C0.419983 18.06 1.14522 18.7852 2.0367 18.7852ZM1.59186 17.1685V7.05481H14.5606V17.6133H2.0367C1.79139 17.6133 1.59186 17.4138 1.59186 17.1685ZM18.8033 17.6133H15.7325V7.05481H19.2481V17.1685C19.2481 17.4138 19.0486 17.6133 18.8033 17.6133ZM2.0367 2.36731H18.8033C19.0486 2.36731 19.2481 2.56684 19.2481 2.81215V5.88293H1.59186V2.81215C1.59186 2.56684 1.79139 2.36731 2.0367 2.36731Z" fill="black"/>
@@ -67,7 +67,7 @@ const Pen: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
 </svg>
 );
 
-const Bulb: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+const Bulb: React.FC = () => (
  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
   <g clipPath="url(#clip0_132_124)">
     <path d="M1.75781 0H18.2422C19.2114 0 20 0.788555 20 1.75781V18.2422C20 19.2114 19.2114 20 18.2422 20H1.75781C0.788555 20 0 19.2114 0 18.2422V1.75781C0 0.788555 0.788555 0 1.75781 0ZM1.17188 18.2422C1.17188 18.5653 1.43473 18.8281 1.75781 18.8281H18.2422C18.5653 18.8281 18.8281 18.5653 18.8281 18.2422V5.85938H10C9.89379 5.85938 9.78961 5.83051 9.69852 5.77586L7.88461 4.6875H1.17188V18.2422ZM1.17188 3.51562H8.04688C8.15309 3.51562 8.25727 3.54449 8.34836 3.59914L10.1623 4.6875H18.8281V1.75781C18.8281 1.43473 18.5653 1.17188 18.2422 1.17188H1.75781C1.43473 1.17188 1.17188 1.43473 1.17188 1.75781V3.51562Z" fill="black"/>
@@ -89,13 +89,13 @@ const Bulb: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
 </svg>
 );
 
-const Puzzle: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+const Puzzle: React.FC = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
   <path d="M13.3334 15L18.3334 10L13.3334 5M6.66669 5L1.66669 10L6.66669 15" stroke="#111827" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
 </svg>
 );
 
-const WordPressIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+const WordPressIcon: React.FC = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 43 43" fill="none">
   <g clipPath="url(#clip0_100_350)">
     <path d="M0.000732422 21.4993C0.000732422 30.0088 4.94557 37.3637 12.1173 40.8473L1.86146 12.7498C0.669985 15.4226 0.000732422 18.3819 0.000732422 21.4993Z" fill="#1C769B"/>
@@ -112,7 +112,7 @@ const WordPressIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   </defs>
 </svg>
 );
-const FramerIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+const FramerIcon: React.FC = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 31 32" fill="none">
   <path d="M15.5 20.6667V30L6.45837 20.6667M6.45837 20.6667V11.3333H15.5M6.45837 20.6667H24.5417L15.5 11.3333M15.5 11.3333H24.5417V2H6.45837L15.5 11.3333Z" stroke="#6E60B8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
 </svg>
@@ -365,7 +365,7 @@ const Calculator = () => {
   const [selectedStep4, setSelectedStep4] = useState("");
   const [selectedStep5, setSelectedStep5] = useState("");
   const [selectedStep6, setSelectedStep6] = useState("");
-const [showPopup, setShowPopup] = useState(false);
+// const [showPopup, setShowPopup] = useState(false);
 
 const [showPopupForm, setShowPopupForm] = useState(false);
 const [toastMessage, setToastMessage] = useState("");
@@ -459,7 +459,7 @@ const getStep3Options = () => {
   ].filter((item) => item.value);
 
   const totals = costItems.reduce((acc, item) => acc + item.price, 0);
-  const [activeIndex, setActiveIndex] = useState(null);  
+
   const [currentStep, setCurrentStep] = useState(1); // ✅ uncomment this
   const selected = currentStep > 1; // ✅ Add this before your JSX
 const handleNext = () => {
@@ -563,7 +563,7 @@ const handleSubmit = async () => {
       console.log("✅ Final Form Submitted:", formData);
       setToastMessage("✅ Thank you! We'll connect with you soon.");
       setTimeout(() => setToastMessage(""), 4000);
-      setShowPopup(false);
+      setShowPopupForm(false);
     } else {
       alert(`❌ Error: ${data.message}`);
     }
@@ -590,7 +590,7 @@ const handleSubmit = async () => {
   const requestRef = useRef();
 
   useEffect(() => {
-    let start = animatedPercent;
+    const start = animatedPercent;
     const end = progressPercent;
     const duration = 500;
     const startTime = performance.now();
