@@ -1,23 +1,14 @@
 @import "tailwindcss";
 
-/* ✅ Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Kalam&family=Nunito:wght@400;600;700&display=swap');
+/* ✅ Google Font: Poppins only */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
 
-/* ✅ Local Nunito font fallback (optional, if you're self-hosting) */
-@font-face {
-  font-family: 'Nunito';
-  src: url('/fonts/Nunito-ExtraLight.woff2') format('woff2'),
-       url('/fonts/Nunito-ExtraLight.woff') format('woff');
-  font-weight: normal;
-  font-style: normal;
-}
 
-/* ✅ Local Kalam font fallback (optional, if you're self-hosting) */
 @font-face {
-  font-family: 'Kalam';
-  src: url('/fonts/Kalam-Regular.woff2') format('woff2'),
-       url('/fonts/Kalam-Regular.woff') format('woff');
-  font-weight: normal;
+  font-family: 'Poppins';
+  src: url('/fonts/Poppins-Regular.woff2') format('woff2'),
+       url('/fonts/Poppins-Regular.woff') format('woff');
+  font-weight: 400;
   font-style: normal;
 }
 
@@ -38,6 +29,5 @@
 body {
   background: linear-gradient(180deg, rgba(255,255,255,0.28) 18%, rgba(252,220,84,0.24) 100%);
   color: var(--foreground);
-  font-family: 'Nunito', 'Kalam', sans-serif;
+  font-family: 'Poppins';
 }
-

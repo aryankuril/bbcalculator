@@ -573,7 +573,8 @@ const handleSubmit = async () => {
   /** Progress helpers */
   const TOTAL_STEPS = 7;
   // const [currentStep, setCurrentStep] = useState(1);
- const progressPercent = Math.round((currentStep / TOTAL_STEPS) * 100);
+const progressPercent = Math.round(((currentStep - 1) / (TOTAL_STEPS - 1)) * 100);
+
 
   const [animatedPercent, setAnimatedPercent] = useState(0);
 const requestRef = useRef<number | null>(null);
@@ -624,7 +625,7 @@ const requestRef = useRef<number | null>(null);
 
       <div className="flex md:flex-row flex-col items-center justify-center md:justify-start gap-3 sm:gap-5">
        <span
-  className="relative flex items-center justify-center w-[93px] h-[43px] text-[26px] sm:text-[32px] md:text-[35px]  text-black text-center capitalize font-kalam px-2 py-1 rounded-[5px]"
+  className="relative flex items-center justify-center w-[93px] h-[43px] text-[26px] sm:text-[32px] md:text-[35px]  text-black text-center capitalize font-Poppins px-2 py-1 rounded-[5px]"
   style={{ background: "#F9B31B", letterSpacing: "0.2px" }}
 >
   Cost
@@ -643,7 +644,7 @@ const requestRef = useRef<number | null>(null);
       </div>
 
       <button
-        className="mt-6 inline-flex items-center font-kalam justify-center gap-[10px] px-[30px] py-[10px] rounded-[5px] text-white text-[16px] sm:text-[18px]"
+        className="mt-6 inline-flex items-center font-poppins justify-center gap-[10px] px-[30px] py-[10px] rounded-[5px] text-white text-[16px] sm:text-[18px]"
         style={{
           background: "#262626",
           boxShadow: "2px 2px 0px 0px #F9B31B",
@@ -668,11 +669,11 @@ const requestRef = useRef<number | null>(null);
 
     <section className="w-full px-4 py-10 flex flex-col items-center">
       {/* ---------- Top headings ---------- */}
-      <h2 className="text-center font-nunito lg:text-[32px] text-[25px]  font-bold leading-normal tracking-[-0.8px] capitalize text-black">Plan Your Website, Step By Step</h2>
+      <h2 className="text-center font-poppins lg:text-[32px] text-[23px]  font-bold leading-normal tracking-[-0.8px] capitalize text-black">Plan Your Website, Step By Step</h2>
       
       <div className="flex items-center gap-2 mt-1 text-sm text-gray-600">
         
-        <span className="text-center font-kalam text-[20px]  leading-normal text-[#797474]">
+        <span className="text-center font-poppins text-[20px] font-[400]  leading-normal text-[#797474]">
   Calculate your digital dream
 </span>
 
@@ -714,17 +715,17 @@ const requestRef = useRef<number | null>(null);
          <div className="w-full max-w-6xl max-h-7xl lg:mt-1 mt-5">
       {/* Header */}
       <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
-        <span className="text-[#797474] text-center font-[Kalam] text-[20px] italic font-light leading-none tracking-[0.2px] capitalize">
+        <span className="text-[#797474] text-center font-[Poppins] text-[20px] italic font-light leading-none tracking-[0.2px] capitalize">
           Progress
         </span>
-        <span className="text-[#797474] text-center font-[Kalam] text-[20px] not-italic font-light leading-none tracking-[0.2px] capitalize">
+        <span className="text-[#797474] text-center font-[Poppins] text-[20px] not-italic font-light leading-none tracking-[0.2px] capitalize">
           {animatedPercent}%
         </span>
       </div>
 
       {/* Progress bar */}
       <div className="flex gap-3">
-        {[...Array(TOTAL_STEPS)].map((_, idx) => (
+         {[...Array(TOTAL_STEPS - 1)].map((_, idx) => (  // Only render 6 segments
           <div
             key={idx}
           className="flex-1 h-[10px] rounded-[20px] border border-[#1E1E1E] bg-transparent overflow-hidden"
@@ -732,7 +733,7 @@ const requestRef = useRef<number | null>(null);
             <div
               className={`h-full bg-[#F9B31B] transition-all duration-500`}
               style={{
-                width: idx < currentStep ? "100%" : "0%",
+                width: idx < currentStep - 1 ? "100%" : "0%",
               }}
             />
           </div>
@@ -760,20 +761,20 @@ const requestRef = useRef<number | null>(null);
   {/* left block */}
   <div>
     <div className="flex items-center gap-2">
-      <h3 className="text-[24px] font-nunito font-[700] text-black">
+      <h3 className="text-[24px] font-poppins font-[700] text-black">
             {currentStep === 1 ? "Bana Kya Rahe Ho?" : "Bana Kese Rahe Ho?"  }
           </h3>
  <Form1 className="w-4 h-4" />
     </div>
 
-    <p className="text-[#797474] font-nunito text-[16px] font-[400]">
+    <p className="text-[#797474] font-poppins text-[16px] font-[400]">
       What do you want us to build?
     </p>
   </div>
 
   {/* Pick‑one label + chevron */}
   <div className="flex items-center gap-1 sm:ml-10">
-    <span className="font-kalam text-[14px] font-[400] capitalize text-[#1E1E1E]">
+    <span className="font-poppins text-[14px] font-[400] capitalize text-[#1E1E1E]">
       Pick One
     </span>
     <svg
@@ -822,11 +823,11 @@ const requestRef = useRef<number | null>(null);
                      </div>
                   </span>
                   <div>
-                   <h4 className="text-[#111827] font-nunito text-[16px] font-[600] ">
+                   <h4 className="text-[#111827] font-poppins text-[14px] font-[600] ">
   {title}
 </h4>
 
-                   <p className={` font-nunito text-[12px] font-[500]  lowercase  ${
+                   <p className={` font-poppins text-[12px] font-[500]  lowercase  ${
                       active ? "text-[#111827]" : " text-[#111827]"
                     }`}>
   {subtitle}
@@ -835,7 +836,7 @@ const requestRef = useRef<number | null>(null);
                   </div>
                 </div>
                 <span
-        className={`text-[14px] font-[500] leading-normal font-nunito ${
+        className={`text-[14px] font-[500] leading-normal font-poppins ${
           active ? 'text-white' : 'text-[#111827]'
         }`}
       >
@@ -870,20 +871,20 @@ const requestRef = useRef<number | null>(null);
   {/* left block */}
   <div>
     <div className="flex items-center gap-2">
-      <h3 className="text-[24px] font-nunito font-[700] text-black">
+      <h3 className="text-[24px] font-poppins font-[700] text-black">
         Tech Stack Toh Batayo
       </h3>
  <Form2 className="w-4 h-4" />
     </div>
 
-    <p className="text-[#797474] font-nunito text-[16px] font-[400]">
+    <p className="text-[#797474] font-poppins text-[16px] font-[400]">
       Choose your building platform from our tech bazaar!
     </p>
   </div>
 
   {/* Pick‑one label + chevron */}
   <div className="flex items-center gap-1 sm:ml-10">
-    <span className="font-kalam text-[14px] font-[400] capitalize text-[#1E1E1E]">
+    <span className="font-poppins text-[14px] font-[400] capitalize text-[#1E1E1E]">
       Pick One
     </span>
     <svg
@@ -926,7 +927,7 @@ const requestRef = useRef<number | null>(null);
   </div>
 
   {/* Title */}
-  <h4 className="text-[16px] font-bold font-nunito text-center text-black">{title}</h4>
+  <h4 className="text-[14px] font-bold font-poppins text-center text-black">{title}</h4>
 
   {/* Price tag */} 
   <span
@@ -941,7 +942,7 @@ const requestRef = useRef<number | null>(null);
 
 
   {/* Subtitle or Description List */}
-  <ul className="text-sm font-nunito text-[#444] list-disc ml-5 space-y-1">
+  <ul className="text-sm font-poppins text-[#444] list-disc ml-5 space-y-1">
     {subtitle
       ? subtitle.split("|").map((item, i) => (
           <li key={i}>{item.trim()}</li>
@@ -973,19 +974,19 @@ const requestRef = useRef<number | null>(null);
     <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
       <div>
         <div className="flex items-center gap-2">
-          <h3 className="text-[24px] font-nunito font-[700] text-black">
+          <h3 className="text-[24px] font-poppins font-[700] text-black">
             Ginti Toh Batao Boss!
           </h3>
           <Form3 className="w-4 h-4" />
         </div>
-        <p className="text-[#797474] font-nunito text-[16px] font-[400]">
+        <p className="text-[#797474] font-poppins text-[16px] font-[400]">
           Choose your building platform from our tech bazaar!
         </p>
       </div>
 
       {/* Pick‑one label */}
       <div className="flex items-center gap-1 sm:ml-10">
-        <span className="font-kalam text-[14px] capitalize font-[400] text-[#1E1E1E]">
+        <span className="font-poppins text-[14px] capitalize font-[400] text-[#1E1E1E]">
           Pick One
         </span>
         <svg
@@ -1025,7 +1026,7 @@ const requestRef = useRef<number | null>(null);
                 }`}
               ></span>
               <div className="flex flex-col text-left">
-                <h4 className="text-[16px] font-[600] leading-tight text-black">
+                <h4 className="text-[14px] font-[600] leading-tight text-black">
                   {title}
                 </h4>
               </div>
@@ -1056,13 +1057,13 @@ const requestRef = useRef<number | null>(null);
   {/* left block */}
   <div>
     <div className="flex items-center gap-2">
-      <h3 className="text-[24px] font-nunito font-[700] text-black">
+      <h3 className="text-[24px] font-poppins font-[700] text-black">
            Images kon dega Boss!
           </h3>
        <Form1 className="w-4 h-4" />
     </div>
 
-    <p className="text-[#797474] font-nunito text-[16px] font-[600]">
+    <p className="text-[#797474] font-poppins text-[16px] font-[600]">
       {/* What do you want us to build? */}
       Hum denge tho paisa lagenge
     </p>
@@ -1070,7 +1071,7 @@ const requestRef = useRef<number | null>(null);
 
   {/* Pick‑one label + chevron */}
   <div className="flex items-center gap-1 sm:ml-10">
-    <span className="font-kalam text-[14px] capitalize text-[#1E1E1E]">
+    <span className="font-poppins text-[14px] capitalize text-[#1E1E1E]">
       Pick One
     </span>
     <svg
@@ -1113,14 +1114,14 @@ const requestRef = useRef<number | null>(null);
           ></span>
                    
                   <div>
-                   <h4 className="text-[#111827] font-nunito text-[16px] font-[600] leading-normal">
+                   <h4 className="text-[#111827] font-poppins text-[14px] font-[600] leading-normal">
   {title}
 </h4>
 
                   </div>
                 </div>
                 <span
-        className={`text-[14px] font-[600] leading-normal font-nunito ${
+        className={`text-[14px] font-[600] leading-normal font-poppins ${
           active ? 'text-white' : 'text-[#111827]'
         }`}
       >
@@ -1154,20 +1155,20 @@ const requestRef = useRef<number | null>(null);
   {/* left block */}
   <div>
     <div className="flex items-center gap-2">
-      <h3 className="text-[24px] font-nunito font-[700] text-black">
+      <h3 className="text-[24px] font-poppins font-[700] text-black">
            Kab tak chahiye
           </h3>
        <Form2 className="w-4 h-4" />
     </div>
 
-    <p className="text-[#797474] font-nunito text-[16px] font-[400]">
+    <p className="text-[#797474] font-poppins text-[16px] font-[400]">
       Choose your building platform from our tech bazaar!
     </p>
   </div>
 
   {/* Pick‑one label + chevron */}
   <div className="flex items-center gap-1 sm:ml-10">
-    <span className="font-kalam text-[14px] font-[400] capitalize text-[#1E1E1E]">
+    <span className="font-poppins text-[14px] font-[400] capitalize text-[#1E1E1E]">
       Pick One
     </span>
     <svg
@@ -1214,10 +1215,10 @@ const requestRef = useRef<number | null>(null);
 
           {/* Title & Subtitle */}
           <div className="flex flex-col text-left ">
-            <h4 className={`text-[16px] font-[600] leading-tight ${active ? "text-black" : "text-black"}`}>
+            <h4 className={`text-[14px] font-[600] leading-tight ${active ? "text-black" : "text-black"}`}>
               {title}
             </h4>
-             <p className={` font-nunito text-[12px] font-[500]  lowercase  ${
+             <p className={` font-poppins text-[12px] font-[500]  lowercase  ${
                       active ? "text-[#111827]" : " text-[#111827]"
                     }`}>
   {subtitle}
@@ -1259,20 +1260,20 @@ const requestRef = useRef<number | null>(null);
   {/* left block */}
   <div>
     <div className="flex items-center gap-2">
-      <h3 className="text-[24px] font-nunito font-[700] text-black">
+      <h3 className="text-[24px] font-poppins font-[700] text-black">
            Design kon dega
           </h3>
        <Form1 className="w-4 h-4" />
     </div>
 
-    <p className="text-[#797474] font-nunito text-[16px] font-[400]">
+    <p className="text-[#797474] font-poppins text-[16px] font-[400]">
       Choose your building platform from our tech bazaar!
     </p>
   </div>
 
   {/* Pick‑one label + chevron */}
   <div className="flex items-center gap-1 sm:ml-10">
-    <span className="font-kalam text-[14px] font-[400] capitalize text-[#1E1E1E]">
+    <span className="font-poppins text-[14px] font-[400] capitalize text-[#1E1E1E]">
       Pick One
     </span>
     <svg
@@ -1319,7 +1320,7 @@ const requestRef = useRef<number | null>(null);
 
           {/* Title & Subtitle */}
           <div className="flex flex-col text-left ">
-            <h4 className={`text-[16px]  font-[600] leading-tight ${active ? "text-black" : "text-black"}`}>
+            <h4 className={`text-[14px]  font-[600] leading-tight ${active ? "text-black" : "text-black"}`}>
               {title}
             </h4>
             
@@ -1351,8 +1352,8 @@ const requestRef = useRef<number | null>(null);
     flex flex-col gap-6
     mt-8 mb-5
     w-full   /* mobile: take full width */
-    max-w-[908px]  /* desktop cap */
-     p-5 md:p-[40px_40px]
+    max-w-[908px] 
+     p-4 md:p-[40px_40px]
     bg-white rounded-[8px] border border-[#1E1E1E]
     shadow-[6px_5px_0px_0px_#262626]
   "
@@ -1371,12 +1372,12 @@ const requestRef = useRef<number | null>(null);
     boxShadow: "3px 3px 0px 0px #262626",
   }}
 >
-  <h3 className="text-white text-center font-nunito text-[24px] font-[700] capitalize tracking-tightest">
+  <h3 className="text-white text-center font-poppins text-[24px] font-[700] capitalize tracking-tightest">
   ₹{totals.toLocaleString()}
 </h3>
 
 
-        <div className="flex items-center justify-center gap-2 text-center text-[#1E1E1E] font-[Kalam] text-[14px] font-[300] leading-normal">
+        <div className="flex items-center justify-center gap-2 text-center   text-[#1E1E1E] font-[Poppins] text-[14px] font-[300] leading-normal">
   <span>Here is What It ill Take to Build Your Vision</span>
    <Form1 className="w-4 h-4" />
 </div>
@@ -1388,7 +1389,7 @@ const requestRef = useRef<number | null>(null);
        <div className="md:w-1/2 space-y-10 ">
 
           <div>
-           <h4 className=" text-black font-[Nunito] text-[24px] font-[700] leading-normal tracking-[-0.8px] capitalize mb-3 flex items-center gap-2">
+           <h4 className=" text-black font-[Poppins] text-[24px] font-[700] leading-normal tracking-[-0.8px] capitalize mb-3 flex items-center gap-2">
   Whats Always Included 
   <Star className="w-4 h-4" />
 </h4>
@@ -1399,7 +1400,7 @@ const requestRef = useRef<number | null>(null);
                  <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8" fill="none">
   <circle cx="4" cy="4" r="4" fill="#76CA21"/>
 </svg>
-                  <span className="text-[#1E1E1E] text-center font-[Kalam] text-[14px] font-[300]  leading-normal">
+                  <span className="text-[#1E1E1E] text-center font-[Poppins] text-[14px] font-[300]  leading-normal">
   {item}
 </span>
 
@@ -1412,7 +1413,7 @@ const requestRef = useRef<number | null>(null);
       {/* testomonials */}
           <div className="flex items-center  lg:mt-30 md:mt-20 gap-5 self-stretch rounded-[8px] border border-[#FFC250] bg-white shadow-[2px_2px_0px_0px_#F9B31B] p-5 md:p-[20px_15px]">
   <div>
-   <p className="text-center text-[#1E1E1E] font-[Nunito] text-[14px] font-[400] not-italic leading-none">
+   <p className="text-center text-[#1E1E1E] font-[Poppins] text-[14px] font-[400] not-italic leading-none">
 
       “Had an amazing journey working with Bombay Blokes, never felt like
       I was working with an outside agency!”
@@ -1428,11 +1429,11 @@ const requestRef = useRef<number | null>(null);
 
   {/* Name and Designation */}
   <div className="flex flex-col">
-    <span className="text-[#1E1E1E] text-center font-[Nunito] text-[12px] font-[400]  leading-normal">
+    <span className="text-[#1E1E1E] text-center font-[Poppins] text-[12px] font-[400]  leading-normal">
   Kaushik Shah
 </span>
 
-   <span className="text-[#1E1E1E] text-center font-[Kalam] text-[12px] font-[400]  leading-normal">
+   <span className="text-[#1E1E1E] text-center font-[Poppins] text-[12px] font-[400]  leading-normal">
   India Grooming Club
 </span>
 
@@ -1448,15 +1449,16 @@ const requestRef = useRef<number | null>(null);
        <div
   className="
     flex flex-col 
-    w-full   /* mobile: take full width */
+    w-full   
+    h-[480px]/* mobile: take full width */
     max-w-[424px]
-    max-h-[450px]  /* desktop cap */
+    max-h-[455px]  /* desktop cap */
      p-5 md:p-[20px_20px]
     bg-white rounded-[8px] border border-[#1E1E1E]
     shadow-[6px_5px_0px_0px_#262626]
   "
 >
-      <h2 className=" flex text-[24px] font-[700] mb-3 gap-2  text-black font-[Nunito] leading-normal tracking-[-0.8px] capitalize">
+      <h2 className=" flex text-[24px] font-[700] mb-3 gap-2  text-black font-[Poppins] leading-normal tracking-[-0.8px] capitalize">
         Cost Summary <span ><img
      src="/images/buldings.svg" // replace with actual path
     alt="Profile"
@@ -1467,16 +1469,16 @@ const requestRef = useRef<number | null>(null);
       {costItems.map((item, index) => (
         <div key={index} className="flex justify-between items-start mb-2">
           <p>
-           <span className="text-[#1E1E1E] text-center font-[Kalam] text-[14px] font-[700] leading-normal not-italic">
+           <span className="text-[#1E1E1E] text-center font-[Poppins] text-[14px] font-[700] leading-normal not-italic">
   {item.label}:
 </span>
 {" "}
-            <span className="text-[#1E1E1E] font-[Kalam] text-[14px] font-[300] not-italic  leading-normal">
+            <span className="text-[#1E1E1E] font-[Poppins] text-[14px] font-[300] not-italic  leading-normal">
   {item.value}
 </span>
 
           </p>
-          <p className="whitespace-nowrap text-[#1E1E1E] text-center font-[Nunito] text-[14px] font-[500] not-italic  leading-normal">
+          <p className="whitespace-nowrap text-[#1E1E1E] text-center font-[Poppins] text-[14px] font-[500] not-italic  leading-normal">
   ₹{item.price.toLocaleString()}
 </p>
 
@@ -1486,17 +1488,17 @@ const requestRef = useRef<number | null>(null);
       <hr className="my-2 border-black" />
 
       <div className="flex justify-between items-center mb-5">
-        <p className="text-[#1E1E1E] text-center font-[Kalam] text-[14px] font-[700] not-italic  leading-normal">
+        <p className="text-[#1E1E1E] text-center font-[Poppins] text-[14px] font-[700] not-italic  leading-normal">
   Estimated Cost:
 </p>
 
-       <p className="text-[#1E1E1E] text-center font-[Nunito] text-[14px] font-[700] not-italic leading-normal">
+       <p className="text-[#1E1E1E] text-center font-[Poppins] text-[14px] font-[700] not-italic leading-normal">
   ₹{totals.toLocaleString()}
 </p>
 
       </div>
 
-      <button  onClick={() => setShowPopupForm(true)} className="w-full mb-3 py-[8px] px-[23px] rounded-[5px] bg-[#262626] shadow-[2px_2px_0px_0px_#F9B31B] text-white text-[16px] font-[400] italic flex justify-center items-center gap-[10px] self-stretch transition-all ">
+      <button  onClick={() => setShowPopupForm(true)} className="w-full mb-3 py-[8px] px-[23px] lg:mt-4 rounded-[5px] bg-[#262626] shadow-[2px_2px_0px_0px_#F9B31B] text-white text-[16px] font-[400] italic flex justify-center items-center gap-[10px] self-stretch transition-all ">
   Schedule Free Call
 </button>
 
@@ -1523,10 +1525,10 @@ const requestRef = useRef<number | null>(null);
       </button>
 
       {/* Form Content from Section 7 Goes Here */}
-      <h3 className="text-[24px] font-nunito font-[700] text-black mb-2">
+      <h3 className="text-[24px] font-poppins font-[700] text-black mb-2">
         Apni information Dedo bhai!!
       </h3>
-      <p className="text-[#797474] font-nunito text-[16px] font-[400] mb-4">
+      <p className="text-[#797474] font-poppins text-[16px] font-[400] mb-4">
         Choose your building platform from our tech bazaar!
       </p>
 
@@ -1610,7 +1612,7 @@ const requestRef = useRef<number | null>(null);
       {/* buttons */}
 
 {currentStep !== 7 && (
-  <div className="flex justify-between mt-4 xl:gap-160 lg:gap-160 md:gap-130 gap-25">
+  <div className="flex justify-between mt-4 xl:gap-160 lg:gap-160 md:gap-130 gap-20">
     {/* Previous Button */}
     <button
       type="button"
