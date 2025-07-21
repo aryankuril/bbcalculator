@@ -264,6 +264,7 @@ type CostItem = {
   value: string | number;
   price: number;
 };
+
 const OPTIONS: Option[] = [
   { id: "business", title: "Business Website", subtitle: "for services & info", price: "₹20,000/-", Icon: Briefcase },
   { id: "ecommerce", title: "E‑commerce", subtitle: "sell products online", price: "₹80,000/-", Icon: Cart },
@@ -393,72 +394,49 @@ const getStep3Options = () => {
 };
 
 
-  const costItems: CostItem[] = [
-    {
-      label: "Website Type",
-      ...(getOptionById(OPTIONS, selectedStep1) && {
-        value: getOptionById(OPTIONS, selectedStep1)?.title,
-        price: parsePrice(getOptionById(OPTIONS, selectedStep1)?.price),
-      }),
-    },
-    {
-    label: "Tech Stack",
-    ...(showStep3
-      ? getOptionById(OPTIONS2, selectedStep2) && {
-          value: getOptionById(OPTIONS2, selectedStep2)?.title,
-          price: parsePrice(getOptionById(OPTIONS2, selectedStep2)?.price),
-        }
-      : {
-          value: "Na Na",
-          price: 0,
-        }),
+const costItems: CostItem[] = [
+  {
+    label: "Website Type",
+    value: getOptionById(OPTIONS, selectedStep1)?.title || "Na Na",
+    price: parsePrice(getOptionById(OPTIONS, selectedStep1)?.price || "0"),
   },
-    {
-      label: "Pages / Products",
-  ...(selectedStep1 === "ecommerce"
-    ? (getOptionById(OPTIONS_PRODUCTS, selectedStep3)
-        ? {
-            value: getOptionById(OPTIONS_PRODUCTS, selectedStep3)?.title,
-            price: parsePrice(getOptionById(OPTIONS_PRODUCTS, selectedStep3)?.price),
-          }
-        : {
-            value: "Na Na",
-            price: 0,
-          })
-    : (getOptionById(OPTIONS3, selectedStep3)
-        ? {
-            value: getOptionById(OPTIONS3, selectedStep3)?.title,
-            price: parsePrice(getOptionById(OPTIONS3, selectedStep3)?.price),
-          }
-        : {
-            value: "Na Na",
-            price: 0,
-          })),
-    },
+  {
+    label: "Tech Stack",
+    value: showStep3
+      ? getOptionById(OPTIONS2, selectedStep2)?.title || "Na Na"
+      : "Na Na",
+    price: showStep3
+      ? parsePrice(getOptionById(OPTIONS2, selectedStep2)?.price || "0")
+      : 0,
+  },
+  {
+    label: "Pages / Products",
+    value:
+      selectedStep1 === "ecommerce"
+        ? getOptionById(OPTIONS_PRODUCTS, selectedStep3)?.title || "Na Na"
+        : getOptionById(OPTIONS3, selectedStep3)?.title || "Na Na",
+    price:
+      selectedStep1 === "ecommerce"
+        ? parsePrice(getOptionById(OPTIONS_PRODUCTS, selectedStep3)?.price || "0")
+        : parsePrice(getOptionById(OPTIONS3, selectedStep3)?.price || "0"),
+  },
+  {
+    label: "Content Creation",
+    value: getOptionById(OPTIONS4, selectedStep4)?.title || "Na Na",
+    price: parsePrice(getOptionById(OPTIONS4, selectedStep4)?.price || "0"),
+  },
+  {
+    label: "Timeline",
+    value: getOptionById(OPTIONS5, selectedStep5)?.title || "Na Na",
+    price: parsePrice(getOptionById(OPTIONS5, selectedStep5)?.price || "0"),
+  },
+  {
+    label: "Design",
+    value: getOptionById(OPTIONS6, selectedStep6)?.title || "Na Na",
+    price: parsePrice(getOptionById(OPTIONS6, selectedStep6)?.price || "0"),
+  },
+];
 
-
-    {
-      label: "Content Creation",
-      ...(getOptionById(OPTIONS4, selectedStep4) && {
-        value: getOptionById(OPTIONS4, selectedStep4)?.title,
-        price: parsePrice(getOptionById(OPTIONS4, selectedStep4)?.price),
-      }),
-    },
-    {
-      label: "Timeline",
-      ...(getOptionById(OPTIONS5, selectedStep5) && {
-        value: getOptionById(OPTIONS5, selectedStep5)?.title,
-        price: parsePrice(getOptionById(OPTIONS5, selectedStep5)?.price),
-      }),
-    },
-    {
-      label: "Design",
-      ...(getOptionById(OPTIONS6, selectedStep6) && {
-        value: getOptionById(OPTIONS6, selectedStep6)?.title,
-        price: parsePrice(getOptionById(OPTIONS6, selectedStep6)?.price),
-      }),
-    },
-  ].filter((item) => item.value);
 
   const totals = costItems.reduce((acc, item) => acc + item.price, 0);
 
