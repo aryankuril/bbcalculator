@@ -500,11 +500,11 @@ const [formData, setFormData] = useState<{
   email: "",
 });
 
-  const [errors, setErrors] = useState({ name: "", phone: "", email: "" });
+  const [errors, setErrors] = useState<{ name: string; phone: string; email: string }>({ name: "", phone: "", email: "" });
 
   const validate = () => {
     const { name, phone, email } = formData;
-   const newErrors: Record<string, string> = {};
+    const newErrors: { name: string; phone: string; email: string } = { name: "", phone: "", email: "" };
 
 
     // Name validation
@@ -529,7 +529,7 @@ const [formData, setFormData] = useState<{
     }
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    return !newErrors.name && !newErrors.phone && !newErrors.email;
   };
 
 const handleSubmit = async () => {
