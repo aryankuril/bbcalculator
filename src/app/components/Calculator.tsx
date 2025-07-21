@@ -594,10 +594,16 @@ const requestRef = useRef<number | null>(null);
       }
     };
 
-    cancelAnimationFrame(requestRef.current);
+    if (requestRef.current !== null) {
+      cancelAnimationFrame(requestRef.current);
+    }
     requestRef.current = requestAnimationFrame(step);
 
-    return () => cancelAnimationFrame(requestRef.current);
+    return () => {
+      if (requestRef.current !== null) {
+        cancelAnimationFrame(requestRef.current);
+      }
+    };
   }, [progressPercent]);
 
 
@@ -815,7 +821,7 @@ const requestRef = useRef<number | null>(null);
                   >
                   </span>
                     <div className=" relative -top-1 mr-1">
-                    <Icon className="w-4 h-4" />
+                    {Icon && <Icon className="w-4 h-4" />}
                      </div>
                   </span>
                   <div>
@@ -919,7 +925,7 @@ const requestRef = useRef<number | null>(null);
   <div className="flex flex-col items-center justify-center w-full relative">
   {/* Icon */}
   <div className="w-10 h-10 mb-2">
-    <Icon className="w-full h-full" />
+    {Icon ? <Icon className="w-full h-full" /> : null}
   </div>
 
   {/* Title */}
@@ -939,9 +945,11 @@ const requestRef = useRef<number | null>(null);
 
   {/* Subtitle or Description List */}
   <ul className="text-sm font-nunito text-[#444] list-disc ml-5 space-y-1">
-    {subtitle.split("|").map((item, i) => (
-      <li key={i}>{item.trim()}</li>
-    ))}
+    {subtitle
+      ? subtitle.split("|").map((item, i) => (
+          <li key={i}>{item.trim()}</li>
+        ))
+      : null}
   </ul>
 </button>
 
