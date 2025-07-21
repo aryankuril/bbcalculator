@@ -490,8 +490,16 @@ const handleNext = () => {
   }
 };
 
+const [formData, setFormData] = useState<{
+  name: string;
+  phone: string;
+  email: string;
+}>({
+  name: "",
+  phone: "",
+  email: "",
+});
 
-const [formData, setFormData] = useState({ name: "", phone: "", email: "" });
   const [errors, setErrors] = useState({ name: "", phone: "", email: "" });
 
   const validate = () => {
@@ -1526,7 +1534,12 @@ const handleSubmit = async () => {
             id="name"
             name="name"
             value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            onChange={(e) =>
+    setFormData((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }))
+  }
             className={`px-3 py-2 border rounded-[8px] focus:outline-none focus:ring-2 ${
               errors.name ? "border-red-500 focus:ring-red-300" : "border-[#1E1E1E] focus:ring-[#F9B31B]"
             }`}
@@ -1543,7 +1556,13 @@ const handleSubmit = async () => {
             id="phone"
             name="phone"
             value={formData.phone}
-            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+            onChange={(e) =>
+    setFormData((prev) => ({
+      ...prev,
+      [e.target.phone]: e.target.value,
+    }))
+  }
+            // onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
             className={`px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
               errors.phone ? "border-red-500 focus:ring-red-300" : "border-[#1E1E1E] focus:ring-[#F9B31B]"
             }`}
@@ -1560,7 +1579,13 @@ const handleSubmit = async () => {
             id="email"
             name="email"
             value={formData.email}
-            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            onChange={(e) =>
+    setFormData((prev) => ({
+      ...prev,
+      [e.target.email]: e.target.value,
+    }))
+  }
+            // onChange={(e) => setFormData({ ...formData, email: e.target.value })}
             className={`px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
               errors.email ? "border-red-500 focus:ring-red-300" : "border-[#1E1E1E] focus:ring-[#F9B31B]"
             }`}
