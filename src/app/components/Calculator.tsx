@@ -576,7 +576,7 @@ const handleSubmit = async () => {
  const progressPercent = Math.round((currentStep / TOTAL_STEPS) * 100);
 
   const [animatedPercent, setAnimatedPercent] = useState(0);
-  const requestRef = useRef();
+const requestRef = useRef<number | null>(null);
 
   useEffect(() => {
     const start = animatedPercent;
