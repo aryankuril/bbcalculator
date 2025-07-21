@@ -255,7 +255,7 @@ type Option = {
   subtitle?: string;
   price: string;
   Icon?: React.ElementType;
-  [key: string]: any;
+
 
 };
 
@@ -1398,7 +1398,7 @@ const handleSubmit = async () => {
 
           <div>
            <h4 className=" text-black font-[Nunito] text-[24px] font-[700] leading-normal tracking-[-0.8px] capitalize mb-3 flex items-center gap-2">
-  What's Always Included 
+  Whats Always Included 
   <Star className="w-4 h-4" />
 </h4>
 
