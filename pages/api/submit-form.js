@@ -1,6 +1,7 @@
 import nodemailer from 'nodemailer';
-const chromium = require("@sparticuz/chromium");
-const puppeteer = require("puppeteer-core");
+import chromium from "@sparticuz/chromium";
+import puppeteer from "puppeteer-core";
+
 
 import generateQuoteHTML from '../../lib/quotationTemplate'; // Make sure this path is correct
 
