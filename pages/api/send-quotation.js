@@ -21,7 +21,7 @@ export default async function handler(req, res) {
 
 
 const browser = await puppeteer.launch({
-  executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe',
+  executablePath: '"C:\Users\Aryan\.cache\puppeteer\chrome\win64-138.0.7204.168\chrome-win64"',
   headless: true,
   args: ['--no-sandbox', '--disable-setuid-sandbox'],
 });
