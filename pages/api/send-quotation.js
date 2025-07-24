@@ -1,9 +1,7 @@
 import nodemailer from 'nodemailer';
 import chromium from "@sparticuz/chromium";
 import puppeteer from "puppeteer-core";
-
-
-import generateQuoteHTML from '../../lib/quotationTemplate'; // Make sure this path is correct
+import generateQuoteHTML from '../../lib/quotationTemplate';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -17,19 +15,13 @@ export default async function handler(req, res) {
   }
 
   try {
-    // 1. Generate HTML from data
     const htmlContent = generateQuoteHTML({ costItems: quote, total });
 
-
-
-const browser = await puppeteer.launch({
-  args: chromium.args,
-  executablePath: chromium.executablePath, // ✅ REMOVE `await` and `()`
-  headless: chromium.headless,
-});
-
-
-
+    const browser = await puppeteer.launch({
+      args: chromium.args,
+      executablePath: "C:\\Users\\Aryan\\.cache\\puppeteer\\chrome\\win64-138.0.7204.168\\chrome-win64\\chrome.exe",
+      headless: chromium.headless,
+    });
 
     const page = await browser.newPage();
     await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
@@ -41,12 +33,11 @@ const browser = await puppeteer.launch({
 
     await browser.close();
 
-    // 3. Send Email with PDF attached
     const transporter = nodemailer.createTransport({
       service: 'Gmail',
       auth: {
         user: 'aryankuril09@gmail.com',
-        pass: 'dtwp tcvv bcel pkym', // Use your Gmail App Password here
+        pass: 'dtwp tcvv bcel pkym', // Use your Gmail App Password
       },
     });
 

@@ -20,13 +20,11 @@ export default async function handler(req, res) {
     // 1. Generate HTML from data
     const htmlContent = generateQuoteHTML({ costItems: quote, total });
 
-    // 2. Convert HTML to PDF using Puppeteer
-
 const browser = await puppeteer.launch({
-  args: chromium.args,
-  executablePath: chromium.executablePath, // ✅ REMOVE `await` and `()`
-  headless: chromium.headless,
-});
+      args: chromium.args,
+      executablePath: "C:\\Users\\Aryan\\.cache\\puppeteer\\chrome\\win64-138.0.7204.168\\chrome-win64\\chrome.exe",
+      headless: chromium.headless,
+    });
 
 
 
