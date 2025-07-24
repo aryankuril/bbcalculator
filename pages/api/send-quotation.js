@@ -18,10 +18,11 @@ export default async function handler(req, res) {
     const htmlContent = generateQuoteHTML({ costItems: quote, total });
 
     // 2. Convert HTML to PDF using Puppeteer
-    const browser = await puppeteer.launch({
-      headless: 'new',
-      args: ['--no-sandbox', '--disable-setuid-sandbox'], // Required for some hosting environments
-    });
+const browser = await puppeteer.launch({
+  headless: true,
+  executablePath: 'C:/Users/Aryan/.cache/puppeteer/chrome/win64-138.0.7204.168/chrome-win64/chrome.exe',
+  args: ['--no-sandbox', '--disable-setuid-sandbox'],
+});
 
     const page = await browser.newPage();
     await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
