@@ -589,7 +589,7 @@ const handleEmailSubmit = async () => {
       }),
     });
 
-
+    const data = await res.json();
 
     if (res.ok) {
       alert("✅ Quotation sent successfully!");
