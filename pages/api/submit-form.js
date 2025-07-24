@@ -21,7 +21,6 @@ export default async function handler(req, res) {
     // 2. Convert HTML to PDF using Puppeteer
 
 const browser = await puppeteer.launch({
-  executablePath: '"C:\Users\Aryan\.cache\puppeteer\chrome\win64-138.0.7204.168\chrome-win64"',
   headless: true,
   args: ['--no-sandbox', '--disable-setuid-sandbox'],
 });
