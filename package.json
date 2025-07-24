@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@sparticuz/chromium": "^138.0.2",
     "chrome-aws-lambda": "^10.1.0",
     "framer-motion": "^12.23.6",
     "mongodb": "4.0",
