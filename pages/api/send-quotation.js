@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
-import puppeteer from 'puppeteer-core';
+const chromium = require("@sparticuz/chromium");
+const puppeteer = require("puppeteer-core");
 
 import generateQuoteHTML from '../../lib/quotationTemplate'; // Make sure this path is correct
 
@@ -21,8 +22,9 @@ export default async function handler(req, res) {
 
 
 const browser = await puppeteer.launch({
-  headless: true,
-  args: ['--no-sandbox', '--disable-setuid-sandbox'],
+  args: chromium.args,
+  executablePath: await chromium.executablePath,
+  headless: chromium.headless,
 });
 
 
