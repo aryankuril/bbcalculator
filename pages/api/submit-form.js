@@ -1,83 +1,63 @@
-// pages/api/submit-form.js
-import clientPromise from "../../lib/mongodb";
-import nodemailer from "nodemailer";
-import puppeteer from "puppeteer";
-import generateQuoteHTML from "../../lib/quotationTemplate"; // ✅ your custom function
+import nodemailer from 'nodemailer';
+import puppeteer from 'puppeteer';
+import generateQuoteHTML from '../../lib/quotationTemplate'; // Make sure this path is correct
 
 export default async function handler(req, res) {
-  if (req.method !== "POST") return res.status(405).end();
+  if (req.method !== 'POST') {
+    return res.status(405).json({ message: 'Method Not Allowed' });
+  }
 
-  const { name, phone, email, quote, total } = req.body;
+  const { email, quote, total } = req.body;
 
-  if (!name || !phone || !email || !quote || !total) {
-    return res.status(400).json({ message: "Missing required fields" });
+  if (!email || !quote || !total) {
+    return res.status(400).json({ message: 'Missing email, quote, or total' });
   }
 
   try {
-    // 1. Store in MongoDB
-    const client = await clientPromise;
-    const db = client.db("test");
-    const result = await db.collection("formSubmissions").insertOne({
-      name,
-      phone,
-      email,
-      quote,
-      total,
-      createdAt: new Date(),
-    });
-
-    console.log("✅ Mongo Inserted ID:", result.insertedId);
-
-    // 2. Generate HTML & PDF from generateQuoteHTML
+    // 1. Generate HTML from data
     const htmlContent = generateQuoteHTML({ costItems: quote, total });
 
+    // 2. Convert HTML to PDF using Puppeteer
     const browser = await puppeteer.launch({
-      headless: "new",
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      headless: 'new',
+      args: ['--no-sandbox', '--disable-setuid-sandbox'], // Required for some hosting environments
     });
 
     const page = await browser.newPage();
-    await page.setContent(htmlContent, { waitUntil: "networkidle0" });
+    await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
 
     const pdfBuffer = await page.pdf({
-      format: "A4",
+      format: 'A4',
       printBackground: true,
     });
 
     await browser.close();
 
-    // 3. Email with attached PDF
+    // 3. Send Email with PDF attached
     const transporter = nodemailer.createTransport({
-      service: "gmail",
+      service: 'Gmail',
       auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
+        user: 'aryankuril09@gmail.com',
+        pass: 'dtwp tcvv bcel pkym', // Use your Gmail App Password here
       },
     });
 
     await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: "aryankuril09@gmail.com", // or dynamic email
-      subject: "New Schedule Free Call + Cost Estimate",
-      html: `
-        <h2>New Inquiry from Schedule Form</h2>
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Phone:</strong> ${phone}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p>Cost summary is attached as PDF.</p>
-      `,
+      from: 'aryankuril09@gmail.com',
+      to: email,
+      subject: 'Your Quotation Estimate',
+      text: 'Please find attached your project quotation.',
       attachments: [
         {
-          filename: "quotation-summary.pdf",
+          filename: 'quotation.pdf',
           content: pdfBuffer,
         },
       ],
     });
 
-    return res.status(200).json({ message: "Form submitted and PDF emailed!" });
-
-  } catch (err) {
-    console.error("❌ Error:", err);
-    return res.status(500).json({ message: "Internal server error" });
+    return res.status(200).json({ message: 'Quotation sent successfully!' });
+  } catch (error) {
+    console.error('❌ Email send error:', error);
+    return res.status(500).json({ message: 'Failed to send email.', error: error.message });
   }
 }
