@@ -595,7 +595,8 @@ const handleEmailSubmit = async () => {
       alert("✅ Quotation sent successfully!");
       setShowEmailInput(false);
     } else {
-      alert("❌ Failed to send email.");
+       alert(`❌  Failed to send email. ${data.message}`);
+      // alert("❌ Failed to send email.");
     }
   } catch (err) {
     console.error("❌ Error sending email:", err);
