@@ -24,9 +24,10 @@ export default async function handler(req, res) {
 
 const browser = await puppeteer.launch({
   args: chromium.args,
-  executablePath: await chromium.executablePath,
+  executablePath: chromium.executablePath, // ✅ REMOVE `await` and `()`
   headless: chromium.headless,
 });
+
 
 
     const page = await browser.newPage();
