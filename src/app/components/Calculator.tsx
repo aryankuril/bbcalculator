@@ -368,7 +368,12 @@ const Calculator = () => {
   const [selectedStep4, setSelectedStep4] = useState("");
   const [selectedStep5, setSelectedStep5] = useState("");
   const [selectedStep6, setSelectedStep6] = useState("");
-// const [showPopup, setShowPopup] = useState(false);
+
+
+const [showEmailInput, setShowEmailInput] = useState(false);
+const [disableEmailBtn, setDisableEmailBtn] = useState(false);
+const [email, setEmail] = useState("");
+
 
 const [showPopupForm, setShowPopupForm] = useState(false);
 const [toastMessage, setToastMessage] = useState("");
@@ -532,20 +537,24 @@ const [formData, setFormData] = useState<{
     return !newErrors.name && !newErrors.phone && !newErrors.email;
   };
 
+
 const handleSubmit = async () => {
   if (!validate()) return;
 
   const { name, phone, email } = formData;
 
   try {
-    const res = await fetch('/api/submit-form', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ name, phone, email }),
+    const res = await fetch("/api/submit-form", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name,
+        phone,
+        email,
+        quote: costItems,   // from quotation
+        total: totals       // from quotation
+      }),
     });
-
     const data = await res.json();
 
     if (res.ok) {
@@ -560,7 +569,40 @@ const handleSubmit = async () => {
     console.error("❌ Submission error:", err);
     alert('Something went wrong while submitting.');
   }
+}  
+const handleEmailSubmit = async () => {
+  if (!email) {
+    alert("Please enter a valid email address.");
+    return;
+  }
+
+  try {
+    const res = await fetch("/api/send-quotation", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email,
+        quote: costItems,
+        total: totals,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      alert("✅ Quotation sent successfully!");
+      setShowEmailInput(false);
+    } else {
+      alert("❌ Failed to send email.");
+    }
+  } catch (err) {
+    console.error("❌ Error sending email:", err);
+    alert("Something went wrong while sending the email.");
+  }
 };
+
 
 
 
@@ -1503,9 +1545,37 @@ const requestRef = useRef<number | null>(null);
 </button>
 
 
-      <button className="w-full py-[8px] px-[23px] rounded-[5px] border border-[#1E1E1E] bg-white text-black text-[16px] font-[400] italic shadow-[2px_2px_0px_0px_#1E1E1E] flex justify-center items-center gap-[10px] self-stretch transition ">
-  Email Me The Quote
-</button>
+     {/* Email Input + Button Logic */}
+{!showEmailInput ? (
+  <button
+    onClick={() => {
+      setShowEmailInput(true);
+      setDisableEmailBtn(true);
+    }}
+    className="w-full py-[8px] px-[23px] rounded-[5px] border border-[#1E1E1E] bg-white text-black text-[16px] font-[400] italic shadow-[2px_2px_0px_0px_#1E1E1E] flex justify-center items-center gap-[10px] self-stretch transition disabled:opacity-50"
+    disabled={disableEmailBtn}
+  >
+    Email Me The Quote
+  </button>
+) : (
+<div className="grid grid-cols-10 gap-3 items-center w-full">
+  <input
+    type="email"
+    placeholder="Enter your email"
+    className="col-span-7 p-2 border border-[#1E1E1E] rounded w-full"
+    value={email}
+    onChange={(e) => setEmail(e.target.value)}
+  />
+  <button
+    onClick={handleEmailSubmit}
+    className="col-span-3 py-[8px] px-[12px] rounded-[5px] bg-[#262626] text-white font-[400] italic shadow-[2px_2px_0px_0px_#F9B31B] transition w-full"
+  >
+    Send  
+  </button>
+</div>
+
+)}
+
 
     </div>
       </div>
