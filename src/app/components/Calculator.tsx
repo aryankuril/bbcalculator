@@ -589,14 +589,16 @@ const handleEmailSubmit = async () => {
       }),
     });
 
-    const data = await res.json();
+const data = await res.json();
+console.log(data); // or use it in logic like data.message, data.success, etc.
+
 
     if (res.ok) {
       alert("✅ Quotation sent successfully!");
       setShowEmailInput(false);
     } else {
-       alert(`❌  Failed to send email. ${data.message}`);
-      // alert("❌ Failed to send email.");
+      //  alert(`❌  Failed to send email. ${data.message}`);
+      alert("❌ Failed to send email.");
     }
   } catch (err) {
     console.error("❌ Error sending email:", err);
