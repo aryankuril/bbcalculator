@@ -1,12 +1,26 @@
 import nodemailer from 'nodemailer';
-import chromium from "@sparticuz/chromium";
-import puppeteer from "puppeteer-core";
 import generateQuoteHTML from '../../lib/quotationTemplate';
 
+let puppeteer;
+let executablePath;
+let args;
+let headless;
+
+if (process.env.NODE_ENV === 'production') {
+  const chromium = await import('chrome-aws-lambda');
+  puppeteer = await import('puppeteer-core');
+  executablePath = await chromium.executablePath;
+  args = chromium.args;
+  headless = chromium.headless;
+} else {
+  puppeteer = await import('puppeteer');
+  executablePath = undefined; // Use default path
+  args = ['--no-sandbox', '--disable-setuid-sandbox'];
+  headless = 'new';
+}
+
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ message: 'Method Not Allowed' });
-  }
+  if (req.method !== 'POST') return res.status(405).end();
 
   const { email, quote, total } = req.body;
 
@@ -18,9 +32,9 @@ export default async function handler(req, res) {
     const htmlContent = generateQuoteHTML({ costItems: quote, total });
 
     const browser = await puppeteer.launch({
-      args: chromium.args,
-      executablePath: "C:\\Users\\Aryan\\.cache\\puppeteer\\chrome\\win64-138.0.7204.168\\chrome-win64\\chrome.exe",
-      headless: chromium.headless,
+      args,
+      executablePath,
+      headless,
     });
 
     const page = await browser.newPage();
@@ -36,13 +50,13 @@ export default async function handler(req, res) {
     const transporter = nodemailer.createTransport({
       service: 'Gmail',
       auth: {
-        user: 'aryankuril09@gmail.com',
-        pass: 'dtwp tcvv bcel pkym', // Use your Gmail App Password
+        user: process.env.EMAIL_USER || 'aryankuril09@gmail.com',
+        pass: process.env.EMAIL_PASS || 'dtwp tcvv bcel pkym',
       },
     });
 
     await transporter.sendMail({
-      from: 'aryankuril09@gmail.com',
+      from: process.env.EMAIL_USER || 'aryankuril09@gmail.com',
       to: email,
       subject: 'Your Quotation Estimate',
       text: 'Please find attached your project quotation.',
@@ -55,6 +69,7 @@ export default async function handler(req, res) {
     });
 
     return res.status(200).json({ message: 'Quotation sent successfully!' });
+
   } catch (error) {
     console.error('❌ Email send error:', error);
     return res.status(500).json({ message: 'Failed to send email.', error: error.message });
