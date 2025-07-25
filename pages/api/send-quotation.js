@@ -6,19 +6,6 @@ let executablePath;
 let args;
 let headless;
 
-if (process.env.NODE_ENV === 'production') {
-  const chromium = await import('chrome-aws-lambda');
-  puppeteer = await import('puppeteer-core');
-  executablePath = await chromium.executablePath;
-  args = chromium.args;
-  headless = chromium.headless;
-} else {
-  puppeteer = await import('puppeteer');
-  executablePath = undefined; // Use default path
-  args = ['--no-sandbox', '--disable-setuid-sandbox'];
-  headless = 'new';
-}
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
@@ -30,6 +17,19 @@ export default async function handler(req, res) {
 
   try {
     const htmlContent = generateQuoteHTML({ costItems: quote, total });
+
+    if (process.env.NODE_ENV === 'production') {
+      const chromium = await import('chrome-aws-lambda');
+      puppeteer = await import('puppeteer-core');
+      executablePath = await chromium.executablePath || '/usr/bin/chromium-browser'; // fallback
+      args = chromium.args;
+      headless = chromium.headless;
+    } else {
+      puppeteer = await import('puppeteer');
+      executablePath = undefined;
+      args = ['--no-sandbox', '--disable-setuid-sandbox'];
+      headless = true;
+    }
 
     const browser = await puppeteer.launch({
       args,
