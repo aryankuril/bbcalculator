@@ -1,8 +1,8 @@
 // pages/api/submit-form.js
 import clientPromise from "../../lib/mongodb";
 import nodemailer from "nodemailer";
-import puppeteer from "puppeteer";
-import generateQuoteHTML from "../../lib/quotationTemplate"; // ✅ Make sure this returns valid HTML
+import { renderToStream } from "@react-pdf/renderer";
+import QuotationPDF from "../../lib/QuotationPDF";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();
@@ -14,7 +14,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    // ✅ 1. Store form data in MongoDB
+    // 1. Store in MongoDB
     const client = await clientPromise;
     const db = client.db("test");
     const result = await db.collection("formSubmissions").insertOne({
@@ -27,24 +27,17 @@ export default async function handler(req, res) {
     });
     console.log("✅ MongoDB: Inserted ID:", result.insertedId);
 
-    // ✅ 2. Generate HTML and PDF
-    const htmlContent = generateQuoteHTML({ costItems: quote, total });
+    // 2. Generate PDF using @react-pdf/renderer
+    const pdfStream = await renderToStream(<QuotationPDF costItems={quote} total={total} />);
 
-    const browser = await puppeteer.launch({
-      headless: "new",
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    });
-    const page = await browser.newPage();
-    await page.setContent(htmlContent, { waitUntil: "networkidle0" });
+    const chunks = [];
+    for await (const chunk of pdfStream) {
+      chunks.push(chunk);
+    }
 
-    const pdfBuffer = await page.pdf({
-      format: "A4",
-      printBackground: true,
-    });
+    const pdfBuffer = Buffer.concat(chunks);
 
-    await browser.close();
-
-    // ✅ 3. Send Email with form data + PDF
+    // 3. Send Email with form data + PDF
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -55,7 +48,7 @@ export default async function handler(req, res) {
 
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
-      to: "aryankuril09@gmail.com", // Change if needed
+      to: "aryankuril09@gmail.com", // or use the user's email
       subject: "New Schedule Form Submission + Quotation",
       html: `
         <h2>New Schedule Call Inquiry</h2>
@@ -76,6 +69,6 @@ export default async function handler(req, res) {
 
   } catch (err) {
     console.error("❌ Server Error:", err);
-    return res.status(500).json({ message: "Internal server error" });
+    return res.status(500).json({ message: "Internal server error", error: err.message });
   }
 }

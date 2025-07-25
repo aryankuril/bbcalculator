@@ -594,7 +594,8 @@ console.log(data); // or use it in logic like data.message, data.success, etc.
 
 
     if (res.ok) {
-      alert("✅ Quotation sent successfully!");
+      setToastMessage("✅ Quotation sent successfully!");
+      setTimeout(() => setToastMessage(""), 4000);
       setShowEmailInput(false);
     } else {
       //  alert(`❌  Failed to send email. ${data.message}`);
