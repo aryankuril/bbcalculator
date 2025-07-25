@@ -1,51 +1,18 @@
+// pages/api/send-quotation.js
 import nodemailer from 'nodemailer';
-import generateQuoteHTML from '../../lib/quotationTemplate';
-
-let puppeteer;
-let executablePath;
-let args;
-let headless;
+import { renderToBuffer } from '@react-pdf/renderer';
+import QuotationPDF from '../../lib/QuotationPDF';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
   const { email, quote, total } = req.body;
-
   if (!email || !quote || !total) {
     return res.status(400).json({ message: 'Missing email, quote, or total' });
   }
 
   try {
-    const htmlContent = generateQuoteHTML({ costItems: quote, total });
-
-    if (process.env.NODE_ENV === 'production') {
-      const chromium = await import('chrome-aws-lambda');
-      puppeteer = await import('puppeteer-core');
-      executablePath = await chromium.executablePath || '/usr/bin/chromium-browser'; // fallback
-      args = chromium.args;
-      headless = chromium.headless;
-    } else {
-      puppeteer = await import('puppeteer');
-      executablePath = undefined;
-      args = ['--no-sandbox', '--disable-setuid-sandbox'];
-      headless = true;
-    }
-
-    const browser = await puppeteer.launch({
-      args,
-      executablePath,
-      headless,
-    });
-
-    const page = await browser.newPage();
-    await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
-
-    const pdfBuffer = await page.pdf({
-      format: 'A4',
-      printBackground: true,
-    });
-
-    await browser.close();
+    const pdfBuffer = await renderToBuffer(<QuotationPDF costItems={quote} total={total} />);
 
     const transporter = nodemailer.createTransport({
       service: 'Gmail',
@@ -69,7 +36,6 @@ export default async function handler(req, res) {
     });
 
     return res.status(200).json({ message: 'Quotation sent successfully!' });
-
   } catch (error) {
     console.error('❌ Email send error:', error);
     return res.status(500).json({ message: 'Failed to send email.', error: error.message });
