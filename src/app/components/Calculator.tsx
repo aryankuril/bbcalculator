@@ -664,12 +664,12 @@ const requestRef = useRef<number | null>(null);
     
     {/* Text Section */}
     <div className="text-center md:text-left px-5 py-10 space-y-4 w-full md:w-1/2 z-20 md:static absolute top-1/2 left-1/2 md:top-auto md:left-auto transform md:transform-none -translate-x-1/2 -translate-y-1/2 md:translate-x-0 md:translate-y-0">
-      <h1 className="text-[35px] sm:text-[28px] md:text-5xl  text-black leading-tight">
+      <h1 className="text-[34px] sm:text-[28px] md:text-5xl  text-black leading-tight">
         Estimate Your Project
         
       </h1>
 
-      <div className="flex md:flex-row flex-col items-center justify-center md:justify-start gap-3 sm:gap-5">
+      <div className="flex md:flex-row  items-center justify-center md:justify-start gap-3 sm:gap-5">
        <span
   className="relative flex items-center justify-center w-[93px] h-[43px] text-[26px] sm:text-[32px] md:text-[35px]  text-black text-center capitalize font-Poppins px-2 py-1 rounded-[5px]"
   style={{ background: "#F9B31B", letterSpacing: "0.2px" }}
@@ -869,20 +869,23 @@ const requestRef = useRef<number | null>(null);
                      </div>
                   </span>
                   <div>
-                   <h4 className="text-[#111827] font-poppins text-[14px] font-[600] ">
+                  <h4 className="text-[#111827] font-poppins md:text-[13px] lg:text-[14px] font-[600]">
   {title}
 </h4>
 
-                   <p className={` font-poppins text-[12px] font-[500]  lowercase  ${
-                      active ? "text-[#111827]" : " text-[#111827]"
-                    }`}>
+
+                  <p
+  className={`font-poppins lowercase font-[500] 
+    md:text-[10px] lg:text-[12px] 
+    ${active ? "text-[#111827]" : "text-[#111827]"}`}>
   {subtitle}
 </p>
+
 
                   </div>
                 </div>
                 <span
-        className={`text-[14px] font-[500] leading-normal font-poppins ${
+        className={`md:text-[13px] lg:text-[14px] font-[500] leading-normal font-poppins ${
           active ? 'text-white' : 'text-[#111827]'
         }`}
       >
@@ -973,7 +976,7 @@ const requestRef = useRef<number | null>(null);
   </div>
 
   {/* Title */}
-  <h4 className="text-[14px] font-bold font-poppins text-center text-black">{title}</h4>
+  <h4 className="md:text-[16px] lg:text-[16px] font-bold font-poppins text-center text-black">{title}</h4>
 
   {/* Price tag */} 
   <span
@@ -988,7 +991,7 @@ const requestRef = useRef<number | null>(null);
 
 
   {/* Subtitle or Description List */}
-  <ul className="text-sm font-poppins text-[#444] list-disc ml-5 space-y-1">
+  <ul className=" md:text-[12px] lg:text-[14px]  font-poppins text-[#444] list-disc ml-5 space-y-1">
     {subtitle
       ? subtitle.split("|").map((item, i) => (
           <li key={i}>{item.trim()}</li>
@@ -1686,7 +1689,7 @@ const requestRef = useRef<number | null>(null);
       {/* buttons */}
 
 {currentStep !== 7 && (
-  <div className="flex justify-between mt-4 xl:gap-160 lg:gap-160 md:gap-130 gap-20">
+  <div className="flex justify-between mt-4 xl:gap-160 lg:gap-160 md:gap-100 sm:gap-85 gap-30">
     {/* Previous Button */}
     <button
       type="button"
