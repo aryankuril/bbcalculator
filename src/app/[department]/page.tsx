@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { BsQuestionCircle } from 'react-icons/bs';
+
 
 type Option = {
   icon: string;
