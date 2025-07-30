@@ -1,7 +1,9 @@
 // src/pages/api/save-question.ts
 import type { NextApiRequest, NextApiResponse } from 'next';
-import clientPromise from "/Aryan IT/BB/dex-calculator - Copy/lib/mongodb";
+import clientPromiseUntyped from '../../lib/mongodb';
 import { MongoClient } from 'mongodb';
+
+const clientPromise = clientPromiseUntyped as Promise<MongoClient>;
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
