@@ -1,8 +1,8 @@
 // pages/api/get-questions.ts
 
 import type { NextApiRequest, NextApiResponse } from 'next';
-import clientPromise from "/Aryan IT/BB/dex-calculator - Copy/lib/mongodb";
 import { MongoClient } from 'mongodb';
+import clientPromiseUntyped from '../../lib/mongodb';
 
 type Question = {
   question: string;
@@ -33,7 +33,7 @@ export default async function handler(
   }
 
   try {
-
+const clientPromise = clientPromiseUntyped as Promise<MongoClient>;
     const client: MongoClient = await clientPromise;
     const db = client.db('test');
     const collection = db.collection('questions'); 
