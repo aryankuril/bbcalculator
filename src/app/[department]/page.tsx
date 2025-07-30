@@ -18,7 +18,9 @@ type Question = {
 };
 
 export default function PreviewPage() {
-  const { department } = useParams();
+const params = useParams() as { department: string };
+const department = params.department;
+
 const [questions, setQuestions] = useState<Question[] | null>(null);
 
 
