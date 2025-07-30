@@ -25,6 +25,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     );
 
 
+       const existing = await collection.findOne({ name });
+    if (existing) {
+      return res.status(409).json({ message: 'Department already exists' });
+    }
+
+
+
 
 
     await collection.insertOne({ name, questions });
