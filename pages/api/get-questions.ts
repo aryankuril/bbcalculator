@@ -3,7 +3,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { MongoClient } from 'mongodb';
 import clientPromiseUntyped from '../../lib/mongodb';
-
+// /
 const clientPromise = clientPromiseUntyped as Promise<MongoClient>;
 type Question = {
   question: string;
