@@ -3,9 +3,24 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { BsQuestionCircle } from 'react-icons/bs';
 
+type Option = {
+  icon: string;
+  title: string;
+  subtitle: string;
+  price: number;
+};
+
+type Question = {
+  questionText: string;
+  questionIcon: string;
+  questionSubText: string;
+  options: Option[];
+};
+
 export default function PreviewPage() {
   const { department } = useParams();
-const [questions, setQuestions] = useState<any[] | null>(null);
+const [questions, setQuestions] = useState<Question[] | null>(null);
+
 
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
 
@@ -103,7 +118,7 @@ if (questions.length === 0) {
       </div>
     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
 
-              {q.options.map((opt: any, i: number) => {
+              {q.options.map((opt: Option, i: number) => {
                 const id = `q${index}-opt${i}`;
                 const active = selectedOption === id;
 

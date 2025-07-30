@@ -3,6 +3,20 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
+type Option = {
+  icon: string;
+  title: string;
+  subtitle: string;
+  price: string;
+};
+
+type Question = {
+  questionText: string;
+  questionIcon: string;
+  questionSubText: string;
+  options: Option[];
+};
+
 export default function AdminPage() {
   const router = useRouter();
 
@@ -17,7 +31,8 @@ export default function AdminPage() {
 
   const [departments, setDepartments] = useState<string[]>([]);
   const [newDept, setNewDept] = useState('');
-  const [formState, setFormState] = useState<Record<string, any[]>>({});
+  const [formState, setFormState] = useState<Record<string, Question[]>>({});
+
   const [selectedDept, setSelectedDept] = useState<string | null>(null);
   const [lastSavedDept, setLastSavedDept] = useState<string | null>(null);
 

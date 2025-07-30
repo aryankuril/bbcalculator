@@ -17,7 +17,8 @@ export default function Home() {
 
   return (
     <div >
-      <Navbar role={undefined}/>
+  <Navbar role={role} />
+
       <Calculator />
     </div>
   );

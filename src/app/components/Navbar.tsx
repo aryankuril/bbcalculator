@@ -2,9 +2,9 @@
 import { useRouter } from "next/navigation"; // ✅ This works with App Router
 import { useEffect, useState } from "react";
 
-export default function Navbar({ role }) {
+export default function Navbar({ role }: { role: string }) {
   const router = useRouter();
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<string | null>(role || null);
 
   const handleLogout = () => {
     localStorage.removeItem("role");
@@ -13,9 +13,10 @@ export default function Navbar({ role }) {
   };
 
   useEffect(() => {
-    const storedRole = localStorage.getItem("role");
-    setUser(storedRole);
-  }, []);
+    if (role) {
+      setUser(role);
+    }
+  }, [role]);
 
   return (
     <div className="fixed top-4 left-300 z-50">
