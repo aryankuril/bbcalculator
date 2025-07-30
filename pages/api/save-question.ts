@@ -1,6 +1,7 @@
 // src/pages/api/save-question.ts
 import type { NextApiRequest, NextApiResponse } from 'next';
-import clientPromise from "../../lib/mongodb";
+import clientPromise from "/Aryan IT/BB/dex-calculator - Copy/lib/mongodb";
+import { MongoClient } from 'mongodb';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -10,7 +11,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const { name, questions } = req.body;
 
   try {
-    const client = await clientPromise;
+    const client: MongoClient = await clientPromise;
     const db = client.db('test'); // replace with your DB name
     const collection = db.collection('questions'); // or whatever collection
 
@@ -21,10 +22,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       { upsert: true } // <== this is the key line
     );
 
-     const existing = await collection.findOne({ name });
-    if (existing) {
-      return res.status(409).json({ message: 'Department already exists' });
-    }
+
 
 
     await collection.insertOne({ name, questions });
