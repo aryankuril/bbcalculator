@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from 'next/image';
-
+import Link from 'next/link';
 
 const includedItems = [
   "Fast loading, performance-tuned",
@@ -713,6 +713,9 @@ const requestRef = useRef<number | null>(null);
   </div>
 </div>
 
+
+
+
     <section className="w-full px-4 py-10 flex flex-col items-center">
       {/* ---------- Top headings ---------- */}
       <h2 className="text-center font-poppins lg:text-[32px] text-[23px]  font-bold leading-normal tracking-[-0.8px] capitalize text-black">Plan Your Website, Step By Step</h2>
@@ -1391,9 +1394,6 @@ const requestRef = useRef<number | null>(null);
         {/* ---------- Navigation buttons ---------- */}
       </div>
       )}
-
-      
-
        {currentStep === 7 && (
         //  <div className="max-w-6xl mx-auto p-5 bg-white rounded-md shadow-lg border mt-10">
         <div
