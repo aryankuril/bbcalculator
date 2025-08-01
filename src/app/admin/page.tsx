@@ -53,8 +53,7 @@ export default function AdminPage() {
 
   const [editingQuestionIndex, setEditingQuestionIndex] = useState<number | null>(null);
   const [editingOptionIndex, setEditingOptionIndex] = useState<number | null>(null);
-const [includedItems, setIncludedItems] = useState<string[]>([]);
-const [newIncludedItem, setNewIncludedItem] = useState('');
+
 
   // 🔁 Auto-save to MongoDB
   const autoSaveToMongo = async (selectedDept: string) => {
