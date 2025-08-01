@@ -10,7 +10,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ message: 'Method not allowed' });
   }
 
-  const { name, questions } = req.body;
+const { name, questions, includedItems } = req.body;
 
   try {
     const client: MongoClient = await clientPromise;
@@ -20,7 +20,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         // ✅ Update or Insert the department
     await collection.updateOne(
       { name },
-      { $set: { questions } },
+  { $set: { questions, includedItems } },
       { upsert: true } // <== this is the key line
     );
 

@@ -1,182 +1,842 @@
 "use client";
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useParams } from 'next/navigation';
+import Image from 'next/image';
 
 
+// Assume these are SVG components or similar you have defined
+const Form1 = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
+    <polyline points="14 2 14 8 20 8"></polyline>
+    <line x1="16" y1="13" x2="8" y2="13"></line>
+    <line x1="16" y1="17" x2="8" y2="17"></line>
+    <line x1="10" y1="9" x2="8" y2="9"></line>
+  </svg>
+);
+
+const Star = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+  </svg>
+);
+
+// Types for your options and questions
 type Option = {
-  icon: string;
+  icon?: string;
   title: string;
-  subtitle: string;
+  subtitle?: string;
   price: number;
 };
 
 type Question = {
+  type: string; 
   questionText: string;
   questionIcon: string;
   questionSubText: string;
   options: Option[];
 };
 
+
+type CostItem = {
+  type: string;
+  label: string;
+  value: string;
+  price: number;
+};
+
 export default function PreviewPage() {
-const params = useParams() as { department: string };
-const department = params.department;
+  const params = useParams() as { department: string };
+  const department = params.department;
 
-const [questions, setQuestions] = useState<Question[] | null>(null);
+  const [questions, setQuestions] = useState<Question[] | null>(null);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [selectedOptions, setSelectedOptions] = useState<Record<number, Option | null>>({});
+
+  // Quotation specific states
+  const [currentStep, setCurrentStep] = useState(1);
+  const [totals, setTotals] = useState(0);
+  const [costItems, setCostItems] = useState<CostItem[]>([]);
+  const [includedItems] = useState([
+    "Unlimited Revisions",
+    "Source Code",
+    "Deployment Support",
+    "24/7 Support",
+  ]);
+
+  // Popup form states
+  const [showPopupForm, setShowPopupForm] = useState(false);
+  const [formData, setFormData] = useState({ name: "", phone: "", email: "" });
+  const [errors, setErrors] = useState({ name: "", phone: "", email: "" });
+  const [toastMessage, setToastMessage] = useState("");
+
+  // Email quote states
+  const [showEmailInput, setShowEmailInput] = useState(false);
+  const [email, setEmail] = useState("");
+  const [disableEmailBtn, setDisableEmailBtn] = useState(false);
+
+  /**
+   * REVISED: Progress bar state and calculation logic.
+   * This is now calculated on every option selection.
+   */
+  const [percent, setPercent] = useState(0);
+
+  // Instead of a separate useEffect, we will update the progress on option selection
+const updateProgress = useCallback((newSelectedOptions: Record<number, Option | null>) => {
+  if (!questions || questions.length === 0) {
+    setPercent(0);
+    return;
+  }
+
+  const answeredQuestionsCount = Object.values(newSelectedOptions).filter(
+    (option) => option !== null
+  ).length;
+
+  const newPercent = Math.round((answeredQuestionsCount / questions.length) * 100);
+
+  // Animate the percent change
+  let start: number | null = null;
+  const duration = 200; // in ms
+  const startPercent = percent;
+  const change = newPercent - startPercent;
+
+  const animate = (timestamp: number) => {
+    if (!start) start = timestamp;
+    const progressTime = timestamp - start;
+    const progress = Math.min(progressTime / duration, 1);
+    const animatedValue = Math.round(startPercent + change * progress);
+    setPercent(animatedValue);
+    if (progress < 1) {
+      requestAnimationFrame(animate);
+    }
+  };
+
+  requestAnimationFrame(animate);
+
+}, [questions, percent]);
 
 
-  const [selectedOption, setSelectedOption] = useState<string | null>(null);
 
-useEffect(() => {
-  async function load() {
-    try {
-      const res = await fetch(`/api/get-questions?dept=${department}`);
-      const data = await res.json();
+  useEffect(() => {
+    async function load() {
+      try {
+        const res = await fetch(`/api/get-questions?dept=${department}`);
+        const data = await res.json();
 
-      if (!res.ok) {
-        console.error('Failed to fetch questions:', data.message || data);
-        return;
+        if (!res.ok) {
+          console.error('Failed to fetch questions:', data.message || data);
+          return;
+        }
+
+        setQuestions(data.questions);
+        setSelectedOptions(Array(data.questions.length).fill(null));
+      } catch (err) {
+        console.error('Error in fetch:', err);
       }
+    }
 
-      console.log('Fetched questions:', data.questions);
-      setQuestions(data.questions); // ✅ This will now run
+    if (department) load();
+  }, [department]);
+
+  useEffect(() => {
+    if (!questions) return;
+
+    let calculatedTotal = 0;
+    const newCostItems: CostItem[] = [];
+
+    questions.forEach((q, qIndex) => {
+      const selectedOption = selectedOptions[qIndex];
+      if (selectedOption) {
+        calculatedTotal += selectedOption.price;
+        newCostItems.push({
+          type: q.questionText,
+          label: selectedOption.title,
+          value: selectedOption.title,
+          price: selectedOption.price,
+        });
+      }
+    });
+
+    setTotals(calculatedTotal);
+    setCostItems(newCostItems);
+    updateProgress(selectedOptions); // Update progress when questions or selectedOptions change
+  }, [selectedOptions, questions, updateProgress]);
+
+  if (!department || !questions) return <p className="text-gray-500">Loading questions...</p>;
+  if (questions.length === 0) return <p className="text-gray-500">No questions found for this department.</p>;
+
+  const currentQuestion = questions[currentQuestionIndex];
+  const selectedOption = selectedOptions[currentQuestionIndex];
+
+  const handleOptionSelect = (option: any, qIndex: number) => {
+    const newSelectedOptions = { ...selectedOptions, [qIndex]: option };
+    setSelectedOptions(newSelectedOptions);
+  };
+
+  const hasMultiLineSubtitle = currentQuestion.options.some(opt => opt.subtitle && opt.subtitle.includes('|'));
+
+  const validate = () => {
+    let tempErrors = { name: "", phone: "", email: "" };
+    let isValid = true;
+    if (!formData.name.trim()) { tempErrors.name = "Name is required."; isValid = false; }
+    if (!formData.phone.trim()) { tempErrors.phone = "Phone number is required."; isValid = false; } else if (!/^\d{10}$/.test(formData.phone)) { tempErrors.phone = "Phone number must be 10 digits."; isValid = false; }
+    if (!formData.email.trim()) { tempErrors.email = "Email is required."; isValid = false; } else if (!/\S+@\S+\.\S+/.test(formData.email)) { tempErrors.email = "Email is not valid."; isValid = false; }
+    setErrors(tempErrors);
+    return isValid;
+  };
+
+  const handleSubmit = async () => {
+    if (!validate()) return;
+    const { name, phone, email } = formData;
+    try {
+      const res = await fetch("/api/submit-form", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, phone, email, quote: costItems, total: totals }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        console.log("✅ Final Form Submitted:", formData);
+        setToastMessage("✅ Thank you! We'll connect with you soon.");
+        setTimeout(() => setToastMessage(""), 4000);
+        setShowPopupForm(false);
+      } else {
+        alert(`❌ Error: ${data.message}`);
+      }
     } catch (err) {
-      console.error('Error in fetch:', err);
+      console.error("❌ Submission error:", err);
+      alert('Something went wrong while submitting.');
     }
   }
 
-  if (department) {
-    console.log("department from URL:", department);
-    load();
-  }
-}, [department]);
+  const handleEmailSubmit = async () => {
+    if (!email) {
+      alert("Please enter a valid email address.");
+      return;
+    }
+    try {
+      const res = await fetch("/api/send-quotation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, quote: costItems, total: totals }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setToastMessage("✅ Quotation sent successfully!");
+        setTimeout(() => setToastMessage(""), 4000);
+        setShowEmailInput(false);
+        setEmail("");
+        setDisableEmailBtn(false);
+      } else {
+        alert("❌ Failed to send email.");
+      }
+    } catch (err) {
+      console.error("❌ Error sending email:", err);
+      alert("Something went wrong while sending the email.");
+    }
+  };
 
-
-if (!department || !questions) {
-  return <p className="text-gray-500">Loading questions...</p>;
-}
-if (questions.length === 0) {
-  return <p className="text-gray-500">No questions found for this department.</p>;
-}
-
-
+  const totalEstimate = Object.values(selectedOptions).reduce((sum, opt) => {
+    if (!opt || (!opt.price && opt.price !== 0)) return sum;
+    const price = typeof opt.price === "string" ? parseFloat(opt.price) : typeof opt.price === "number" ? opt.price : 0;
+    return sum + (isNaN(price) ? 0 : price);
+  }, 0);
 
   return (
     <div>
-      {questions.length === 0 ? (
-        <p className="text-gray-500">No questions added yet.</p>
-      ) : (
-        questions.map((q, index) => (
-  <div
-    key={index}
-    className="
-      w-full
-      max-w-[908px]
-      p-5 md:p-[30px_30px]
-      bg-white rounded-[8px] border border-[#1E1E1E]
-      shadow-[6px_5px_0px_0px_#262626]
-      mx-auto flex flex-col gap-4
-    "
-  >
-         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
-        <div className="flex items-start gap-3 mb-4">
- 
-  <div>
-    <div className="flex items-center gap-2">
-      <h3 className="text-[24px] font-poppins font-[700] text-black capitalize">
-        {q.questionText}
-      </h3>
-       {q.questionIcon?.startsWith("data:image") ? (
-  <img
-    src={q.questionIcon}
-    alt="icon"
-    className="w-4 h-4 object-contain rounded"
-  />
-) : (
-  <span className="text-3xl">{q.questionIcon}</span>
-)}
-    </div>
-    <p className="text-[#797474] font-poppins text-[16px] font-[400]">
-      {q.questionSubText}
-    </p>
-  </div>
-</div>
-
-        <div className="flex items-center gap-1 sm:ml-10">
-          <span className="font-poppins text-[14px] font-[400] capitalize text-[#1E1E1E]">
-            Pick One
-          </span>
-          <svg
-            className="w-[15px] h-[10px] mt-[2px]"
-            viewBox="0 0 6 10"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M3.3 1C3.3 0.834315 3.16569 0.7 3 0.7C2.83431 0.7 2.7 0.834315 2.7 1H3.3ZM2.78787 9.21213C2.90503 9.32929 3.09497 9.32929 3.21213 9.21213L5.12132 7.30294C5.23848 7.18579 5.23848 6.99584 5.12132 6.87868C5.00416 6.76152 4.81421 6.76152 4.69706 6.87868L3 8.57574L1.30294 6.87868C1.18579 6.76152 0.995837 6.76152 0.87868 6.87868C0.761522 6.99584 0.761522 7.18579 0.87868 7.30294L2.78787 9.21213ZM3 1H2.7L2.7 9H3H3.3L3.3 1H3Z"
-              fill="#1E1E1E"
+      <div
+        className="w-full h-[500px] md:h-[700px] relative bg-no-repeat bg-center bg-cover px-4 py-10 md:py-0"
+      >
+        <div className="max-w-7xl mx-auto w-full flex flex-col-reverse md:flex-row items-center justify-between gap-8 relative z-10 lg:top-0 top-10">
+          
+          {/* Text Section */}
+          <div className="text-center md:text-left px-5 py-10 space-y-4 w-full md:w-1/2 z-20 md:static absolute top-1/2 left-1/2 md:top-auto md:left-auto transform md:transform-none -translate-x-1/2 -translate-y-1/2 md:translate-x-0 md:translate-y-0">
+            <h1 className="text-[34px] sm:text-[28px] md:text-5xl  text-black leading-tight">
+              Estimate Your Project
+              
+            </h1>
+      
+            <div className="flex md:flex-row  items-center justify-center md:justify-start gap-3 sm:gap-5">
+             <span
+        className="relative flex items-center justify-center w-[93px] h-[43px] text-[26px] sm:text-[32px] md:text-[35px]  text-black text-center capitalize font-Poppins px-2 py-1 rounded-[5px]"
+        style={{ background: "#F9B31B", letterSpacing: "0.2px" }}
+      >
+        Cost
+        <Image
+          src="/images/Highlight.png"
+          alt="highlight"
+          width={25}
+          height={25}
+          className="absolute -top-5 -right-5"
+        />
+      </span>
+      
+              <span className="text-[24px] sm:text-[28px] md:text-5xl  text-black">
+                Instantly
+              </span>
+            </div>
+      
+            <button
+              className="mt-6 inline-flex items-center font-poppins justify-center gap-[10px] px-[30px] py-[10px] rounded-[5px] text-white text-[16px] sm:text-[18px]"
+              style={{
+                background: "#262626",
+                boxShadow: "2px 2px 0px 0px #F9B31B",
+              }}
+            >
+              Calculate Now
+            </button>
+          </div>
+           
+      
+          {/* Image Section */}
+          <div className="relative w-full md:w-[600px] h-[400px] sm:h-[400px] md:h-[553px] z-0 lg:top-20">
+            <Image
+              src="/images/hero2.png"
+              alt="Desk Illustration"
+              fill
+              className="object-contain"
             />
-          </svg>
+          </div>
         </div>
       </div>
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
 
-              {q.options.map((opt: Option, i: number) => {
-                const id = `q${index}-opt${i}`;
-                const active = selectedOption === id;
 
-                return (
-                  <button
-                    key={id}
-                    type="button"
-                    onClick={() => setSelectedOption(id)}
-                    className={`flex items-center justify-between gap-4 rounded-[8px] border transition-colors px-3 py-3 text-left w-full lg:w-[280px] h-[72px] ${
-                      active
-                        ? 'bg-[#F9B31B] border-[#1E1E1E] text-white shadow-[2px_2px_0px_0px_#1E1E1E]'
-                        : 'bg-white border-[#1E1E1E] text-[#1E1E1E] hover:bg-[#FFE19F]'
-                    }`}
+
+      <section className="w-full px-4 flex flex-col items-center mt-0 lg:mt-30">
+        <h2 className="text-center font-poppins lg:text-[32px] text-[23px] font-bold leading-normal tracking-[-0.8px] capitalize text-black">
+          Plan Your Website, Step By Step
+        </h2>
+        <div className="flex items-center gap-2 mt-1 text-sm text-gray-600">
+          <span className="text-center font-poppins text-[20px] font-[400] leading-normal text-[#797474]">
+            Calculate your digital dream
+          </span>
+        </div>
+        <div className="w-full max-w-6xl max-h-7xl lg:mt-1 mt-5">
+          <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
+            <span className="text-[#797474] text-center font-[Poppins] text-[20px] italic font-light leading-none tracking-[0.2px] capitalize">
+              Progress
+            </span>
+            <span className="text-[#797474] text-center font-[Poppins] text-[20px] not-italic font-light leading-none tracking-[0.2px] capitalize">
+              {percent}%
+            </span>
+          </div>
+          <div className="flex gap-3">
+            {[...Array(questions.length)].map((_, idx) => (
+              <div
+              key={idx}
+              className="flex-1 h-[10px] rounded-[20px] border border-[#1E1E1E] bg-transparent overflow-hidden"
+            >
+              <div
+                className={`h-full bg-[#F9B31B] transition-all duration-500`}
+                style={{
+                  // Fill the bar if a question is answered
+                  width: selectedOptions[idx] ? "100%" : "0%",
+                }}
+              />
+            </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ... The rest of your component remains the same from the previous response ... */}
+        {currentStep !== 7 ? (
+          hasMultiLineSubtitle ? (
+            <div
+              className="
+                  flex flex-col gap-6
+                  mt-8 mb-5
+                  w-full
+                  max-w-[908px]
+                  p-5 md:p-[40px_40px]
+                  bg-white rounded-[8px] border border-[#1E1E1E]
+                  shadow-[6px_5px_0px_0px_#262626]
+                "
+            >
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-[24px] font-poppins font-[700] text-black">
+                      {currentQuestion.questionText}
+                    </h3>
+                    {currentQuestion.questionIcon?.startsWith("data:image") ? (
+                      <img src={currentQuestion.questionIcon} alt="icon" className="w-6 h-6" />
+                    ) : (
+                      <span>{currentQuestion.questionIcon}</span>
+                    )}
+                  </div>
+                  <p className="text-[#797474] font-poppins text-[16px] font-[400]">
+                    {currentQuestion.questionSubText}
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-1 sm:ml-10">
+                  <span className="font-poppins text-[14px] font-[400] capitalize text-[#1E1E1E]">
+                    Pick One
+                  </span>
+                  <svg
+                    className="w-[15px] h-[10px] mt-[2px]"
+                    viewBox="0 0 6 10"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
                   >
-                    <div className="flex items-center gap-1">
-                      <span className="relative inline-flex items-center justify-center w-10 h-10 -top-1">
-                        {/* <span
-                          className={`w-6 h-6 rounded-full right-0 top-1 -mr-8 ${
-                            active ? 'bg-white' : 'bg-[#F9B31B]'
-                          }`}
-                        ></span> */}
-                       {opt.icon?.startsWith("data:image") ? (
-  <img
-    src={opt.icon}
-    alt="icon"
-    className="w-10 h-10 object-contain rounded"
-  />
-) : (
-  <span className="text-3xl">{opt.icon}</span>
-)}
-                      </span>
-                      <div>
-                        <h4 className="text-[#111827] font-poppins md:text-[13px] lg:text-[14px] font-[600]">
-                          {opt.title}
-                        </h4>
-                        <p
-                          className={`font-poppins lowercase font-[500] md:text-[10px] lg:text-[12px] text-[#111827]`}
-                        >
-                          {opt.subtitle}
-                        </p>
-                      </div>
-                    </div>
-                    <span
-                      className={`md:text-[13px] lg:text-[14px] font-[500] leading-normal font-poppins ${
-                        active ? 'text-white' : 'text-[#111827]'
+                    <path
+                      d="M3.3 1C3.3 0.834315 3.16569 0.7 3 0.7C2.83431 0.7 2.7 0.834315 2.7 1H3.3ZM2.78787 9.21213C2.90503 9.32929 3.09497 9.32929 3.21213 9.21213L5.12132 7.30294C5.23848 7.18579 5.23848 6.99584 5.12132 6.87868C5.00416 6.76152 4.81421 6.76152 4.69706 6.87868L3 8.57574L1.30294 6.87868C1.18579 6.76152 0.995837 6.76152 0.87868 6.87868C0.761522 6.99584 0.761522 7.18579 0.87868 7.30294L2.78787 9.21213ZM3 1H2.7L2.7 9H3H3.3L3.3 1H3Z"
+                      fill="#1E1E1E"
+                    />
+                  </svg>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 lg:gap-10 gap-5">
+                {currentQuestion.options.map((opt, i) => {
+                  const id = `q${currentQuestionIndex}-opt${i}`;
+                  const active = selectedOptions[currentQuestionIndex]?.title === opt.title;
+                  return (
+                    <button
+                      key={id}
+                      type="button"
+                      onClick={() => handleOptionSelect(opt, currentQuestionIndex)}
+                      className={`flex flex-col justify-between gap-2 rounded-[8px] border transition-colors px-4 py-4 text-left w-full lg:w-[280px] h-[180px] relative ${
+                        active
+                          ? "bg-[#F9B31B] border-[#1E1E1E] text-white shadow-[2px_2px_0px_0px_#1E1E1E]"
+                          : "bg-white border-[#1E1E1E] text-[#1E1E1E] hover:bg-[#FFE19F]"
                       }`}
                     >
-                      ₹{opt.price}
-                    </span>
+                      <div className="flex flex-col items-center justify-center w-full relative">
+                        {opt.icon && (
+                          <div className="w-10 h-10 mb-2">
+                            {opt.icon.startsWith("data:image") ? (
+                              <img src={opt.icon} alt="icon" className="w-full h-full" />
+                            ) : (
+                              <span>{opt.icon}</span>
+                            )}
+                          </div>
+                        )}
+                        <h4 className="md:text-[16px] lg:text-[16px] font-bold font-poppins text-center text-black">
+                          {opt.title}
+                        </h4>
+                        <span
+                          className={`absolute top-0 right-0 border rotate-[18deg] text-black border-black px-2 py-0.5 text-xs font-semibold rounded-md `}
+                          style={{
+                            borderRadius: "5px",
+                            border: "2px solid #000",
+                          }}
+                        >
+                          ₹{opt.price}
+                        </span>
+                      </div>
+                      {opt.subtitle && opt.subtitle.trim() !== '' ? (
+                        <ul className=" md:text-[12px] lg:text-[14px] font-poppins text-[#444] list-disc ml-5 space-y-1">
+                          {opt.subtitle.split("|").map((item, i) => (
+                            <li key={i}>{item.trim()}</li>
+                          ))}
+                        </ul>
+                      ) : null}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ) : (
+            <div
+              className="
+                  flex flex-col gap-6
+                  mt-8 mb-5
+                  w-full max-w-[908px]
+                  p-5 md:p-[30px_30px]
+                  bg-white rounded-[8px] border border-[#1E1E1E]
+                  shadow-[6px_5px_0px_0px_#262626]
+                "
+            >
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-[24px] font-poppins font-[700] text-black">
+                      {currentQuestion.questionText}
+                    </h3>
+                    {currentQuestion.questionIcon?.startsWith("data:image") ? (
+                      <img src={currentQuestion.questionIcon} alt="icon" className="w-4 h-4" />
+                    ) : (
+                      <span>{currentQuestion.questionIcon}</span>
+                    )}
+                  </div>
+                  <p className="text-[#797474] font-poppins text-[16px] font-[400]">
+                    {currentQuestion.questionSubText}
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-1 sm:ml-10">
+                  <span className="font-poppins text-[14px] capitalize font-[400] text-[#1E1E1E]">
+                    Pick One
+                  </span>
+                  <svg
+                    className="w-[15px] h-[10px] mt-[2px]"
+                    viewBox="0 0 6 10"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M3.3 1C3.3 0.834315 3.16569 0.7 3 0.7C2.83431 0.7 2.7 0.834315 2.7 1H3.3ZM2.78787 9.21213C2.90503 9.32929 3.09497 9.32929 3.21213 9.21213L5.12132 7.30294C5.23848 7.18579 5.23848 6.99584 5.12132 6.87868C5.00416 6.76152 4.81421 6.76152 4.69706 6.87868L3 8.57574L1.30294 6.87868C1.18579 6.76152 0.995837 6.76152 0.87868 6.87868C0.761522 6.99584 0.761522 7.18579 0.87868 7.30294L2.78787 9.21213ZM3 1H2.7L2.7 9H3H3.3L3.3 1H3Z"
+                      fill="#1E1E1E"
+                    />
+                  </svg>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                {currentQuestion.options.map((opt, i) => {
+                  const id = `q${currentQuestionIndex}-opt${i}`;
+                  const active = selectedOptions[currentQuestionIndex]?.title === opt.title;
+                  return (
+                    <button
+                      key={id}
+                      type="button"
+                      onClick={() => handleOptionSelect(opt, currentQuestionIndex)}
+                      className={`flex items-center justify-between gap-4 rounded-[8px] border transition-colors px-3 py-3 text-left w-full ${
+                        opt.icon ? "h-[72px]" : "h-[50px]"
+                      } ${
+                        active
+                          ? "bg-[#F9B31B] border-[#1E1E1E] text-white shadow-[2px_2px_0px_0px_#1E1E1E]"
+                          : "bg-white border-[#1E1E1E] text-[#1E1E1E] hover:bg-[#FFE19F]"
+                      }`}
+                    >
+                      <div className="flex items-center gap-5">
+                        {opt.icon ? (
+                          <span className="relative inline-flex items-center justify-center w-10 h-10 -top-1">
+                            <div className="relative -top-1 mr-1">
+                              {opt.icon.startsWith("data:image") ? (
+                                <img src={opt.icon} alt="icon" className="w-10 h-10" />
+                              ) : (
+                                <span>{opt.icon}</span>
+                              )}
+                            </div>
+                          </span>
+                        ) : (
+                          <span
+                            className={`w-[12px] h-[12px] rounded-full ml-4 border-[2px] ${
+                              active ? "bg-black border-black" : "border-[#F9B31B]"
+                            }`}
+                          />
+                        )}
+                        <div>
+                          <h4 className="text-[#111827] font-poppins md:text-[13px] lg:text-[14px] font-[600]">
+                            {opt.title}
+                          </h4>
+                          {opt.subtitle && opt.subtitle.trim() !== '' ? (
+                            <p
+                              className={`font-poppins lowercase font-[500]
+                                md:text-[10px] lg:text-[12px]
+                                ${active ? "text-[#111827]" : "text-[#111827]"}`}
+                            >
+                              {opt.subtitle}
+                            </p>
+                          ) : null}
+                        </div>
+                      </div>
+                      <span
+                        className={`md:text-[13px] lg:text-[14px] font-[500] leading-normal font-poppins ${
+                          active ? 'text-white' : 'text-[#111827]'
+                        }`}
+                      >
+                        ₹{opt.price}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )
+        ) : (
+          <div
+            className="
+                flex flex-col gap-6
+                mt-8 mb-5
+                w-full
+                max-w-[908px]
+                p-4 md:p-[40px_40px]
+                bg-white rounded-[8px] border border-[#1E1E1E]
+                shadow-[6px_5px_0px_0px_#262626]
+              "
+          >
+            <h2 className="text-2xl md:text-[24px] font-[700] text-center ">
+              Your Project Estimate
+            </h2>
+            <div
+              className="text-center py-4 rounded-md shadow-inner border"
+              style={{
+                borderRadius: "8px",
+                border: "1px solid #1E1E1E",
+                background: "#F9B31B",
+                boxShadow: "3px 3px 0px 0px #262626",
+              }}
+            >
+              <h3 className="text-white text-center font-poppins text-[24px] font-[700] capitalize tracking-tightest">
+                ₹{totalEstimate.toLocaleString()}
+              </h3>
+              <div className="flex items-center justify-center gap-2 text-center text-[#1E1E1E] font-[Poppins] text-[14px] font-[300] leading-normal">
+                <span>Here is What It will Take to Build Your Vision</span>
+                <Form1 className="w-4 h-4" />
+              </div>
+            </div>
+            <div className="flex flex-col md:flex-row gap-8">
+              <div className="md:w-1/2 space-y-10 ">
+                <div>
+                  <h4 className=" text-black font-[Poppins] text-[24px] font-[700] leading-normal tracking-[-0.8px] capitalize mb-3 flex items-center gap-2">
+                    Whats Always Included
+                    <Star className="w-4 h-4" />
+                  </h4>
+                  <ul className="space-y-3">
+                    {includedItems.map((item, i) => (
+                      <li key={i} className="flex items-center gap-2 text-green-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8" fill="none">
+                          <circle cx="4" cy="4" r="4" fill="#76CA21" />
+                        </svg>
+                        <span className="text-[#1E1E1E] text-center font-[Poppins] text-[14px] font-[300]  leading-normal">
+                          {item}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="flex items-center  lg:mt-30 md:mt-20 gap-5 self-stretch rounded-[8px] border border-[#FFC250] bg-white shadow-[2px_2px_0px_0px_#F9B31B] p-5 md:p-[20px_15px]">
+                  <div>
+                    <p className="text-center text-[#1E1E1E] font-[Poppins] text-[14px] font-[400] not-italic leading-none">
+                      “Had an amazing journey working with Bombay Blokes, never felt like
+                      I was working with an outside agency!”
+                    </p>
+                    <div className="flex items-center gap-4 justify-center mt-4 ">
+                      <img
+                        src="/images/Ellipse.png"
+                        alt="Profile"
+                        className="w-8 h-8 rounded-full object-cover "
+                      />
+                      <div className="flex flex-col">
+                        <span className="text-[#1E1E1E] text-center font-[Poppins] text-[12px] font-[400]  leading-normal">
+                          Kaushik Shah
+                        </span>
+                        <span className="text-[#1E1E1E] text-center font-[Poppins] text-[12px] font-[400]  leading-normal">
+                          India Grooming Club
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div
+                className="
+                    flex flex-col
+                   min-h-[400px] max-w-[424px] w-full
+
+                    p-5 md:p-[20px_20px]
+                    bg-white rounded-[8px] border border-[#1E1E1E]
+                    shadow-[6px_5px_0px_0px_#262626]
+                  "
+              >
+                <h2 className=" flex text-[24px] font-[700] mb-3 gap-2  text-black font-[Poppins] leading-normal tracking-[-0.8px] capitalize">
+                  Cost Summary <span><img
+                    src="/images/buldings.svg"
+                    alt="Profile"
+                    className="w-5 h-5 mt-2 "
+                  /></span>
+                </h2>
+                {costItems.map((item, index) => (
+                  <div key={index} className="flex justify-between items-start mb-2">
+                    <p>
+
+                       <span className="text-[#1E1E1E] text-center font-[Poppins] text-[14px] font-[700] leading-normal not-italic">
+ {questions[index]?.type}:
+</span>
+{" "}
+                      <span className="text-[#1E1E1E] font-[Poppins] text-[14px] font-[300] not-italic  leading-normal">
+                           {item.value}
+                      </span>
+                    </p>
+                    <p className="whitespace-nowrap text-[#1E1E1E] text-center font-[Poppins] text-[14px] font-[500] not-italic  leading-normal">
+                      ₹{item.price.toLocaleString()}
+                    </p>
+                  </div>
+                ))}
+                <hr className="my-2 border-black" />
+                <div className="flex justify-between items-center mb-5">
+                  <p className="text-[#1E1E1E] text-center font-[Poppins] text-[14px] font-[700] not-italic  leading-normal">
+                    Estimated Cost:
+                  </p>
+                  <p className="text-[#1E1E1E] text-center font-[Poppins] text-[14px] font-[700] not-italic leading-normal">
+                   ₹{totalEstimate.toLocaleString()}
+                  </p>
+                </div>
+                <button onClick={() => setShowPopupForm(true)} className="w-full mb-3 py-[8px] px-[23px] lg:mt-4 rounded-[5px] bg-[#262626] shadow-[2px_2px_0px_0px_#F9B31B] text-white text-[16px] font-[400] italic flex justify-center items-center gap-[10px] self-stretch transition-all ">
+                  Schedule Free Call
+                </button>
+                {!showEmailInput ? (
+                  <button
+                    onClick={() => {
+                      setShowEmailInput(true);
+                      setDisableEmailBtn(true);
+                    }}
+                    className="w-full py-[8px] px-[23px] rounded-[5px] border border-[#1E1E1E] bg-white text-black text-[16px] font-[400] italic shadow-[2px_2px_0px_0px_#1E1E1E] flex justify-center items-center gap-[10px] self-stretch transition disabled:opacity-50"
+                    disabled={disableEmailBtn}
+                  >
+                    Email Me The Quote
                   </button>
-                );
-              })}
+                ) : (
+                  <div className="grid grid-cols-10 gap-3 items-center w-full">
+                    <input
+                      type="email"
+                      placeholder="Enter your email"
+                      className="col-span-7 p-2 border border-[#1E1E1E] rounded w-full"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
+                    <button
+                      onClick={handleEmailSubmit}
+                      className="col-span-3 py-[8px] px-[12px] rounded-[5px] bg-[#262626] text-white font-[400] italic shadow-[2px_2px_0px_0px_#F9B31B] transition w-full"
+                    >
+                      Send
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-        ))
+        )}
+      </section>
+
+      {currentStep !== 7 && (
+        <div className="flex justify-between items-center max-w-4xl mx-auto p-4 gap-4 mb-0 lg:mb-30">
+  <button
+    onClick={() => {
+      if (currentQuestionIndex > 0) {
+        const newSelectedOptions = { ...selectedOptions };
+        newSelectedOptions[currentQuestionIndex] = null;
+        setCurrentQuestionIndex((prev) => prev - 1);
+        setSelectedOptions(newSelectedOptions);
+      }
+    }}
+    disabled={currentQuestionIndex === 0}
+    className={`w-[130px] flex items-center justify-center gap-2 py-[10px] rounded-[5px] italic
+                border shadow-[2px_2px_0px_0px_#262626] transition-colors text-[16px] font-[400]
+                ${
+                  currentQuestionIndex > 0
+                    ? "bg-[#F9B31B] border-[#262626] text-[#262626]"
+                    : "bg-gray-200 border-gray-200 text-gray-400 cursor-not-allowed shadow-none"
+                }`}
+  >
+    Previous
+  </button>
+
+  <button
+    onClick={() => {
+      if (currentQuestionIndex === questions.length - 1) {
+        setCurrentStep(7);
+      } else {
+        setCurrentQuestionIndex((prev) => Math.min(prev + 1, questions.length));
+      }
+    }}
+    disabled={!selectedOptions[currentQuestionIndex]}
+    className={`w-[130px] flex items-center justify-center gap-2 py-[10px] rounded-[5px] font-medium
+                border-2 transition-colors
+                ${
+                  currentQuestionIndex === questions.length - 1
+                    ? "bg-black border-black text-white hover:bg-[#1a1a1a] shadow-[2px_2px_0px_0px_#F9B31B]"
+                    : "bg-black border-black text-white hover:bg-[#1a1a1a] shadow-[2px_2px_0px_0px_#F9B31B]"
+                }`}
+  >
+    Next
+  </button>
+</div>
+
       )}
+      {showPopupForm && (
+  <div className="fixed inset-0  bg-opacity-60 flex items-center justify-center z-50">
+    <div className="relative bg-white rounded-[8px] border border-[#1E1E1E] shadow-[6px_5px_0px_0px_#262626] p-6 w-full max-w-[600px] max-h-[90vh] overflow-y-auto">
+      
+      {/* Close Button */}
+      <button
+        onClick={() => setShowPopupForm(false)}
+        className="absolute top-2 right-2 text-black text-lg font-bold"
+      >
+        ×
+      </button>
+
+      {/* Form Content from Section 7 Goes Here */}
+      <h3 className="text-[24px] font-poppins font-[700] text-black mb-2">
+        Apni information Dedo bhai!!
+      </h3>
+      <p className="text-[#797474] font-poppins text-[16px] font-[400] mb-4">
+        Choose your building platform from our tech bazaar!
+      </p>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        {/* Name */}
+        <div className="flex flex-col gap-1">
+          <label htmlFor="name" className="text-sm font-medium text-black">Name</label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            value={formData.name}
+            onChange={(e) =>
+    setFormData((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }))
+  }
+            className={`px-3 py-2 border rounded-[8px] focus:outline-none focus:ring-2 ${
+              errors.name ? "border-red-500 focus:ring-red-300" : "border-[#1E1E1E] focus:ring-[#F9B31B]"
+            }`}
+            placeholder="Enter your name"
+          />
+          {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
+        </div>
+
+        {/* Phone */}
+        <div className="flex flex-col gap-1">
+          <label htmlFor="phone" className="text-sm font-medium text-black">Phone</label>
+          <input
+            type="tel"
+            id="phone"
+            name="phone"
+            value={formData.phone}
+           
+            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+            className={`px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
+              errors.phone ? "border-red-500 focus:ring-red-300" : "border-[#1E1E1E] focus:ring-[#F9B31B]"
+            }`}
+            placeholder="Enter your phone"
+          />
+          {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
+        </div>
+
+        {/* Email */}
+        <div className="flex flex-col gap-1">
+          <label htmlFor="email" className="text-sm font-medium text-black">Email</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            value={formData.email}
+           
+            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            className={`px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
+              errors.email ? "border-red-500 focus:ring-red-300" : "border-[#1E1E1E] focus:ring-[#F9B31B]"
+            }`}
+            placeholder="Enter your email"
+          />
+          {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+        </div>
+      </div>
+
+      {/* Submit Button */}
+      <button
+         onClick={handleSubmit}
+        className="mt-6 w-full py-[8px] px-[23px] rounded-[5px] bg-[#262626] text-white text-[16px] font-[400] italic flex justify-center items-center gap-[10px] transition-all"
+      >
+        Submit
+      </button>
+    </div>
+  </div>
+)}
     </div>
   );
 }

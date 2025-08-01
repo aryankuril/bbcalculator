@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 import React from 'react'
-import Calculator from './components/Calculator';
+import Landing from './components/Landing';
 import Navbar from './components/Navbar';
 
 export default function Home() {
@@ -19,7 +19,7 @@ export default function Home() {
     <div >
   <Navbar role={role} />
 
-      <Calculator />
+      <Landing/>
     </div>
   );
 }

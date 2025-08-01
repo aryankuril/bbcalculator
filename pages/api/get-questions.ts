@@ -3,8 +3,9 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { MongoClient } from 'mongodb';
 import clientPromiseUntyped from '../../lib/mongodb';
-// /
+
 const clientPromise = clientPromiseUntyped as Promise<MongoClient>;
+
 type Question = {
   question: string;
   options: string[];
@@ -13,6 +14,7 @@ type Question = {
 
 type DataResponse = {
   questions: Question[];
+  includedItems?: string[]; // <-- Include this in type
 };
 
 type ErrorResponse = {
@@ -36,16 +38,16 @@ export default async function handler(
   try {
     const client: MongoClient = await clientPromise;
     const db = client.db('test');
-    const collection = db.collection('questions'); 
+    const collection = db.collection('questions');
 
-    // Match document where "name" field equals dept (case-insensitive)
     const result = await collection.findOne({
       name: { $regex: new RegExp(`^${dept.trim()}$`, 'i') }
     });
 
     const questions = result?.questions || [];
+    const includedItems = result?.includedItems || []; // <-- Fetch this from DB
 
-    return res.status(200).json({ questions });
+    return res.status(200).json({ questions, includedItems }); // <-- Return it
   } catch (error) {
     console.error('[GET /api/get-questions] Error:', error);
     return res.status(500).json({ message: 'Internal Server Error' });
