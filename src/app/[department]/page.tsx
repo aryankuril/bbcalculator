@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useState,  useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 
@@ -166,7 +166,7 @@ const updateProgress = useCallback((newSelectedOptions: Record<number, Option | 
   if (questions.length === 0) return <p className="text-gray-500">No questions found for this department.</p>;
 
   const currentQuestion = questions[currentQuestionIndex];
-  const selectedOption = selectedOptions[currentQuestionIndex];
+  // const selectedOption = selectedOptions[currentQuestionIndex];
 
   const handleOptionSelect = (option: any, qIndex: number) => {
     const newSelectedOptions = { ...selectedOptions, [qIndex]: option };
@@ -176,7 +176,7 @@ const updateProgress = useCallback((newSelectedOptions: Record<number, Option | 
   const hasMultiLineSubtitle = currentQuestion.options.some(opt => opt.subtitle && opt.subtitle.includes('|'));
 
   const validate = () => {
-    let tempErrors = { name: "", phone: "", email: "" };
+    const tempErrors = { name: "", phone: "", email: "" };
     let isValid = true;
     if (!formData.name.trim()) { tempErrors.name = "Name is required."; isValid = false; }
     if (!formData.phone.trim()) { tempErrors.phone = "Phone number is required."; isValid = false; } else if (!/^\d{10}$/.test(formData.phone)) { tempErrors.phone = "Phone number must be 10 digits."; isValid = false; }

@@ -78,7 +78,7 @@ export default function AdminPage() {
   };
 
 // Input handler: allows only lowercase letters
-const handleDeptInput = (e) => {
+const handleDeptInput = (e: { target: { value: any; }; }) => {
   const value = e.target.value;
 
   // Check if user typed any invalid character
