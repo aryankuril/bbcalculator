@@ -168,7 +168,7 @@ const updateProgress = useCallback((newSelectedOptions: Record<number, Option | 
   const currentQuestion = questions[currentQuestionIndex];
   // const selectedOption = selectedOptions[currentQuestionIndex];
 
-  const handleOptionSelect = (option: any, qIndex: number) => {
+  const handleOptionSelect = (option: Option, qIndex: number) => {
     const newSelectedOptions = { ...selectedOptions, [qIndex]: option };
     setSelectedOptions(newSelectedOptions);
   };
@@ -220,7 +220,9 @@ const updateProgress = useCallback((newSelectedOptions: Record<number, Option | 
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, quote: costItems, total: totals }),
       });
-      const data = await res.json();
+     const data = await res.json();
+console.log("API response:", data);
+
       if (res.ok) {
         setToastMessage("✅ Quotation sent successfully!");
         setTimeout(() => setToastMessage(""), 4000);
@@ -835,6 +837,11 @@ const updateProgress = useCallback((newSelectedOptions: Record<number, Option | 
         Submit
       </button>
     </div>
+    {toastMessage && (
+  <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-4 py-2 rounded shadow-md z-50">
+    {toastMessage}
+  </div>
+)}
   </div>
 )}
     </div>
