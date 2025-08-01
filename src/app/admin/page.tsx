@@ -78,8 +78,9 @@ export default function AdminPage() {
   };
 
 // Input handler: allows only lowercase letters
-const handleDeptInput = (e: { target: { value: any; }; }) => {
+const handleDeptInput = (e: React.ChangeEvent<HTMLInputElement>) => {
   const value = e.target.value;
+
 
   // Check if user typed any invalid character
   if (/[^a-z]/.test(value)) {
