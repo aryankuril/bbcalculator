@@ -1,4 +1,3 @@
-// src/pages/api/save-question.ts
 import type { NextApiRequest, NextApiResponse } from 'next';
 import clientPromiseUntyped from '../../lib/mongodb';
 import { MongoClient } from 'mongodb';
@@ -10,35 +9,32 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ message: 'Method not allowed' });
   }
 
-const { name, questions, includedItems } = req.body;
+  const { name, questions, includedItems } = req.body;
+
+  // Added a check for required fields to make the API more robust
+  if (!name || !questions) {
+    return res.status(400).json({ message: 'Missing required fields: name, questions' });
+  }
 
   try {
     const client: MongoClient = await clientPromise;
-    const db = client.db('test'); // replace with your DB name
-    const collection = db.collection('questions'); // or whatever collection
+    const db = client.db('test');
+    const collection = db.collection('questions');
 
-        // ✅ Update or Insert the department
+    // This single operation will either:
+    // 1. Find a document with a matching 'name' and update its questions and includedItems fields.
+    // 2. If no document is found, it will create a new one with the provided data.
     await collection.updateOne(
       { name },
-  { $set: { questions, includedItems } },
-      { upsert: true } // <== this is the key line
+      { $set: { questions, includedItems } },
+      { upsert: true }
     );
 
-
-       const existing = await collection.findOne({ name });
-    if (existing) {
-      return res.status(409).json({ message: 'Department already exists' });
-    }
-
-
-
-
-
-    await collection.insertOne({ name, questions });
-
-    res.status(200).json({ message: 'Question saved successfully' });
+    // The logic to check for an existing department and then insert is now
+    // redundant and has been removed because `upsert: true` handles it automatically.
+    res.status(200).json({ message: 'Department and questions saved successfully' });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error saving question' });
+    console.error('Error saving department:', error);
+    res.status(500).json({ message: 'Error saving department' });
   }
 }

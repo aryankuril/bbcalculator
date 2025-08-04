@@ -1,5 +1,3 @@
-// pages/api/get-questions.ts
-
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { MongoClient } from 'mongodb';
 import clientPromiseUntyped from '../../lib/mongodb';

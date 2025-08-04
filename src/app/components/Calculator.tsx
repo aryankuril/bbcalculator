@@ -387,7 +387,7 @@ const [toastMessage, setToastMessage] = useState("");
 const getOptionById = (options: Option[], id: string) =>
     options.find((option) => option.id === id);
 
-
+ 
   const showStep3 =
   selectedStep1 !== "custom" && selectedStep1 !== "landing";
 

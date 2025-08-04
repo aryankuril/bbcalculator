@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState,  useCallback } from 'react';
+import { useEffect, useState,  useCallback,useMemo } from 'react';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 
@@ -21,22 +21,29 @@ const Star = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
-// Types for your options and questions
+
+
+type Dependency = {
+  questionIndex: number;
+  optionIndex: number;
+};
+
 type Option = {
   icon?: string;
   title: string;
   subtitle?: string;
-  price: number;
+  price: number | string; // allow string in API input!
 };
 
 type Question = {
-  type: string; 
+  isDependent: boolean;
+  dependentOn?: Dependency;
+  type: string;
   questionText: string;
   questionIcon: string;
   questionSubText: string;
   options: Option[];
 };
-
 
 type CostItem = {
   type: string;
@@ -52,34 +59,32 @@ export default function PreviewPage() {
   const [questions, setQuestions] = useState<Question[] | null>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedOptions, setSelectedOptions] = useState<Record<number, Option | null>>({});
-
-  // Quotation specific states
+  const [visibleQuestions, setVisibleQuestions] = useState<Question[]>([]);
   const [currentStep, setCurrentStep] = useState(1);
+  // Ensure totals is always a number
   const [totals, setTotals] = useState(0);
   const [costItems, setCostItems] = useState<CostItem[]>([]);
   const [includedItems] = useState([
-    "Unlimited Revisions",
-    "Source Code",
-    "Deployment Support",
-    "24/7 Support",
+    "Unlimited Revisions", "Source Code", "Deployment Support", "24/7 Support"
   ]);
-
-  // Popup form states
   const [showPopupForm, setShowPopupForm] = useState(false);
   const [formData, setFormData] = useState({ name: "", phone: "", email: "" });
   const [errors, setErrors] = useState({ name: "", phone: "", email: "" });
   const [toastMessage, setToastMessage] = useState("");
-
-  // Email quote states
   const [showEmailInput, setShowEmailInput] = useState(false);
   const [email, setEmail] = useState("");
   const [disableEmailBtn, setDisableEmailBtn] = useState(false);
-
-  /**
-   * REVISED: Progress bar state and calculation logic.
-   * This is now calculated on every option selection.
-   */
   const [percent, setPercent] = useState(0);
+
+
+  const totalEstimate = useMemo(() => {
+    return Object.values(selectedOptions).reduce((sum, opt) => {
+      if (!opt || (opt.price == null)) return sum;
+      const price = typeof opt.price === "string" ? parseFloat(opt.price) : Number(opt.price);
+      return sum + (isNaN(price) ? 0 : price);
+    }, 0);
+  }, [selectedOptions]);
+
 
   // Instead of a separate useEffect, we will update the progress on option selection
 const updateProgress = useCallback((newSelectedOptions: Record<number, Option | null>) => {
@@ -88,15 +93,17 @@ const updateProgress = useCallback((newSelectedOptions: Record<number, Option | 
     return;
   }
 
-  const answeredQuestionsCount = Object.values(newSelectedOptions).filter(
-    (option) => option !== null
+  const visibleCount = questions.filter(q => isQuestionVisible(q, newSelectedOptions)).length;
+
+  const answeredVisibleCount = questions.filter((q, idx) =>
+    isQuestionVisible(q, newSelectedOptions) && newSelectedOptions[idx]
   ).length;
 
-  const newPercent = Math.round((answeredQuestionsCount / questions.length) * 100);
+  const newPercent = Math.round((answeredVisibleCount / visibleCount) * 100);
 
   // Animate the percent change
   let start: number | null = null;
-  const duration = 200; // in ms
+  const duration = 200;
   const startPercent = percent;
   const change = newPercent - startPercent;
 
@@ -112,66 +119,121 @@ const updateProgress = useCallback((newSelectedOptions: Record<number, Option | 
   };
 
   requestAnimationFrame(animate);
-
-}, [questions, percent]);
-
+}, [questions, percent,]);
 
 
+
+  // A function to determine if a question should be displayed
+  const isQuestionVisible = useCallback((question: Question, allAnswers: Record<number, Option | null>): boolean => {
+    if (!question.isDependent || !question.dependentOn) {
+      return true;
+    }
+    const dependentOnQuestionIndex = question.dependentOn.questionIndex;
+    const requiredOptionIndex = question.dependentOn.optionIndex;
+    const selectedOption = allAnswers[dependentOnQuestionIndex];
+    
+    // Check if the required option is selected
+    const selectedOptionIndex = questions?.[dependentOnQuestionIndex]?.options.findIndex(
+      (opt) => opt?.title === selectedOption?.title
+    );
+
+    return selectedOptionIndex === requiredOptionIndex;
+  }, [questions]);
+
+  // RECALCULATE VISIBLE QUESTIONS AND CURRENT INDEX
   useEffect(() => {
+    if (!questions) return;
+    
+    // Create the new filtered list of questions
+    const newVisibleQuestions = questions.filter(q => isQuestionVisible(q, selectedOptions));
+    setVisibleQuestions(newVisibleQuestions);
+
+    // Find the new index of the current question within the filtered list
+    if (questions[currentQuestionIndex]) {
+      const newIndex = newVisibleQuestions.findIndex(q => q.questionText === questions[currentQuestionIndex].questionText);
+      setCurrentQuestionIndex(newIndex !== -1 ? newIndex : 0);
+    } else {
+      setCurrentQuestionIndex(0);
+    }
+  }, [questions, selectedOptions, isQuestionVisible, currentQuestionIndex]);
+
+ useEffect(() => {
     async function load() {
       try {
         const res = await fetch(`/api/get-questions?dept=${department}`);
         const data = await res.json();
-
         if (!res.ok) {
           console.error('Failed to fetch questions:', data.message || data);
           return;
         }
-
         setQuestions(data.questions);
-        setSelectedOptions(Array(data.questions.length).fill(null));
+        // Correctly initialize selectedOptions to be an empty object, not an array of nulls
+        setSelectedOptions({}); 
       } catch (err) {
         console.error('Error in fetch:', err);
       }
     }
-
     if (department) load();
   }, [department]);
 
+
+  
+
+  const shouldDisplayQuestion = (question: Question, allAnswers: (number | null)[]): boolean => {
+  if (!question.isDependent) return true;
+
+  const dep = question.dependentOn;
+  if (!dep) return false;
+
+  const selectedOption = allAnswers[dep.questionIndex];
+  return selectedOption === dep.optionIndex;
+};
+
+
   useEffect(() => {
     if (!questions) return;
-
     let calculatedTotal = 0;
     const newCostItems: CostItem[] = [];
-
     questions.forEach((q, qIndex) => {
       const selectedOption = selectedOptions[qIndex];
       if (selectedOption) {
-        calculatedTotal += selectedOption.price;
+        const price = typeof selectedOption.price === "string"
+          ? parseFloat(selectedOption.price)
+          : Number(selectedOption.price);
+        calculatedTotal += isNaN(price) ? 0 : price;
         newCostItems.push({
           type: q.questionText,
           label: selectedOption.title,
           value: selectedOption.title,
-          price: selectedOption.price,
+          price: isNaN(price) ? 0 : price,
         });
       }
     });
-
     setTotals(calculatedTotal);
     setCostItems(newCostItems);
-    updateProgress(selectedOptions); // Update progress when questions or selectedOptions change
+    updateProgress(selectedOptions);
   }, [selectedOptions, questions, updateProgress]);
 
-  if (!department || !questions) return <p className="text-gray-500">Loading questions...</p>;
-  if (questions.length === 0) return <p className="text-gray-500">No questions found for this department.</p>;
 
-  const currentQuestion = questions[currentQuestionIndex];
-  // const selectedOption = selectedOptions[currentQuestionIndex];
+  // --- RENDER LOGIC STARTS HERE ---
+  // Early return statements should only come after all hooks have been called
+  if (!department || !questions || questions.length === 0) {
+    return <p className="text-gray-500">Loading questions...</p>;
+  }
+
+  // USE THE FILTERED LIST
+  const currentQuestion = visibleQuestions[currentQuestionIndex];
+  if (!currentQuestion) {
+    return <p className="text-gray-500">No visible questions found.</p>;
+  }
 
   const handleOptionSelect = (option: Option, qIndex: number) => {
     const newSelectedOptions = { ...selectedOptions, [qIndex]: option };
     setSelectedOptions(newSelectedOptions);
   };
+  
+  // Find the original index of the current question
+  const originalIndex = questions.findIndex(q => q.questionText === currentQuestion.questionText);
 
   const hasMultiLineSubtitle = currentQuestion.options.some(opt => opt.subtitle && opt.subtitle.includes('|'));
 
@@ -184,7 +246,7 @@ const updateProgress = useCallback((newSelectedOptions: Record<number, Option | 
     setErrors(tempErrors);
     return isValid;
   };
-
+  
   const handleSubmit = async () => {
     if (!validate()) return;
     const { name, phone, email } = formData;
@@ -220,8 +282,8 @@ const updateProgress = useCallback((newSelectedOptions: Record<number, Option | 
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, quote: costItems, total: totals }),
       });
-     const data = await res.json();
-console.log("API response:", data);
+      const data = await res.json();
+      console.log("API response:", data);
 
       if (res.ok) {
         setToastMessage("✅ Quotation sent successfully!");
@@ -237,12 +299,13 @@ console.log("API response:", data);
       alert("Something went wrong while sending the email.");
     }
   };
+  
 
-  const totalEstimate = Object.values(selectedOptions).reduce((sum, opt) => {
-    if (!opt || (!opt.price && opt.price !== 0)) return sum;
-    const price = typeof opt.price === "string" ? parseFloat(opt.price) : typeof opt.price === "number" ? opt.price : 0;
-    return sum + (isNaN(price) ? 0 : price);
-  }, 0);
+  // const totalEstimate = Object.values(selectedOptions).reduce((sum, opt) => {
+  //   if (!opt || (!opt.price && opt.price !== 0)) return sum;
+  //   const price = typeof opt.price === "string" ? parseFloat(opt.price) : typeof opt.price === "number" ? opt.price : 0;
+  //   return sum + (isNaN(price) ? 0 : price);
+  // }, 0);
 
   return (
     <div>
@@ -322,22 +385,28 @@ console.log("API response:", data);
               {percent}%
             </span>
           </div>
-          <div className="flex gap-3">
-            {[...Array(questions.length)].map((_, idx) => (
-              <div
-              key={idx}
-              className="flex-1 h-[10px] rounded-[20px] border border-[#1E1E1E] bg-transparent overflow-hidden"
-            >
-              <div
-                className={`h-full bg-[#F9B31B] transition-all duration-500`}
-                style={{
-                  // Fill the bar if a question is answered
-                  width: selectedOptions[idx] ? "100%" : "0%",
-                }}
-              />
-            </div>
-            ))}
-          </div>
+         <div className="flex gap-3">
+  {visibleQuestions.map((_, visibleIdx) => {
+    // Find the real index of the visible question in the full questions list
+    const question = visibleQuestions[visibleIdx];
+    const realIndex = questions.findIndex(q => q.questionText === question.questionText);
+
+    return (
+      <div
+        key={visibleIdx}
+        className="flex-1 h-[10px] rounded-[20px] border border-[#1E1E1E] bg-transparent overflow-hidden"
+      >
+        <div
+          className="h-full bg-[#F9B31B] transition-all duration-500"
+          style={{
+            width: selectedOptions[realIndex] ? "100%" : "0%",
+          }}
+        />
+      </div>
+    );
+  })}
+</div>
+
         </div>
 
         {/* ... The rest of your component remains the same from the previous response ... */}
@@ -390,9 +459,9 @@ console.log("API response:", data);
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 lg:gap-10 gap-5">
-                {currentQuestion.options.map((opt, i) => {
-                  const id = `q${currentQuestionIndex}-opt${i}`;
-                  const active = selectedOptions[currentQuestionIndex]?.title === opt.title;
+            {currentQuestion.options.map((opt, i) => {
+                  const id = `q${originalIndex}-opt${i}`;
+                  const active = selectedOptions[originalIndex]?.title === opt.title;
                   return (
                     <button
                       key={id}
@@ -486,7 +555,7 @@ console.log("API response:", data);
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                {currentQuestion.options.map((opt, i) => {
+                 {currentQuestion.options.map((opt, i) => {
                   const id = `q${currentQuestionIndex}-opt${i}`;
                   const active = selectedOptions[currentQuestionIndex]?.title === opt.title;
                   return (
@@ -502,20 +571,21 @@ console.log("API response:", data);
                           : "bg-white border-[#1E1E1E] text-[#1E1E1E] hover:bg-[#FFE19F]"
                       }`}
                     >
-                      <div className="flex items-center gap-5">
+                      <div className="flex items-center gap-2">
                         {opt.icon ? (
-                          <span className="relative inline-flex items-center justify-center w-10 h-10 -top-1">
-                            <div className="relative -top-1 mr-1">
+                          <span className="relative inline-flex items-center justify-center w-8 h-5 -top-1">
+                            <div className="relative -top-1  ">
                               {opt.icon.startsWith("data:image") ? (
-                                <img src={opt.icon} alt="icon" className="w-10 h-10" />
+                                <img src={opt.icon} alt="icon" className="w-6 h-6" />
                               ) : (
                                 <span>{opt.icon}</span>
                               )}
                             </div>
                           </span>
                         ) : (
+                          
                           <span
-                            className={`w-[12px] h-[12px] rounded-full ml-4 border-[2px] ${
+                            className={`w-[12px] h-[12px] rounded-full  border-[2px] ${
                               active ? "bg-black border-black" : "border-[#F9B31B]"
                             }`}
                           />
@@ -704,6 +774,7 @@ console.log("API response:", data);
         )}
       </section>
 
+
       {currentStep !== 7 && (
         <div className="flex justify-between items-center max-w-4xl mx-auto p-4 gap-4 mb-0 lg:mb-30">
   <button
@@ -727,25 +798,28 @@ console.log("API response:", data);
     Previous
   </button>
 
-  <button
-    onClick={() => {
-      if (currentQuestionIndex === questions.length - 1) {
-        setCurrentStep(7);
-      } else {
-        setCurrentQuestionIndex((prev) => Math.min(prev + 1, questions.length));
-      }
-    }}
-    disabled={!selectedOptions[currentQuestionIndex]}
-    className={`w-[130px] flex items-center justify-center gap-2 py-[10px] rounded-[5px] font-medium
+<button
+            onClick={() => {
+              if (currentQuestionIndex === visibleQuestions.length - 1) {
+                setCurrentStep(7);
+              } else {
+                setCurrentQuestionIndex((prev) => prev + 1);
+              }
+            }}
+            disabled={!selectedOptions[originalIndex]}
+            
+
+            className={`w-[130px] flex items-center justify-center gap-2 py-[10px] rounded-[5px] font-medium
                 border-2 transition-colors
                 ${
-                  currentQuestionIndex === questions.length - 1
+                   selectedOptions[originalIndex]
                     ? "bg-black border-black text-white hover:bg-[#1a1a1a] shadow-[2px_2px_0px_0px_#F9B31B]"
                     : "bg-black border-black text-white hover:bg-[#1a1a1a] shadow-[2px_2px_0px_0px_#F9B31B]"
                 }`}
-  >
-    Next
-  </button>
+  
+          >
+            {currentQuestionIndex === visibleQuestions.length - 1 ? "Get Quote" : "Next"}
+          </button>
 </div>
 
       )}
@@ -847,3 +921,7 @@ console.log("API response:", data);
     </div>
   );
 }
+
+
+
+
