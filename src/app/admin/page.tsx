@@ -139,12 +139,13 @@ const [formsData, setFormsData] = useState<FormSubmission[]>([]);
           response = await fetch('/api/questions');
           if (!response.ok) throw new Error('Failed to fetch questions data');
           const data = await response.json();
-          const formattedData = data.map((item: { id: any; name: string; }) => ({
-            id: item.id,
-            name: item.name,
-            link: `${item.name.toLowerCase().replace(/\s/g, '-')}`,
-            dateCreated: new Date().toLocaleDateString(),
-          }));
+          const formattedData = data.map((item: { id: string | number; name: string }) => ({
+  id: item.id,
+  name: item.name,
+  link: `${item.name.toLowerCase().replace(/\s/g, '-')}`,
+  dateCreated: new Date().toLocaleDateString(),
+}));
+
           setQuestionsData(formattedData);
         } else if (activeTab === 'users') {
           // Fetch data from the users.js API route
@@ -370,7 +371,7 @@ const [formsData, setFormsData] = useState<FormSubmission[]>([]);
   // };
 
   // Handler for deleting a route/question
-  const handleDeleteRoute = (id: any) => {
+  const handleDeleteRoute = (id: string | number) => {
     showAlert(`Are you sure you want to delete route with ID: ${id}?`, async () => {
       console.log(`Attempting to delete route with ID: ${id}`);
       try {
@@ -387,17 +388,17 @@ const [formsData, setFormsData] = useState<FormSubmission[]>([]);
     });
   };
   
-const handleEditRoute = (routeName: string) => {
-  setActiveTab('departments');
-  setSelectedDept(routeName);
-  setEditingQuestionIndex(null);
-  setEditingOptionIndex(null);
-  setQuestionForm({ text: '', icon: '', subText: '', type: '', isDependent: false, dependentOn: undefined });
-  setOption({ icon: '', title: '', subtitle: '', price: '' });
-};
+// const handleEditRoute = (routeName: string) => {
+//   setActiveTab('departments');
+//   setSelectedDept(routeName);
+//   setEditingQuestionIndex(null);
+//   setEditingOptionIndex(null);
+//   setQuestionForm({ text: '', icon: '', subText: '', type: '', isDependent: false, dependentOn: undefined });
+//   setOption({ icon: '', title: '', subtitle: '', price: '' });
+// };
 
   // Handler for deleting a user
-  const handleDeleteUser = (id: any) => {
+  const handleDeleteUser = (id: string | number) => {
     showAlert(`Are you sure you want to delete user with ID: ${id}?`, async () => {
       console.log(`Attempting to delete user with ID: ${id}`);
       try {
@@ -414,7 +415,7 @@ const handleEditRoute = (routeName: string) => {
   };
 
   // Handler for changing a user's role
-  const handleRoleChange = (id: any, newRole: string) => {
+  const handleRoleChange = (id: string | number, newRole: string) => {
     showAlert(`Are you sure you want to change user role to '${newRole}' for user with ID: ${id}?`, async () => {
       console.log(`Attempting to change role for user ${id} to ${newRole}`);
       try {
@@ -437,47 +438,6 @@ const handleEditRoute = (routeName: string) => {
       }
     });
   };
-
-  // Handler for submitting a mock form
-  const handleSubmitForm = async () => {
-    showAlert('Submitting a new sample form...', async () => {
-      const sampleForm = {
-        name: 'Test Form Submitter',
-        email: 'test@example.com',
-        phone: '555-555-5555',
-        submission: {
-          'subject': 'Sample data from Admin Panel',
-          'message': 'This is a test submission from the admin panel to populate the database.',
-        }
-      };
-
-      try {
-        const response = await fetch('/api/submit-form', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(sampleForm),
-        });
-
-        if (!response.ok) throw new Error('Failed to submit form');
-        const newForm = await response.json();
-        
-        console.log('Form submitted successfully:', newForm);
-        // After submission, re-fetch the data to update the table
-        const fetchResponse = await fetch('/api/forms');
-        const updatedForms = await fetchResponse.json();
-        setFormsData(updatedForms);
-        showAlert('Form submitted successfully and table updated!');
-      } catch (error) {
-        console.error('Error submitting form:', error);
-        showAlert('Failed to submit form. Please check your console.');
-      }
-    });
-  };
-
-  // Common button styles
-  const buttonStyle = 'flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-left w-full transition-colors duration-200';
-  const activeButtonStyle = 'bg-gray-800 text-white';
-  const inactiveButtonStyle = 'text-gray-400 hover:bg-gray-800';
 
   return (
      <div className="flex min-h-screen bg-gray-950 text-gray-100 font-sans antialiased">

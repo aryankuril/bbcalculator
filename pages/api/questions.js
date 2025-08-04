@@ -1,7 +1,7 @@
 // File: pages/api/questions.js
 // This API route handles fetching, deleting, and editing questions/routes.
 
-import { MongoClient } from 'mongodb';
+// import { MongoClient } from 'mongodb';
 import { ObjectId } from 'mongodb';
 import clientPromiseUntyped from '../../lib/mongodb';
 

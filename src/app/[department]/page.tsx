@@ -179,15 +179,15 @@ const updateProgress = useCallback((newSelectedOptions: Record<number, Option | 
 
   
 
-  const shouldDisplayQuestion = (question: Question, allAnswers: (number | null)[]): boolean => {
-  if (!question.isDependent) return true;
+//   const shouldDisplayQuestion = (question: Question, allAnswers: (number | null)[]): boolean => {
+//   if (!question.isDependent) return true;
 
-  const dep = question.dependentOn;
-  if (!dep) return false;
+//   const dep = question.dependentOn;
+//   if (!dep) return false;
 
-  const selectedOption = allAnswers[dep.questionIndex];
-  return selectedOption === dep.optionIndex;
-};
+//   const selectedOption = allAnswers[dep.questionIndex];
+//   return selectedOption === dep.optionIndex;
+// };
 
 
   useEffect(() => {
