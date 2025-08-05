@@ -16,14 +16,10 @@ export default async function handler(req, res) {
   if (req.method === 'GET') {
     try {
       const allRoutes = await collection.find({}).toArray();
- const formattedRoutes = allRoutes.map(route => ({
-      id: route._id.toString(),
-      name: route.name,
-      link: route.link,
-      dateCreated: route.dateCreated,
-      questions: route.questions || [], // <-- return full questions list here
-    }));
-
+      const formattedRoutes = allRoutes.map(route => ({
+        id: route._id.toString(),
+        name: route.name,
+      }));
       return res.status(200).json(formattedRoutes);
     } catch (error) {
       console.error('[GET /api/questions] Error:', error);
