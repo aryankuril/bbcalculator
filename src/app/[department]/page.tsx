@@ -243,10 +243,20 @@ useEffect(() => {
   // --- RENDER LOGIC STARTS HERE ---
   // Early return statements should only come after all hooks have been called
   // ------- What to render now? -----------
-  if (!department || !questions || questions.length === 0)
-    return <div>Loading ...</div>;
-  if (visibleQuestions.length === 0)
-    return <div>No visible questions.</div>;
+if (!department || !questions || questions.length === 0)
+  return (
+    <div className="flex items-center justify-center min-h-[100vh]  bg-white">
+      <img src="/BB-web-chai-1.gif" alt="Loading..." className="w-60 h-60" />
+    </div>
+  );
+
+if (visibleQuestions.length === 0)
+  return (
+    <div className="text-center text-lg mt-10 text-gray-400">
+      No visible questions.
+    </div>
+  );
+
 
   const currentQuestion = visibleQuestions[currentVisibleIdx];
   // The index in the original array for this question:
