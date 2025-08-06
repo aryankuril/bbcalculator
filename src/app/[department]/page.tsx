@@ -88,39 +88,39 @@ export default function PreviewPage() {
 
 
   // Instead of a separate useEffect, we will update the progress on option selection
-const updateProgress = useCallback((newSelectedOptions: Record<number, Option | null>) => {
-  if (!questions || questions.length === 0) {
-    setPercent(0);
-    return;
-  }
+// const updateProgress = useCallback((newSelectedOptions: Record<number, Option | null>) => {
+//   if (!questions || questions.length === 0) {
+//     setPercent(0);
+//     return;
+//   }
 
-  const visibleCount = questions.filter(q => isQuestionVisible(q, newSelectedOptions)).length;
+//   const visibleCount = questions.filter(q => isQuestionVisible(q, newSelectedOptions)).length;
 
-  const answeredVisibleCount = questions.filter((q, idx) =>
-    isQuestionVisible(q, newSelectedOptions) && newSelectedOptions[idx]
-  ).length;
+//   const answeredVisibleCount = questions.filter((q, idx) =>
+//     isQuestionVisible(q, newSelectedOptions) && newSelectedOptions[idx]
+//   ).length;
 
-  const newPercent = Math.round((answeredVisibleCount / visibleCount) * 100);
+//   const newPercent = Math.round((answeredVisibleCount / visibleCount) * 100);
 
-  // Animate the percent change
-  let start: number | null = null;
-  const duration = 200;
-  const startPercent = percent;
-  const change = newPercent - startPercent;
+//   // Animate the percent change
+//   let start: number | null = null;
+//   const duration = 200;
+//   const startPercent = percent;
+//   const change = newPercent - startPercent;
 
-  const animate = (timestamp: number) => {
-    if (!start) start = timestamp;
-    const progressTime = timestamp - start;
-    const progress = Math.min(progressTime / duration, 1);
-    const animatedValue = Math.round(startPercent + change * progress);
-    setPercent(animatedValue);
-    if (progress < 1) {
-      requestAnimationFrame(animate);
-    }
-  };
+//   const animate = (timestamp: number) => {
+//     if (!start) start = timestamp;
+//     const progressTime = timestamp - start;
+//     const progress = Math.min(progressTime / duration, 1);
+//     const animatedValue = Math.round(startPercent + change * progress);
+//     setPercent(animatedValue);
+//     if (progress < 1) {
+//       requestAnimationFrame(animate);
+//     }
+//   };
 
-  requestAnimationFrame(animate);
-}, [questions, percent,]);
+//   requestAnimationFrame(animate);
+// }, [questions, percent,]);
 
 
 
