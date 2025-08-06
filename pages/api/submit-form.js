@@ -17,7 +17,7 @@ export default async function handler(req, res) {
     const client = await clientPromise;
     const db = client.db("test");
 
-    let insertedId = estimateId;
+    // let insertedId = estimateId;
 
     // Case 1: if no estimateId, insert a new blank entry
     if (!estimateId && (!name || !phone || !email)) {
