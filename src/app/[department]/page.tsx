@@ -57,12 +57,12 @@ export default function PreviewPage() {
   const department = params.department;
 
   const [questions, setQuestions] = useState<Question[] | null>(null);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  // const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedOptions, setSelectedOptions] = useState<Record<number, Option | null>>({});
   const [visibleQuestions, setVisibleQuestions] = useState<Question[]>([]);
   const [currentStep, setCurrentStep] = useState(1);
   // Ensure totals is always a number
-  const [totals, setTotals] = useState(0);
+  // const [totals, setTotals] = useState(0);
   const [costItems, setCostItems] = useState<CostItem[]>([]);
   const [includedItems] = useState([
     "Unlimited Revisions", "Source Code", "Deployment Support", "24/7 Support"
