@@ -46,13 +46,14 @@ type FormSubmission = {
   phone: string;
   createdAt: string;
 };
-type QuestionData = {
+type QuestionsRoute = {
+  link: string;
   id: string;
   name: string;
-  link: string;
   dateCreated: string;
-  // other fields if any
+  questions: Question[]; // <-- all question objects for this route
 };
+
 type User = {
   id: string; // required to identify each user uniquely
   name: string;
@@ -81,8 +82,9 @@ const AdminPanel = () => {
   const [lastSavedDept, setLastSavedDept] = useState<string | null>(null);
 
   const [usersData, setUsersData] = useState<User[]>([]);
-const [questionsData, setQuestionsData] = useState<QuestionData[]>([]);
+// const [questionsData, setQuestionsData] = useState<QuestionData[]>([]);
 const [formsData, setFormsData] = useState<FormSubmission[]>([]);
+const [questionsData, setQuestionsData] = useState<QuestionsRoute[]>([]);
 
  const [questionForm, setQuestionForm] = useState<{
     text: string;
@@ -122,6 +124,28 @@ const [formsData, setFormsData] = useState<FormSubmission[]>([]);
   // State to handle loading status
   const [isLoading, setIsLoading] = useState(false);
 
+
+
+
+const handleEditRoute = (route: QuestionsRoute) => {
+  // Go to the "departments" tab and load the selected route's data into editing form
+  setActiveTab('departments');
+  setSelectedDept(route.name);
+
+  // Populate the formState for editing from this route's questions
+  setFormState(prev => ({
+    ...prev,
+    [route.name]: route.questions || []
+  }));
+
+  // Reset or clear editing indexes
+  setEditingQuestionIndex(null);
+  setEditingOptionIndex(null);
+
+  // Optional: scroll to top or focus form
+  window.scrollTo(0, 0);
+};
+
   // A useEffect hook to fetch data from the backend when the activeTab changes
   useEffect(() => {
     const fetchData = async () => {
@@ -139,14 +163,10 @@ const [formsData, setFormsData] = useState<FormSubmission[]>([]);
           response = await fetch('/api/questions');
           if (!response.ok) throw new Error('Failed to fetch questions data');
           const data = await response.json();
-          const formattedData = data.map((item: { id: string | number; name: string }) => ({
-  id: item.id,
-  name: item.name,
-  link: `${item.name.toLowerCase().replace(/\s/g, '-')}`,
-  dateCreated: new Date().toLocaleDateString(),
-}));
+          setQuestionsData(data);
 
-          setQuestionsData(formattedData);
+
+          // setQuestionsData(formattedData);
         } else if (activeTab === 'users') {
           // Fetch data from the users.js API route
           response = await fetch('/api/users');
@@ -439,6 +459,9 @@ const [formsData, setFormsData] = useState<FormSubmission[]>([]);
     });
   };
 
+
+
+
   return (
      <div className="flex min-h-screen bg-gray-950 text-gray-100 font-sans antialiased">
       {modal.isOpen && (
@@ -493,13 +516,6 @@ const [formsData, setFormsData] = useState<FormSubmission[]>([]);
             </button>
           </nav>
         </div>
-        {/* <button
-          onClick={handleLogout}
-          className="flex items-center gap-3 bg-red-600 text-white py-3 px-4 rounded-lg font-bold hover:bg-red-700 transition-colors mt-6 md:mt-auto"
-        >
-          <LogOut size={20} />
-          Logout
-        </button> */}
       </aside>
 
       {/* Main Content Area */}
@@ -511,7 +527,7 @@ const [formsData, setFormsData] = useState<FormSubmission[]>([]);
           {activeTab === 'users' && 'User Management'}
           {activeTab === 'departments' && 'Department & Route Builder'}
         </h1>
-        
+         
         {/* Loading Indicator */}
         {isLoading && (
           <div className="flex justify-center items-center h-48">
@@ -542,9 +558,9 @@ const [formsData, setFormsData] = useState<FormSubmission[]>([]);
                     {formsData.map((form, index) => (
                       <tr key={form._id} className="border-b border-gray-800 last:border-b-0 hover:bg-gray-800 transition-colors">
                         <td className="py-4 px-4">{index + 1}</td>
-                        <td className="py-4 px-4">{form.name}</td>
-                        <td className="py-4 px-4">{form.email}</td>
-                        <td className="py-4 px-4">{form.phone}</td>
+                        <td className="py-4 px-4">{form.name || "N/A"}</td>
+      <td className="py-4 px-4">{form.email || "N/A"}</td>
+      <td className="py-4 px-4">{form.phone || "N/A"}</td>
                         <td className="py-4 px-4">{new Date(form.createdAt).toLocaleString()}</td>
                       </tr>
                     ))}
@@ -557,9 +573,9 @@ const [formsData, setFormsData] = useState<FormSubmission[]>([]);
               </div>
             )}
           </div>
-        )}
+        )}  
 
-        {!isLoading && activeTab === 'questions' && (
+        {!isLoading && activeTab === 'questions' && ( 
           <div className="bg-gray-900 p-6 rounded-2xl shadow-lg border border-gray-800">
             <h2 className="text-2xl font-semibold mb-4">Routes and Questions</h2>
             <div className="overflow-x-auto">
@@ -574,39 +590,50 @@ const [formsData, setFormsData] = useState<FormSubmission[]>([]);
                   </tr>
                 </thead>
                 <tbody>
-                  {questionsData.map((question, index) => (
-                    <tr key={question.id} className="border-b border-gray-800 last:border-b-0 hover:bg-gray-800 transition-colors">
-                      <td className="py-4 px-4">{index + 1}</td>
-                      <td className="py-4 px-4">{question.name}</td>
-                      <td className="py-4 px-4">
-                        <a href={question.link} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 flex items-center gap-2">
-                          {question.link}
-                          <ExternalLink size={16} />
-                        </a>
-                      </td>
-                      <td className="py-4 px-4">{question.dateCreated}</td>
-                      <td className="py-4 px-4 flex justify-center gap-2">
-                        <button
-                          onClick={() => {
-  setActiveTab('departments');
-  setSelectedDept(question.name);
-}}
+            
+  {questionsData.map((route, idx) => (
+    
+    <React.Fragment key={route.id}>
+      {/* Main route row */}
+      <tr className="border-b border-gray-800 last:border-b-0 hover:bg-gray-800 transition-colors">
+        <td className="py-4 px-4 align-top">{idx + 1}</td>
+        <td className="py-4 px-4 align-top">{route.name}</td>
+        <td className="py-4 px-4 align-top">
+          <a href={route.link || `/${route.name}`} target="_blank" rel="noopener noreferrer"
+             className="text-blue-400 hover:text-blue-300 flex items-center gap-2">
+            {route.link || `${route.name}`}
+             <ExternalLink size={16} />
+          </a>
+        </td>
+  <td className="py-4 px-4">{route.dateCreated ? new Date(route.dateCreated).toLocaleDateString() : "—"}
+</td>
 
-                          className="p-2 rounded-lg text-blue-400 hover:bg-blue-900 transition-colors"
-                          title="Edit"
-                        >
-                          <Edit size={18} />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteRoute(question.id)}
+
+
+        <td className="py-4 px-4 align-top text-center">
+          <button
+            onClick={() => handleEditRoute(route)}
+            className=" text-blue-400 hover:text-blue-300 px-3 py-1 rounded-lg  transition-colors"
+          >
+            <Edit size={18} />
+          </button>
+          <button
+                          onClick={() => handleDeleteRoute(route.id)}
                           className="p-2 rounded-lg text-red-400 hover:bg-red-900 transition-colors"
                           title="Delete"
                         >
                           <Trash size={18} />
                         </button>
-                      </td>
-                    </tr>
-                  ))}
+        </td>
+      </tr>
+      {/* Expanded row for questions (single cell spanning all columns) */}
+      <tr>
+
+      </tr>
+    </React.Fragment>
+  ))}
+
+
                 </tbody>
               </table>
             </div>

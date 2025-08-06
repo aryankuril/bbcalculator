@@ -75,6 +75,7 @@ export default function PreviewPage() {
   const [email, setEmail] = useState("");
   const [disableEmailBtn, setDisableEmailBtn] = useState(false);
   const [percent, setPercent] = useState(0);
+    const [currentVisibleIdx, setCurrentVisibleIdx] = useState(0);
 
 
   const totalEstimate = useMemo(() => {
@@ -124,38 +125,36 @@ const updateProgress = useCallback((newSelectedOptions: Record<number, Option | 
 
 
   // A function to determine if a question should be displayed
-  const isQuestionVisible = useCallback((question: Question, allAnswers: Record<number, Option | null>): boolean => {
-    if (!question.isDependent || !question.dependentOn) {
-      return true;
-    }
-    const dependentOnQuestionIndex = question.dependentOn.questionIndex;
-    const requiredOptionIndex = question.dependentOn.optionIndex;
-    const selectedOption = allAnswers[dependentOnQuestionIndex];
-    
-    // Check if the required option is selected
-    const selectedOptionIndex = questions?.[dependentOnQuestionIndex]?.options.findIndex(
-      (opt) => opt?.title === selectedOption?.title
-    );
+  const isQuestionVisible = useCallback(
+    (question: Question, selected: Record<number, Option | null>): boolean => {
+      if (!question.isDependent || !question.dependentOn) return true;
+      const { questionIndex, optionIndex } = question.dependentOn;
+      const answer = selected[questionIndex];
+      if (!answer) return false;
+      const selectedOptIdx = questions
+        ? questions[questionIndex].options.findIndex((o) => o.title === answer.title)
+        : -1;
+      return selectedOptIdx === optionIndex;
+    },
+    [questions]
+  );
 
-    return selectedOptionIndex === requiredOptionIndex;
-  }, [questions]);
 
   // RECALCULATE VISIBLE QUESTIONS AND CURRENT INDEX
-  useEffect(() => {
-    if (!questions) return;
-    
-    // Create the new filtered list of questions
-    const newVisibleQuestions = questions.filter(q => isQuestionVisible(q, selectedOptions));
-    setVisibleQuestions(newVisibleQuestions);
+useEffect(() => {
+  if (!questions) return;
+  const visible = questions.filter(q => isQuestionVisible(q, selectedOptions));
+  setVisibleQuestions(visible);
 
-    // Find the new index of the current question within the filtered list
-    if (questions[currentQuestionIndex]) {
-      const newIndex = newVisibleQuestions.findIndex(q => q.questionText === questions[currentQuestionIndex].questionText);
-      setCurrentQuestionIndex(newIndex !== -1 ? newIndex : 0);
-    } else {
-      setCurrentQuestionIndex(0);
-    }
-  }, [questions, selectedOptions, isQuestionVisible, currentQuestionIndex]);
+  setCurrentVisibleIdx(prev => {
+    if (visible.length === 0) return 0;
+    if (prev >= visible.length) return visible.length - 1;
+    return prev;
+  });
+}, [questions, selectedOptions, isQuestionVisible]);
+
+
+
 
  useEffect(() => {
     async function load() {
@@ -178,62 +177,95 @@ const updateProgress = useCallback((newSelectedOptions: Record<number, Option | 
 
 
   
+const updateCostItems = useCallback(() => {
+  if (!questions) return;
 
-//   const shouldDisplayQuestion = (question: Question, allAnswers: (number | null)[]): boolean => {
-//   if (!question.isDependent) return true;
+  const newCostItems = Object.entries(selectedOptions).map(([index, option]) => {
+    // The keys in selectedOptions are strings, so we need to convert them to numbers
+    const questionIndex = parseInt(index, 10);
+    const question = questions[questionIndex];
 
-//   const dep = question.dependentOn;
-//   if (!dep) return false;
+    if (!question || !option) return null;
 
-//   const selectedOption = allAnswers[dep.questionIndex];
-//   return selectedOption === dep.optionIndex;
-// };
+    return {
+      type: question.type,
+      label: question.questionText,
+      value: option.title,
+      price: typeof option.price === "string" ? parseFloat(option.price) : option.price,
+    };
+  }).filter(item => item !== null); // Filter out any null entries
+
+  setCostItems(newCostItems as CostItem[]);
+}, [selectedOptions, questions]);
+
+useEffect(() => {
+  updateCostItems();
+}, [selectedOptions, updateCostItems]);
+  // -------- Compute Progress & Totals ---------------
+useEffect(() => {
+  if (!questions) return;
+  const visibleCount = visibleQuestions.length;
+  const answeredCount = visibleQuestions.reduce((acc, q) => {
+    const idx = questions.findIndex(qq => qq.questionText === q.questionText);
+    if (selectedOptions[idx]) return acc + 1;
+    return acc;
+  }, 0);
+  const newPercent = visibleCount === 0 ? 0 : Math.round((answeredCount / visibleCount) * 100);
+  setPercent(newPercent);
+}, [selectedOptions, visibleQuestions, currentVisibleIdx, questions]);
 
 
-  useEffect(() => {
-    if (!questions) return;
-    let calculatedTotal = 0;
-    const newCostItems: CostItem[] = [];
-    questions.forEach((q, qIndex) => {
-      const selectedOption = selectedOptions[qIndex];
-      if (selectedOption) {
-        const price = typeof selectedOption.price === "string"
-          ? parseFloat(selectedOption.price)
-          : Number(selectedOption.price);
-        calculatedTotal += isNaN(price) ? 0 : price;
-        newCostItems.push({
-          type: q.questionText,
-          label: selectedOption.title,
-          value: selectedOption.title,
-          price: isNaN(price) ? 0 : price,
+useEffect(() => {
+  if (visibleQuestions.length === 0 || costItems.length === 0 || totalEstimate === 0) return;
+
+  // Only run if we don't already have an estimateId
+  if (typeof window !== "undefined" && !localStorage.getItem("estimateId")) {
+    (async () => {
+      try {
+        const res = await fetch("/api/submit-form", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: null, phone: null, email: null, quote: costItems, total: totalEstimate }),
         });
+
+        const data = await res.json();
+        if (res.ok && data.estimateId) {
+          localStorage.setItem("estimateId", data.estimateId);
+        }
+      } catch (error) {
+        console.error("❌ Error saving blank estimate:", error);
       }
-    });
-    setTotals(calculatedTotal);
-    setCostItems(newCostItems);
-    updateProgress(selectedOptions);
-  }, [selectedOptions, questions, updateProgress]);
+    })();
+  }
+}, [visibleQuestions.length, costItems, totalEstimate]);
 
 
   // --- RENDER LOGIC STARTS HERE ---
   // Early return statements should only come after all hooks have been called
-  if (!department || !questions || questions.length === 0) {
-    return <p className="text-gray-500">Loading questions...</p>;
-  }
+  // ------- What to render now? -----------
+  if (!department || !questions || questions.length === 0)
+    return <div>Loading ...</div>;
+  if (visibleQuestions.length === 0)
+    return <div>No visible questions.</div>;
 
-  // USE THE FILTERED LIST
-  const currentQuestion = visibleQuestions[currentQuestionIndex];
-  if (!currentQuestion) {
-    return <p className="text-gray-500">No visible questions found.</p>;
-  }
+  const currentQuestion = visibleQuestions[currentVisibleIdx];
+  // The index in the original array for this question:
+  const originalIndex = questions.findIndex(
+    (q) => q.questionText === currentQuestion.questionText
+  );
 
-  const handleOptionSelect = (option: Option, qIndex: number) => {
-    const newSelectedOptions = { ...selectedOptions, [qIndex]: option };
-    setSelectedOptions(newSelectedOptions);
-  };
-  
-  // Find the original index of the current question
-  const originalIndex = questions.findIndex(q => q.questionText === currentQuestion.questionText);
+  // -------- Option selection (always write by original index) ----------
+const handleOptionSelect = (opt: Option) => {
+  const updated = { ...selectedOptions, [originalIndex]: opt };
+  const newVisible = questions.filter(q => isQuestionVisible(q, updated));
+  const visibleIndexes = newVisible.map(q => questions.findIndex(qq => qq.questionText === q.questionText));
+  const cleaned: Record<number, Option | null> = {};
+  visibleIndexes.forEach(idx => {
+    if (updated[idx]) cleaned[idx] = updated[idx];
+  });
+  setSelectedOptions(cleaned);
+};
+
 
   const hasMultiLineSubtitle = currentQuestion.options.some(opt => opt.subtitle && opt.subtitle.includes('|'));
 
@@ -247,68 +279,84 @@ const updateProgress = useCallback((newSelectedOptions: Record<number, Option | 
     return isValid;
   };
   
-  const handleSubmit = async () => {
-    if (!validate()) return;
-    const { name, phone, email } = formData;
-    try {
-      const res = await fetch("/api/submit-form", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, phone, email, quote: costItems, total: totals }),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        console.log("✅ Final Form Submitted:", formData);
-        setToastMessage("✅ Thank you! We'll connect with you soon.");
-        setTimeout(() => setToastMessage(""), 4000);
-        setShowPopupForm(false);
-      } else {
-        alert(`❌ Error: ${data.message}`);
-      }
-    } catch (err) {
-      console.error("❌ Submission error:", err);
-      alert('Something went wrong while submitting.');
+const handleSubmit = async () => {
+  if (!validate()) return;
+  const { name, phone, email } = formData;
+  const estimateId = typeof window !== "undefined" ? localStorage.getItem("estimateId") : null;
+
+  try {
+    const res = await fetch("/api/submit-form", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name,
+        phone,
+        email,
+        quote: costItems,
+        total: totalEstimate,
+        estimateId,
+      }),
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      console.log("✅ Final Form Submitted:", formData);
+      setToastMessage("✅ Thank you! We'll connect with you soon.");
+      setTimeout(() => setToastMessage(""), 4000);
+      setShowPopupForm(false);
+
+      localStorage.removeItem("estimateId"); // cleanup
+    } else {
+      alert(`❌ Error: ${data.message}`);
     }
+  } catch (err) {
+    console.error("❌ Submission error:", err);
+    alert('Something went wrong while submitting.');
   }
+};
 
-  const handleEmailSubmit = async () => {
+
+const handleEmailSubmit = async () => {
     if (!email) {
-      alert("Please enter a valid email address.");
-      return;
+        alert("Please enter a valid email address.");
+        return;
     }
     try {
-      const res = await fetch("/api/send-quotation", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, quote: costItems, total: totals }),
-      });
-      const data = await res.json();
-      console.log("API response:", data);
+        const res = await fetch("/api/send-quotation", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            // FIX: Use totalEstimate here too
+            body: JSON.stringify({ email, quote: costItems, total: totalEstimate }),
+        });
+        const data = await res.json();
+        console.log("API response:", data);
 
-      if (res.ok) {
-        setToastMessage("✅ Quotation sent successfully!");
-        setTimeout(() => setToastMessage(""), 4000);
-        setShowEmailInput(false);
-        setEmail("");
-        setDisableEmailBtn(false);
-      } else {
-        alert("❌ Failed to send email.");
-      }
+        if (res.ok) {
+            setToastMessage("✅ Quotation sent successfully!");
+            setTimeout(() => setToastMessage(""), 4000);
+            setShowEmailInput(false);
+            setEmail("");
+            setDisableEmailBtn(false);
+        } else {
+            alert("❌ Failed to send email.");
+        }
     } catch (err) {
-      console.error("❌ Error sending email:", err);
-      alert("Something went wrong while sending the email.");
+        console.error("❌ Error sending email:", err);
+        alert("Something went wrong while sending the email.");
     }
-  };
+};
   
 
-  // const totalEstimate = Object.values(selectedOptions).reduce((sum, opt) => {
-  //   if (!opt || (!opt.price && opt.price !== 0)) return sum;
-  //   const price = typeof opt.price === "string" ? parseFloat(opt.price) : typeof opt.price === "number" ? opt.price : 0;
-  //   return sum + (isNaN(price) ? 0 : price);
-  // }, 0);
+
+
 
   return (
     <div>
+        {toastMessage && (
+  <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-4 py-2 rounded shadow-md z-50">
+    {toastMessage}
+  </div>
+)}
       <div
         className="w-full h-[500px] md:h-[700px] relative bg-no-repeat bg-center bg-cover px-4 py-10 md:py-0"
       >
@@ -369,7 +417,7 @@ const updateProgress = useCallback((newSelectedOptions: Record<number, Option | 
 
       <section className="w-full px-4 flex flex-col items-center mt-0 lg:mt-30">
         <h2 className="text-center font-poppins lg:text-[32px] text-[23px] font-bold leading-normal tracking-[-0.8px] capitalize text-black">
-          Plan Your Website, Step By Step
+          Plan Your Project, Step By Step
         </h2>
         <div className="flex items-center gap-2 mt-1 text-sm text-gray-600">
           <span className="text-center font-poppins text-[20px] font-[400] leading-normal text-[#797474]">
@@ -410,7 +458,7 @@ const updateProgress = useCallback((newSelectedOptions: Record<number, Option | 
         </div>
 
         {/* ... The rest of your component remains the same from the previous response ... */}
-        {currentStep !== 7 ? (
+        {currentStep !== 99 ? (
           hasMultiLineSubtitle ? (
             <div
               className="
@@ -460,13 +508,13 @@ const updateProgress = useCallback((newSelectedOptions: Record<number, Option | 
 
               <div className="grid grid-cols-1 md:grid-cols-3 lg:gap-10 gap-5">
             {currentQuestion.options.map((opt, i) => {
-                  const id = `q${originalIndex}-opt${i}`;
-                  const active = selectedOptions[originalIndex]?.title === opt.title;
+            const active = selectedOptions[originalIndex]?.title === opt.title;
                   return (
                     <button
-                      key={id}
+                      key={i}
                       type="button"
-                      onClick={() => handleOptionSelect(opt, currentQuestionIndex)}
+                      onClick={() => handleOptionSelect(opt)}
+
                       className={`flex flex-col justify-between gap-2 rounded-[8px] border transition-colors px-4 py-4 text-left w-full lg:w-[280px] h-[180px] relative ${
                         active
                           ? "bg-[#F9B31B] border-[#1E1E1E] text-white shadow-[2px_2px_0px_0px_#1E1E1E]"
@@ -555,16 +603,17 @@ const updateProgress = useCallback((newSelectedOptions: Record<number, Option | 
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                 {currentQuestion.options.map((opt, i) => {
-                  const id = `q${currentQuestionIndex}-opt${i}`;
-                  const active = selectedOptions[currentQuestionIndex]?.title === opt.title;
+                {currentQuestion.options.map((opt, i) => {
+            const active = selectedOptions[originalIndex]?.title === opt.title;
                   return (
+                    
                     <button
-                      key={id}
+                      key={i}
                       type="button"
-                      onClick={() => handleOptionSelect(opt, currentQuestionIndex)}
+                     onClick={() => handleOptionSelect(opt)}
+
                       className={`flex items-center justify-between gap-4 rounded-[8px] border transition-colors px-3 py-3 text-left w-full ${
-                        opt.icon ? "h-[72px]" : "h-[50px]"
+                       opt.subtitle?.trim() ? "h-[72px]" : "h-[50px]"
                       } ${
                         active
                           ? "bg-[#F9B31B] border-[#1E1E1E] text-white shadow-[2px_2px_0px_0px_#1E1E1E]"
@@ -574,7 +623,7 @@ const updateProgress = useCallback((newSelectedOptions: Record<number, Option | 
                       <div className="flex items-center gap-2">
                         {opt.icon ? (
                           <span className="relative inline-flex items-center justify-center w-8 h-5 -top-1">
-                            <div className="relative -top-1  ">
+                            <div className="relative  ">
                               {opt.icon.startsWith("data:image") ? (
                                 <img src={opt.icon} alt="icon" className="w-6 h-6" />
                               ) : (
@@ -716,7 +765,7 @@ const updateProgress = useCallback((newSelectedOptions: Record<number, Option | 
                     <p>
 
                        <span className="text-[#1E1E1E] text-center font-[Poppins] text-[14px] font-[700] leading-normal not-italic">
- {questions[index]?.type}:
+{item.type}:
 </span>
 {" "}
                       <span className="text-[#1E1E1E] font-[Poppins] text-[14px] font-[300] not-italic  leading-normal">
@@ -775,22 +824,24 @@ const updateProgress = useCallback((newSelectedOptions: Record<number, Option | 
       </section>
 
 
-      {currentStep !== 7 && (
+      {currentStep !== 99 && (
         <div className="flex justify-between items-center max-w-4xl mx-auto p-4 gap-4 mb-0 lg:mb-30">
   <button
-    onClick={() => {
-      if (currentQuestionIndex > 0) {
-        const newSelectedOptions = { ...selectedOptions };
-        newSelectedOptions[currentQuestionIndex] = null;
-        setCurrentQuestionIndex((prev) => prev - 1);
-        setSelectedOptions(newSelectedOptions);
-      }
-    }}
-    disabled={currentQuestionIndex === 0}
+  onClick={() => {
+  if (currentVisibleIdx > 0 && questions && visibleQuestions.length > 0) {
+    const newSelectedOptions = { ...selectedOptions };
+    const origIdx = questions.findIndex(q => q.questionText === visibleQuestions[currentVisibleIdx].questionText);
+    newSelectedOptions[origIdx] = null;  // correct key into original questions
+    setSelectedOptions(newSelectedOptions);
+    setCurrentVisibleIdx((prev) => prev - 1);
+  }
+}}
+
+    disabled={currentVisibleIdx === 0}
     className={`w-[130px] flex items-center justify-center gap-2 py-[10px] rounded-[5px] italic
                 border shadow-[2px_2px_0px_0px_#262626] transition-colors text-[16px] font-[400]
                 ${
-                  currentQuestionIndex > 0
+                  currentVisibleIdx  > 0
                     ? "bg-[#F9B31B] border-[#262626] text-[#262626]"
                     : "bg-gray-200 border-gray-200 text-gray-400 cursor-not-allowed shadow-none"
                 }`}
@@ -799,13 +850,15 @@ const updateProgress = useCallback((newSelectedOptions: Record<number, Option | 
   </button>
 
 <button
-            onClick={() => {
-              if (currentQuestionIndex === visibleQuestions.length - 1) {
-                setCurrentStep(7);
-              } else {
-                setCurrentQuestionIndex((prev) => prev + 1);
-              }
-            }}
+           onClick={() => {
+            if (currentVisibleIdx === visibleQuestions.length - 1) {
+              setCurrentStep(99); // finished!
+            } else {
+              setCurrentVisibleIdx((prev) =>
+                Math.min(visibleQuestions.length - 1, prev + 1)
+              );
+            }
+          }}
             disabled={!selectedOptions[originalIndex]}
             
 
@@ -818,7 +871,9 @@ const updateProgress = useCallback((newSelectedOptions: Record<number, Option | 
                 }`}
   
           >
-            {currentQuestionIndex === visibleQuestions.length - 1 ? "Get Quote" : "Next"}
+            {currentVisibleIdx === visibleQuestions.length - 1
+            ? "See Estimate"
+            : "Next"}
           </button>
 </div>
 
@@ -910,12 +965,8 @@ const updateProgress = useCallback((newSelectedOptions: Record<number, Option | 
       >
         Submit
       </button>
+  
     </div>
-    {toastMessage && (
-  <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-4 py-2 rounded shadow-md z-50">
-    {toastMessage}
-  </div>
-)}
   </div>
 )}
     </div>

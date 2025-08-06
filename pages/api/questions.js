@@ -14,12 +14,17 @@ export default async function handler(req, res) {
 
   // GET: Fetch all questions/routes
   if (req.method === 'GET') {
+    const now = new Date();
     try {
       const allRoutes = await collection.find({}).toArray();
-      const formattedRoutes = allRoutes.map(route => ({
-        id: route._id.toString(),
-        name: route.name,
-      }));
+ const formattedRoutes = allRoutes.map(route => ({
+      id: route._id.toString(),
+      name: route.name,
+      link: route.link,
+     dateCreated: now,
+      questions: route.questions || [], // <-- return full questions list here
+    }));
+
       return res.status(200).json(formattedRoutes);
     } catch (error) {
       console.error('[GET /api/questions] Error:', error);
