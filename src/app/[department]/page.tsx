@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
-import PreviewPage from "./PreviewPage"; // client component
+import PreviewPage from "./PreviewPage";
 
-export async function generateMetadata({
-  params,
-}: {
-  params: { department: string };
-}): Promise<Metadata> {
+// ✅ Still handle metadata with `params` as a Promise
+export async function generateMetadata(
+  { params }: { params: Promise<{ department: string }> }
+): Promise<Metadata> {
+  const { department } = await params;
+
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/get-questions?dept=${params.department}`,
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/get-questions?dept=${department}`,
     { cache: "no-store" }
   );
 
@@ -24,6 +25,7 @@ export async function generateMetadata({
   };
 }
 
+// ✅ No props sent to PreviewPage
 export default function DepartmentPage() {
   return <PreviewPage />;
 }
