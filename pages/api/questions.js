@@ -14,7 +14,7 @@ export default async function handler(req, res) {
 
   // GET: Fetch all questions/routes
   if (req.method === 'GET') {
-    const now = new Date();
+    // const now = new Date();
     try {
       const allRoutes = await collection.find({}).toArray();
  const formattedRoutes = allRoutes.map(route => ({
