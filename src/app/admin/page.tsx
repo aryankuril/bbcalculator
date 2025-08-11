@@ -54,6 +54,7 @@ type QuestionsRoute = {
   name: string;
   dateCreated: string;
   questions: Question[]; // <-- all question objects for this route
+  metaTitle?: string; // <-- add this line
 };
 
 type User = {
@@ -136,7 +137,8 @@ const handleEditRoute = (route: QuestionsRoute) => {
   setSelectedDept(route.name); // marks edit mode
   setNewDept(route.name);      // fills input with department name
   setFormState(prev => ({ ...prev, [route.name]: route.questions || [] }));
-  setMetaTitles(prev => ({ ...prev, [route.name]: (route as any).metaTitle || "" }));
+setMetaTitles(prev => ({ ...prev, [route.name]: route.metaTitle || "" }));
+
   setEditingQuestionIndex(null);
   setEditingOptionIndex(null);
   window.scrollTo(0, 0);
