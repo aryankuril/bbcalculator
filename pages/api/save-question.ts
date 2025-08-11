@@ -35,6 +35,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         { name },
         {
           $set: {
+             name,
             questions,
             includedItems,
             metaTitle: metaTitle || existingDoc.metaTitle || '', // keep old if not provided

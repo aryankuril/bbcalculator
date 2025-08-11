@@ -12,6 +12,7 @@ type Question = {
 
 type DataResponse = {
   questions: Question[];
+  metaTitle?: string; // ✅ Add metaTitle to the response
   includedItems?: string[]; // <-- Include this in type
 };
 
@@ -43,11 +44,14 @@ export default async function handler(
     });
 
     const questions = result?.questions || [];
-    const includedItems = result?.includedItems || []; // <-- Fetch this from DB
+    const includedItems = result?.includedItems || [];
+    const metaTitle = result?.metaTitle || ""; // <-- ADD THIS
 
-    return res.status(200).json({ questions, includedItems }); // <-- Return it
+    // RETURN all three
+    return res.status(200).json({ questions, includedItems, metaTitle });
   } catch (error) {
     console.error('[GET /api/get-questions] Error:', error);
     return res.status(500).json({ message: 'Internal Server Error' });
   }
 }
+

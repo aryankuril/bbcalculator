@@ -82,6 +82,7 @@ const AdminPanel = () => {
   const [formState, setFormState] = useState<Record<string, Question[]>>({});
   const [selectedDept, setSelectedDept] = useState<string | null>(null);
   const [lastSavedDept, setLastSavedDept] = useState<string | null>(null);
+const [metaTitles, setMetaTitles] = useState<Record<string, string>>({});
 
   const [usersData, setUsersData] = useState<User[]>([]);
 // const [questionsData, setQuestionsData] = useState<QuestionData[]>([]);
@@ -131,23 +132,18 @@ const [questionsData, setQuestionsData] = useState<QuestionsRoute[]>([]);
 
 
 const handleEditRoute = (route: QuestionsRoute) => {
-  // Go to the "departments" tab and load the selected route's data into editing form
   setActiveTab('departments');
-  setSelectedDept(route.name);
-
-  // Populate the formState for editing from this route's questions
-  setFormState(prev => ({
-    ...prev,
-    [route.name]: route.questions || []
-  }));
-
-  // Reset or clear editing indexes
+  setSelectedDept(route.name); // marks edit mode
+  setNewDept(route.name);      // fills input with department name
+  setFormState(prev => ({ ...prev, [route.name]: route.questions || [] }));
+  setMetaTitles(prev => ({ ...prev, [route.name]: (route as any).metaTitle || "" }));
   setEditingQuestionIndex(null);
   setEditingOptionIndex(null);
-
-  // Optional: scroll to top or focus form
   window.scrollTo(0, 0);
 };
+
+
+
 
 const handleDeleteQuestion = (dept: string, questionIndex: number) => {
   setFormState(prev => {
@@ -199,34 +195,31 @@ const handleDeleteQuestion = (dept: string, questionIndex: number) => {
 
 
   const autoSaveToMongo = async (selectedDept: string , dateCreated:string ) => {
-      const questions = formState[selectedDept];
+  const questions = formState[selectedDept];
+  const metaTitle = metaTitles[selectedDept] || "";
 
   if (!selectedDept || !questions) {
-    console.warn("⚠️ Skipping auto-save — missing department or questions");
+    console.warn("Skipping auto-save - missing department or questions");
     return;
   }
-    try {
-      const res = await fetch("/api/save-question", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-       body: JSON.stringify({
-  name: selectedDept || null,
-  questions: formState[selectedDept] || [],
-  dateCreated,
-  isDraft: true
-})
+  try {
+    await fetch("/api/save-question", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: selectedDept,
+        questions,
+        metaTitle,
+        dateCreated,
+        isDraft: true,
+      }),
+    });
+    // Handle success/failure as needed
+  } catch (error) {
+    console.error("Auto-save error:", error);
+  }
+};
 
-      });
-
-      if (!res.ok) {
-        console.error("❌ Failed to auto-save:", await res.text());
-      } else {
-        console.log("✅ Auto-save successful");
-      }
-    } catch (error) {
-      console.error("❌ Auto-save error:", error);
-    }
-  };
 
   const handleDeptInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -441,14 +434,6 @@ const handleAddOrUpdateQuestion = () => {
     });
   };
   
-// const handleEditRoute = (routeName: string) => {
-//   setActiveTab('departments');
-//   setSelectedDept(routeName);
-//   setEditingQuestionIndex(null);
-//   setEditingOptionIndex(null);
-//   setQuestionForm({ text: '', icon: '', subText: '', type: '', isDependent: false, dependentOn: undefined });
-//   setOption({ icon: '', title: '', subtitle: '', price: '' });
-// };
 
   // Handler for deleting a user
   const handleDeleteUser = (id: string | number) => {
@@ -735,21 +720,44 @@ const handleAddOrUpdateQuestion = () => {
         {!isLoading && activeTab === 'departments' && (
           <div className="bg-gray-900 p-6 rounded-2xl shadow-lg border border-gray-800">
             <h2 className="text-2xl font-semibold mb-4">Department Management</h2>
-            <div className="mb-6 flex flex-col sm:flex-row gap-4">
-              <input
-                type="text"
-                placeholder="Add new department"
-                value={newDept}
-                onChange={handleDeptInput}
-                className="border border-gray-700 bg-gray-800 p-2 rounded-lg text-gray-100 w-full sm:w-auto focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-              <button
-                onClick={handleAddDepartment}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors w-full sm:w-auto"
-              >
-                Add Department
-              </button>
-            </div>
+           <div className="mb-6 flex flex-col sm:flex-row gap-4">
+    <input
+      type="text"
+      placeholder="Add or edit department"
+      value={newDept}
+      onChange={handleDeptInput}
+      className="border border-gray-700 bg-gray-800 p-2 rounded-lg text-gray-100 w-full sm:w-auto focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+    />
+
+    {selectedDept ? (
+      <button
+        onClick={() => {
+          if (!newDept.trim()) {
+            alert("Please enter a department name.");
+            return;
+          }
+          // Save existing department
+          // Save current meta title along with questions too
+          autoSaveToMongo(newDept, new Date().toISOString());
+          // Reset UI state
+          setSelectedDept(null);
+          setNewDept('');
+          alert("✅ Department updated successfully!");
+        }}
+        className="bg-green-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-700 transition-colors w-full sm:w-auto"
+      >
+        Update Department
+      </button>
+    ) : (
+      <button
+        onClick={handleAddDepartment}
+        className="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors w-full sm:w-auto"
+      >
+        Add Department
+      </button>
+    )}
+  </div>
+
             
             <div className="mb-8">
               <h3 className="text-xl font-semibold mb-4">Select Department to Edit</h3>
@@ -768,6 +776,34 @@ const handleAddOrUpdateQuestion = () => {
 
             {selectedDept && (
               <div className="bg-gray-800 p-6 rounded-2xl border border-gray-700">
+<div className="mb-6">
+  <label className="block text-gray-200 mb-2 font-semibold">
+    Meta Title for {selectedDept}
+  </label>
+  <input
+    type="text"
+    value={metaTitles[selectedDept] || ""}
+    onChange={e =>
+      setMetaTitles(prev => ({ ...prev, [selectedDept]: e.target.value }))
+    }
+    className="w-full p-2 rounded bg-gray-900 border border-gray-700 text-gray-100"
+    placeholder="Enter SEO Page Title"
+  />
+
+  {/* NEW BUTTON */}
+  <button
+    onClick={() => {
+      if (!selectedDept) return;
+      // Call save immediately
+      autoSaveToMongo(selectedDept, new Date().toISOString());
+      alert("✅ Meta title saved successfully!");
+    }}
+    className="mt-2 bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+  >
+    {metaTitles[selectedDept] ? "Update Meta Title" : "Add Meta Title"}
+  </button>
+</div>
+
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-2xl font-semibold capitalize">{selectedDept} Questions</h2>
                   <a href={`/${selectedDept}`} target="_blank" rel="noopener noreferrer" className="text-purple-400 underline flex items-center gap-2 hover:text-purple-300">
@@ -931,11 +967,11 @@ const handleAddOrUpdateQuestion = () => {
                         className="p-2 rounded-lg text-red-400 hover:bg-gray-700 transition-colors"
                         title="Delete Question"
                        onClick={() => {
-  setModal({
-    isOpen: true,
-    message: 'Are you sure you want to delete this question?',
-    onConfirm: () => handleDeleteQuestion(selectedDept, qIndex),
-  });
+ showAlert('Are you sure you want to delete this question?', () => {
+  handleDeleteQuestion(selectedDept, qIndex);
+});
+
+
 }}
 
                       >
@@ -1037,24 +1073,25 @@ const handleAddOrUpdateQuestion = () => {
                             >
                               <Edit size={16} />
                             </button>
-                            <button
-                              className="p-1 rounded-md text-red-400 hover:bg-gray-700 transition-colors"
-                              title="Delete Option"
-                              onClick={() => {
-                                setModal({
-                                  isOpen: true,
-                                  message: `Are you sure you want to delete this option?`,
-                                  onConfirm: () => {
-                                    const updatedOptions = q.options.filter((_, i) => i !== idx);
-                                    const updatedQuestions = [...formState[selectedDept]];
-                                    updatedQuestions[qIndex].options = updatedOptions;
-                                    setFormState({ ...formState, [selectedDept]: updatedQuestions });
-                                  },
-                                });
-                              }}
-                            >
-                              <Trash size={16} />
-                            </button>
+                         <button
+  className="p-1 rounded-md text-red-400 hover:bg-gray-700 transition-colors"
+  title="Delete Option"
+  onClick={() => {
+    showAlert('Are you sure you want to delete this option?', () => {
+      // Remove option from local state
+      const updatedOptions = q.options.filter((_, i) => i !== idx);
+      const updatedQuestions = [...formState[selectedDept]];
+      updatedQuestions[qIndex].options = updatedOptions;
+      setFormState({ ...formState, [selectedDept]: updatedQuestions });
+
+      // ✅ Save updated department data to backend
+      autoSaveToMongo(selectedDept, new Date().toISOString());
+    });
+  }}
+>
+  <Trash size={16} />
+</button>
+
                           </div>
                           <div className="flex items-start gap-4">
                             {opt.icon && (

@@ -12,10 +12,14 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "Get a Free Digital Marketing Cost Calculator | Bombay Blokes",
-  description: "Use Bombay Blokes free Marketing Budget Calculator to get a quick, customized estimate for Social Media, Website, SEO, PPC, & more. Try Now for free.",
+export const metadata = {
+  title: {
+    default: "Get a Free Digital Marketing Cost Calculator | Bombay Blokes",
+    template: "%s ",
+  },
+  description: "Use Bombay Blokes free Marketing Budget Calculator for quick estimates on Social Media, Website, SEO & more.",
 };
+
 
 export default function RootLayout({
   children,
