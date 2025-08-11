@@ -117,7 +117,7 @@ const [questionsData, setQuestionsData] = useState<QuestionsRoute[]>([]);
   const [selectedDependencyQuestion, setSelectedDependencyQuestion] = useState<number | null>(null);
   // const [selectedDependencyOption, setSelectedDependencyOption] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<'forms' | 'questions' | 'users' | 'departments'>('forms');
-  const [newDeptMeta, setNewDeptMeta] = useState('');
+  // const [newDeptMeta, setNewDeptMeta] = useState('');
   // State to hold data for each section
  
 
