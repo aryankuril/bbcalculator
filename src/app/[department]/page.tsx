@@ -1,31 +1,25 @@
 import type { Metadata } from "next";
-import PreviewPage from "./PreviewPage";
+import PreviewPage from "./PreviewPage"; // client component
 
-// ✅ Still handle metadata with `params` as a Promise
-export async function generateMetadata(
-  { params }: { params: Promise<{ department: string }> }
-): Promise<Metadata> {
-  const { department } = await params;
+type GenerateMetadataParams = { params: { department: string } };
 
+export async function generateMetadata({ params }: GenerateMetadataParams): Promise<Metadata> {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/get-questions?dept=${department}`,
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/get-questions?dept=${params.department}`,
     { cache: "no-store" }
   );
 
   if (!res.ok) {
-    return {
-      title: "Get a Free Digital Marketing Cost Calculator | Bombay Blokes",
-    };
+    return { title: "Get a Free Digital Marketing Cost Calculator | Bombay Blokes" };
   }
 
   const data = await res.json();
 
   return {
-    title: data.metaTitle || "Get a Free Digital Marketing Cost Calculator",
+    title: data.metaTitle || "Get a Free Digital Marketing Cost Calculator"
   };
 }
 
-// ✅ No props sent to PreviewPage
 export default function DepartmentPage() {
   return <PreviewPage />;
 }
