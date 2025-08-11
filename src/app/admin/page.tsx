@@ -837,7 +837,7 @@ const handleAddOrUpdateQuestion = () => {
                         onChange={() => {
                           setQuestionForm(prev => ({ ...prev, isDependent: false }));
                           setSelectedDependencyQuestion(null);
-                          setSelectedDependencyOption(null);
+                          setSelectedDependencyOptions([]);
                         }}
                       />
                       <span>Independent Question</span>
