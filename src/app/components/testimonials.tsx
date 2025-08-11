@@ -52,15 +52,15 @@ export default function App() {
     }
   }
 
-  function goToPrev() {
-    setCurrentIndex((prevIndex) =>
-      prevIndex === 0 ? testimonials.length - 1 : prevIndex - 1
-    );
-  }
+//   function goToPrev() {
+//     setCurrentIndex((prevIndex) =>
+//       prevIndex === 0 ? testimonials.length - 1 : prevIndex - 1
+//     );
+//   }
 
-  function goToNext() {
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % testimonials.length);
-  }
+//   function goToNext() {
+//     setCurrentIndex((prevIndex) => (prevIndex + 1) % testimonials.length);
+//   }
 
   return (
     <div className="relative w-full max-w-xl mx-auto mt-21 font-[Poppins]">
