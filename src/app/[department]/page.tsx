@@ -739,9 +739,9 @@ const handleEmailSubmit = async () => {
               <h3 className="text-white text-center font-poppins text-[24px] font-[700] capitalize tracking-tightest">
                 ₹{totalEstimate.toLocaleString()}
               </h3>
-              <div className="flex items-center justify-center gap-2 text-center text-[#1E1E1E] font-[Poppins] text-[14px] font-[300] leading-normal">
+              <div className="flex items-center justify-center gap-1 text-center text-[#1E1E1E] font-[Poppins] text-[14px] font-[300] leading-normal">
                 <span>Here is What It will Take to Build Your Vision</span>
-                <Form1 className="w-2 h-2" />
+                <Form1 className="w-4 h-4" />
               </div>
             </div>
             <div className="flex flex-col md:flex-row gap-8">
