@@ -21,8 +21,9 @@ export default async function handler(req, res) {
       id: route._id.toString(),
       name: route.name,
       link: route.link,
-     dateCreated: now,
       questions: route.questions || [], // <-- return full questions list here
+     dateCreated: route.dateCreated ? route.dateCreated : null
+
     }));
 
       return res.status(200).json(formattedRoutes);

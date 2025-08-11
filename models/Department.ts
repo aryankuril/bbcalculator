@@ -22,7 +22,9 @@ const QuestionSchema = new mongoose.Schema({
 const DepartmentSchema = new mongoose.Schema({
   name: { type: String, required: true, unique: true },
   questions: [QuestionSchema],
-  includedItems: [String], // ✅ New Field
+  includedItems: [String],
+  dateCreated: { type: Date, default: Date.now },   // Add this
 });
+
 
 export default mongoose.models.Department || mongoose.model('Department', DepartmentSchema);

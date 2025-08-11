@@ -13,22 +13,26 @@ export default async function handler(req, res) {
   const collection = db.collection('users');
 
   // GET: Fetch all users
-  if (req.method === 'GET') {
-    try {
-      const users = await collection.find({}).toArray();
-      const formattedUsers = users.map(user => ({
-        id: user._id.toString(),
-        name: user.name,
-        email: user.email,
-        signupDate: user.signupDate || new Date().toLocaleDateString(),
-        role: user.role || 'user',
-      }));
-      return res.status(200).json(formattedUsers);
-    } catch (error) {
-      console.error('[GET /api/users] Error:', error);
-      return res.status(500).json({ message: 'Internal Server Error' });
-    }
+if (req.method === 'GET') {
+  try {
+    const users = await collection.find({}).toArray();
+    const formattedUsers = users.map(user => ({
+      id: user._id.toString(),
+      name: user.name,
+      email: user.email,
+      role: user.role || 'user',
+      signupDate: user.signupDate
+        ? new Date(user.signupDate).toLocaleDateString()
+        : new Date(ObjectId(user._id).getTimestamp()).toLocaleDateString()
+      
+    }));
+    return res.status(200).json(formattedUsers);
+  } catch (error) {
+    console.error('[GET /api/users] Error:', error);
+    return res.status(500).json({ message: 'Internal Server Error' });
   }
+}
+
 
   // DELETE: Delete a specific user by ID
   if (req.method === 'DELETE') {

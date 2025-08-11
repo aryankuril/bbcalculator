@@ -16,9 +16,20 @@ import {
 
 
 
- type DependentOn = {
+type DependentOn = {
   questionIndex: number;
   optionIndex: number;
+};
+
+type Question = {
+  id: string;
+  questionText: string;
+  questionIcon: string;
+  questionSubText: string;
+  type: string;
+  isDependent: boolean;
+  dependentOn?: DependentOn[]; // now an array
+  options: Option[];
 };
 
 type Option = {
@@ -28,16 +39,7 @@ type Option = {
   price: string;
 };
 
-type Question = {
-    id: string;
-  questionText: string;
-  questionIcon: string;
-  questionSubText: string;
-  type: string;
-  isDependent: boolean; // NEW FIELD
-  dependentOn?: DependentOn; // NEW FIELD
-  options: Option[];
-};
+
 
 type FormSubmission = {
   _id: string;
@@ -92,7 +94,7 @@ const [questionsData, setQuestionsData] = useState<QuestionsRoute[]>([]);
     subText: string;
     type: string;
     isDependent: boolean;
-    dependentOn?: DependentOn;
+    dependentOn?: DependentOn[];
   }>({
     text: '',
     icon: '',
@@ -111,10 +113,11 @@ const [questionsData, setQuestionsData] = useState<QuestionsRoute[]>([]);
 
  const [editingQuestionIndex, setEditingQuestionIndex] = useState<number | null>(null);
   const [editingOptionIndex, setEditingOptionIndex] = useState<number | null>(null);
+  const [selectedDependencyOptions, setSelectedDependencyOptions] = useState<number[]>([]);
   const [selectedDependencyQuestion, setSelectedDependencyQuestion] = useState<number | null>(null);
   const [selectedDependencyOption, setSelectedDependencyOption] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<'forms' | 'questions' | 'users' | 'departments'>('forms');
-  
+  const [newDeptMeta, setNewDeptMeta] = useState('');
   // State to hold data for each section
  
 
@@ -145,6 +148,16 @@ const handleEditRoute = (route: QuestionsRoute) => {
   // Optional: scroll to top or focus form
   window.scrollTo(0, 0);
 };
+
+const handleDeleteQuestion = (dept: string, questionIndex: number) => {
+  setFormState(prev => {
+    const updated = [...prev[dept]];
+    updated.splice(questionIndex, 1);
+    return { ...prev, [dept]: updated };
+  });
+  setLastSavedDept(dept); // so autoSaveToMongo runs
+};
+
 
   // A useEffect hook to fetch data from the backend when the activeTab changes
   useEffect(() => {
@@ -185,15 +198,24 @@ const handleEditRoute = (route: QuestionsRoute) => {
   }, [activeTab]);
 
 
-  const autoSaveToMongo = async (selectedDept: string) => {
+  const autoSaveToMongo = async (selectedDept: string , dateCreated:string ) => {
+      const questions = formState[selectedDept];
+
+  if (!selectedDept || !questions) {
+    console.warn("⚠️ Skipping auto-save — missing department or questions");
+    return;
+  }
     try {
       const res = await fetch("/api/save-question", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: selectedDept,
-          questions: formState[selectedDept]
-        }),
+       body: JSON.stringify({
+  name: selectedDept || null,
+  questions: formState[selectedDept] || [],
+  dateCreated,
+  isDraft: true
+})
+
       });
 
       if (!res.ok) {
@@ -215,76 +237,87 @@ const handleEditRoute = (route: QuestionsRoute) => {
     setNewDept(onlySmallLetters);
   };
 
-  const handleAddDepartment = () => {
-    if (!newDept) return;
-    const deptExists = departments.includes(newDept);
-    if (deptExists) {
-      alert(`Department "${newDept}" already exists.`);
-      return;
-    }
-    const updatedForm = { ...formState, [newDept]: [] };
-    setDepartments([...departments, newDept]);
-    setFormState(updatedForm);
-    setNewDept('');
-    setSelectedDept(newDept);
-    autoSaveToMongo(newDept);
+const handleAddDepartment = () => {
+  if (!newDept) return;
+  if (departments.includes(newDept)) {
+    alert(`Department "${newDept}" already exists.`);
+    return;
+  }
+
+  const now = new Date().toISOString();
+
+  const newRoute = {
+    link: '',
+    id: `${Date.now()}-${Math.floor(Math.random() * 1000000)}`,
+    name: newDept,
+    dateCreated: now,
+    questions: [],
   };
 
-  const handleAddOrUpdateQuestion = () => {
-    if (
-      !selectedDept ||
-      !questionForm.text.trim() ||
-      !questionForm.type.trim()
-    ) {
-      alert('Please fill in both the Main Question and Type fields.');
-      return;
-    }
+  setQuestionsData(prev => [...prev, newRoute]);
 
-    // Dependency check
-    if (questionForm.isDependent && (selectedDependencyQuestion === null || selectedDependencyOption === null)) {
-      alert('Please select a dependency question and option.');
-      return;
-    }
+  const updatedForm = { ...formState, [newDept]: [] };
+  setDepartments([...departments, newDept]);
+  setFormState(updatedForm);
+  setNewDept('');
+  setSelectedDept(newDept);
 
-    setFormState(prev => {
-      const updatedQuestions = [...(prev[selectedDept] || [])];
+  // ✅ Call after updating formState so questions is not undefined
+  autoSaveToMongo(newDept, now);
+};
 
-      const newQuestion: Question = {
-        questionText: questionForm.text,
-        questionIcon: questionForm.icon,
-        questionSubText: questionForm.subText,
-        type: questionForm.type,
-        isDependent: questionForm.isDependent,
-        dependentOn: questionForm.isDependent
-          ? {
+
+
+
+const handleAddOrUpdateQuestion = () => {
+  if (!selectedDept || !questionForm.text.trim() || !questionForm.type.trim()) {
+    alert('Please fill in both the Main Question and Type fields.');
+    return;
+  }
+
+  if (questionForm.isDependent && 
+      (selectedDependencyQuestion === null || selectedDependencyOptions.length === 0)) {
+    alert('Please select a dependency question and at least one option.');
+    return;
+  }
+
+  setFormState(prev => {
+    const updatedQuestions = [...(prev[selectedDept] || [])];
+
+    const newQuestion: Question = {
+      questionText: questionForm.text,
+      questionIcon: questionForm.icon,
+      questionSubText: questionForm.subText,
+      type: questionForm.type,
+      isDependent: questionForm.isDependent,
+      dependentOn: questionForm.isDependent
+        ? selectedDependencyOptions.map(optIdx => ({
             questionIndex: selectedDependencyQuestion as number,
-            optionIndex: selectedDependencyOption as number,
-          }
-          : undefined,
-        options: editingQuestionIndex !== null
-          ? updatedQuestions[editingQuestionIndex]?.options || []
-          : [],
-        id: ''
-      };
+            optionIndex: optIdx,
+          }))
+        : undefined,
+      options: editingQuestionIndex !== null
+        ? updatedQuestions[editingQuestionIndex]?.options || []
+        : [],
+      id: ''
+    };
 
-      if (editingQuestionIndex !== null) {
-        updatedQuestions[editingQuestionIndex] = newQuestion;
-      } else {
-        updatedQuestions.push(newQuestion);
-      }
+    if (editingQuestionIndex !== null) {
+      updatedQuestions[editingQuestionIndex] = newQuestion;
+    } else {
+      updatedQuestions.push(newQuestion);
+    }
 
-      return {
-        ...prev,
-        [selectedDept]: updatedQuestions,
-      };
-    });
+    return { ...prev, [selectedDept]: updatedQuestions };
+  });
 
-    setLastSavedDept(selectedDept);
-    setEditingQuestionIndex(null);
-    setQuestionForm({ text: '', icon: '', subText: '', type: '', isDependent: false, dependentOn: undefined });
-    setSelectedDependencyQuestion(null);
-    setSelectedDependencyOption(null);
-  };
+  setLastSavedDept(selectedDept);
+  setEditingQuestionIndex(null);
+  setQuestionForm({ text: '', icon: '', subText: '', type: '', isDependent: false, dependentOn: undefined });
+  setSelectedDependencyQuestion(null);
+  setSelectedDependencyOptions([]);
+};
+
 
   const handleAddOrUpdateOption = (questionIndex: number) => {
     if (!selectedDept) return;
@@ -313,7 +346,7 @@ const handleEditRoute = (route: QuestionsRoute) => {
     updatedQuestions[questionIndex].options = options;
     const updatedForm = { ...formState, [selectedDept]: updatedQuestions };
     setFormState(updatedForm);
-    autoSaveToMongo(selectedDept);
+    autoSaveToMongo(selectedDept, new Date().toISOString());
     setOption({ icon: '', title: '', subtitle: '', price: '' });
   };
 
@@ -329,7 +362,7 @@ const handleEditRoute = (route: QuestionsRoute) => {
 
   useEffect(() => {
     if (lastSavedDept) {
-      autoSaveToMongo(lastSavedDept);
+      autoSaveToMongo(lastSavedDept, new Date().toISOString());
       setLastSavedDept(null);
     }
   }, [formState, lastSavedDept]);
@@ -605,8 +638,14 @@ const handleEditRoute = (route: QuestionsRoute) => {
              <ExternalLink size={16} />
           </a>
         </td>
-  <td className="py-4 px-4">{route.dateCreated ? new Date(route.dateCreated).toLocaleDateString() : "—"}
+  <td>
+ {route.dateCreated
+  ? new Date(route.dateCreated).toLocaleDateString()
+  : "Unknown"}
+
 </td>
+
+
 
 
 
@@ -659,7 +698,10 @@ const handleEditRoute = (route: QuestionsRoute) => {
                     <tr key={user.id} className="border-b border-gray-800 last:border-b-0 hover:bg-gray-800 transition-colors">
                       <td className="py-4 px-4">{user.name}</td>
                       <td className="py-4 px-4">{user.email}</td>
-                      <td className="py-4 px-4">{user.signupDate}</td>
+                      <td className="py-4 px-4">
+  {user.signupDate !== "Unknown" ? user.signupDate : "No Date Available"}
+</td>
+
                       <td className="py-4 px-4">
                         <div className="relative inline-block text-left">
                           <select
@@ -777,7 +819,7 @@ const handleEditRoute = (route: QuestionsRoute) => {
                     />
                     <input
                       type="text"
-                      placeholder="Type (e.g., 'Development Cost')"
+                      placeholder="Type (e.g., 'Development Cost')" 
                       value={questionForm.type}
                       required
                       onChange={(e) => setQuestionForm(prev => ({ ...prev, type: e.target.value }))}
@@ -813,36 +855,35 @@ const handleEditRoute = (route: QuestionsRoute) => {
 
                   {questionForm.isDependent && (
                     <div className="flex flex-col sm:flex-row gap-4 mb-4">
-                      <select
-                        className="bg-gray-800 border border-gray-700 p-2 rounded-lg w-full text-gray-300"
-                        value={selectedDependencyQuestion !== null ? selectedDependencyQuestion : ''}
-                        onChange={(e) => {
-                          const index = parseInt(e.target.value);
-                          setSelectedDependencyQuestion(index);
-                          setSelectedDependencyOption(null); // Reset option when question changes
-                        }}
-                      >
-                        <option value="" disabled>Select a question to depend on</option>
-                        {formState[selectedDept]?.map((q, index) => (
-                          <option key={index} value={index}>
-                            Q{index + 1}: {q.questionText}
-                          </option>
-                        ))}
-                      </select>
-                      <select
-                        className="bg-gray-800 border border-gray-700 p-2 rounded-lg w-full text-gray-300"
-                        value={selectedDependencyOption !== null ? selectedDependencyOption : ''}
-                        onChange={(e) => setSelectedDependencyOption(parseInt(e.target.value))}
-                        disabled={selectedDependencyQuestion === null}
-                      >
-                        <option value="" disabled>Select an option</option>
-                        {selectedDependencyQuestion !== null &&
-                          formState[selectedDept]?.[selectedDependencyQuestion]?.options.map((opt, index) => (
-                            <option key={index} value={index}>
-                              Option {index + 1}: {opt.title}
-                            </option>
-                          ))}
-                      </select>
+                       <select
+      className="bg-gray-800 border border-gray-700 p-2 rounded-lg w-full text-gray-300"
+      value={selectedDependencyQuestion ?? ''}
+      onChange={(e) => {
+        const index = parseInt(e.target.value);
+        setSelectedDependencyQuestion(index);
+        setSelectedDependencyOptions([]); // reset when question changes
+      }}
+    >
+      <option value="">Select dependency question</option>
+      {formState[selectedDept]?.map((q, idx) => (
+        <option key={idx} value={idx}>{q.questionText}</option>
+      ))}
+    </select>
+                      {selectedDependencyQuestion !== null && (
+      <select
+        multiple
+        className="bg-gray-800 border border-gray-700 p-2 rounded-lg w-full text-gray-300"
+        value={selectedDependencyOptions.map(String)}
+        onChange={(e) => {
+          const values = Array.from(e.target.selectedOptions, opt => parseInt(opt.value));
+          setSelectedDependencyOptions(values);
+        }}
+      >
+        {formState[selectedDept]?.[selectedDependencyQuestion]?.options.map((opt, idx) => (
+          <option key={idx} value={idx}>{opt.title}</option>
+        ))}
+      </select>
+    )}
                     </div>
                   )}
 
@@ -870,14 +911,18 @@ const handleEditRoute = (route: QuestionsRoute) => {
                             isDependent: q.isDependent,
                             dependentOn: q.dependentOn,
                           });
-                          if (q.isDependent && q.dependentOn) {
-                            setSelectedDependencyQuestion(q.dependentOn.questionIndex);
-                            setSelectedDependencyOption(q.dependentOn.optionIndex);
-                          } else {
-                            setSelectedDependencyQuestion(null);
-                            setSelectedDependencyOption(null);
-                          }
-                          setEditingQuestionIndex(qIndex);
+                          if (q.isDependent && Array.isArray(q.dependentOn) && q.dependentOn.length > 0) {
+  // your UI only supports picking one previous question, so take the first questionIndex
+  const qIdx = q.dependentOn[0].questionIndex;
+  setSelectedDependencyQuestion(qIdx);
+  setSelectedDependencyOptions(q.dependentOn.map(dep => dep.optionIndex));
+} else {
+  setSelectedDependencyQuestion(null);
+  setSelectedDependencyOptions([]);
+}
+
+ setEditingQuestionIndex(qIndex);
+
                         }}
                       >
                         <Edit size={18} />
@@ -885,16 +930,14 @@ const handleEditRoute = (route: QuestionsRoute) => {
                       <button
                         className="p-2 rounded-lg text-red-400 hover:bg-gray-700 transition-colors"
                         title="Delete Question"
-                        onClick={() => {
-                          setModal({
-                            isOpen: true,
-                            message: 'Are you sure you want to delete this question? This will also delete all of its options.',
-                            onConfirm: () => {
-                              const updated = formState[selectedDept].filter((_, i) => i !== qIndex);
-                              setFormState(prev => ({ ...prev, [selectedDept]: updated }));
-                            },
-                          });
-                        }}
+                       onClick={() => {
+  setModal({
+    isOpen: true,
+    message: 'Are you sure you want to delete this question?',
+    onConfirm: () => handleDeleteQuestion(selectedDept, qIndex),
+  });
+}}
+
                       >
                         <Trash size={18} />
                       </button>
@@ -912,11 +955,12 @@ const handleEditRoute = (route: QuestionsRoute) => {
                         <h3 className="text-xl font-bold">Q{qIndex + 1}: {q.questionText}</h3>
                         <p className="text-gray-400">{q.questionSubText}</p>
                         <p className="text-gray-400 font-semibold text-sm">Type: {q.type}</p>
-                        {q.isDependent && q.dependentOn && (
-                          <p className="text-sm text-gray-500 mt-1">
-                            Depends on Q{q.dependentOn.questionIndex + 1}, Option {q.dependentOn.optionIndex + 1}
-                          </p>
-                        )}
+                       {q.isDependent && Array.isArray(q.dependentOn) && q.dependentOn.length > 0 && (
+  <p className="text-sm text-gray-500 mt-1">
+    Depends on Q{q.dependentOn[0].questionIndex + 1} — Option(s): {q.dependentOn.map(d => d.optionIndex + 1).join(', ')}
+  </p>
+)}
+
                       </div>
                     </div>
 

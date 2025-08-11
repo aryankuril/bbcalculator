@@ -55,7 +55,6 @@ type CostItem = {
 export default function PreviewPage() {
   const params = useParams() as { department: string };
   const department = params.department;
-
   const [questions, setQuestions] = useState<Question[] | null>(null);
   // const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedOptions, setSelectedOptions] = useState<Record<number, Option | null>>({});
@@ -74,8 +73,10 @@ export default function PreviewPage() {
   const [showEmailInput, setShowEmailInput] = useState(false);
   const [email, setEmail] = useState("");
   const [disableEmailBtn, setDisableEmailBtn] = useState(false);
+  const [disableCallBtn, setDisableCallBtn] = useState(false);
   const [percent, setPercent] = useState(0);
     const [currentVisibleIdx, setCurrentVisibleIdx] = useState(0);
+  const [showCallForm, setShowCallForm] = useState(false);
 
 
   const totalEstimate = useMemo(() => {
@@ -87,57 +88,43 @@ export default function PreviewPage() {
   }, [selectedOptions]);
 
 
-  // Instead of a separate useEffect, we will update the progress on option selection
-// const updateProgress = useCallback((newSelectedOptions: Record<number, Option | null>) => {
-//   if (!questions || questions.length === 0) {
-//     setPercent(0);
-//     return;
-//   }
-
-//   const visibleCount = questions.filter(q => isQuestionVisible(q, newSelectedOptions)).length;
-
-//   const answeredVisibleCount = questions.filter((q, idx) =>
-//     isQuestionVisible(q, newSelectedOptions) && newSelectedOptions[idx]
-//   ).length;
-
-//   const newPercent = Math.round((answeredVisibleCount / visibleCount) * 100);
-
-//   // Animate the percent change
-//   let start: number | null = null;
-//   const duration = 200;
-//   const startPercent = percent;
-//   const change = newPercent - startPercent;
-
-//   const animate = (timestamp: number) => {
-//     if (!start) start = timestamp;
-//     const progressTime = timestamp - start;
-//     const progress = Math.min(progressTime / duration, 1);
-//     const animatedValue = Math.round(startPercent + change * progress);
-//     setPercent(animatedValue);
-//     if (progress < 1) {
-//       requestAnimationFrame(animate);
-//     }
-//   };
-
-//   requestAnimationFrame(animate);
-// }, [questions, percent,]);
-
-
-
   // A function to determine if a question should be displayed
-  const isQuestionVisible = useCallback(
-    (question: Question, selected: Record<number, Option | null>): boolean => {
-      if (!question.isDependent || !question.dependentOn) return true;
-      const { questionIndex, optionIndex } = question.dependentOn;
-      const answer = selected[questionIndex];
-      if (!answer) return false;
-      const selectedOptIdx = questions
-        ? questions[questionIndex].options.findIndex((o) => o.title === answer.title)
-        : -1;
-      return selectedOptIdx === optionIndex;
-    },
-    [questions]
-  );
+const isQuestionVisible = useCallback(
+  (question: Question, selected: Record<number, Option | null>): boolean => {
+    // not dependent → always visible
+    if (!question.isDependent || !Array.isArray(question.dependentOn) || question.dependentOn.length === 0) {
+      return true;
+    }
+
+    // Group required option indices by questionIndex
+    const groups: Record<number, Set<number>> = {};
+    for (const dep of question.dependentOn) {
+      if (!groups[dep.questionIndex]) groups[dep.questionIndex] = new Set();
+      groups[dep.questionIndex].add(dep.optionIndex);
+    }
+
+    // For each required previous question (AND across different questionIndex)
+    for (const qIdxStr of Object.keys(groups)) {
+      const qIdx = Number(qIdxStr);
+      const allowed = groups[qIdx];
+      const answer = selected[qIdx];
+      if (!answer) return false; // no answer for that previous question
+
+      // find index of selected option in original questions array
+      if (!questions || !questions[qIdx]) return false;
+      const selectedOptIdx = questions[qIdx].options.findIndex(o => o.title === answer.title);
+      if (selectedOptIdx === -1) return false;
+
+      // this group is satisfied only if selected option is one of the allowed ones
+      if (!allowed.has(selectedOptIdx)) return false;
+    }
+
+    return true; // all groups satisfied
+  },
+  [questions]
+);
+
+
 
 
   // RECALCULATE VISIBLE QUESTIONS AND CURRENT INDEX
@@ -313,7 +300,9 @@ const handleSubmit = async () => {
       console.log("✅ Final Form Submitted:", formData);
       setToastMessage("✅ Thank you! We'll connect with you soon.");
       setTimeout(() => setToastMessage(""), 4000);
-      setShowPopupForm(false);
+      setShowCallForm(false);      // hide form
+      setDisableCallBtn(true); 
+
 
       localStorage.removeItem("estimateId"); // cleanup
     } else {
@@ -689,7 +678,7 @@ const handleEmailSubmit = async () => {
                 shadow-[6px_5px_0px_0px_#262626]
               "
           >
-            <h2 className="text-2xl md:text-[24px] font-[700] text-center ">
+            <h2 className=" text-black text-2xl md:text-[24px] font-[700] text-center ">
               Your Project Estimate
             </h2>
             <div
@@ -796,9 +785,107 @@ const handleEmailSubmit = async () => {
                    ₹{totalEstimate.toLocaleString()}
                   </p>
                 </div>
-                <button onClick={() => setShowPopupForm(true)} className="w-full mb-3 py-[8px] px-[23px] lg:mt-4 rounded-[5px] bg-[#262626] shadow-[2px_2px_0px_0px_#F9B31B] text-white text-[16px] font-[400] italic flex justify-center items-center gap-[10px] self-stretch transition-all ">
-                  Schedule Free Call
-                </button>
+                {!showCallForm ? (
+  <button
+    onClick={() => setShowCallForm(true)}
+    className="w-full mb-3 py-[8px] px-[23px] lg:mt-4 rounded-[5px] bg-[#262626] shadow-[2px_2px_0px_0px_#F9B31B] text-white text-[16px] font-[400] italic flex justify-center items-center gap-[10px] self-stretch transition-all"
+   disabled={disableCallBtn}
+  >
+    Schedule Free Call
+  </button>
+) : (
+  <>
+    {/* Inline Form */}
+   <div className="grid grid-cols-1 gap-3 mb-3 w-full">
+  {/* Name */}
+  <div className="flex flex-col gap-1 w-full">
+    <label htmlFor="name" className="text-sm font-medium text-black">
+      Name
+    </label>
+    <input
+      type="text"
+      id="name"
+      name="name"
+      value={formData.name}
+      onChange={(e) =>
+        setFormData((prev) => ({
+          ...prev,
+          [e.target.name]: e.target.value,
+        }))
+      }
+      className={`px-3 py-2 border rounded-[8px] focus:outline-none focus:ring-2 text-[#1E1E1E] placeholder:text-[#1E1E1E] ${
+        errors.name
+          ? "border-red-500 focus:ring-red-300"
+          : "border-[#1E1E1E] focus:ring-[#F9B31B]"
+      }`}
+      placeholder="Enter your name"
+    />
+    {errors.name && (
+      <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+    )}
+  </div>
+
+  {/* Phone */}
+  <div className="flex flex-col gap-1 w-full">
+    <label htmlFor="phone" className="text-sm font-medium text-black">
+      Phone
+    </label>
+    <input
+      type="tel"
+      id="phone"
+      name="phone"
+      value={formData.phone}
+      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+      className={`px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-[#1E1E1E] placeholder:text-[#1E1E1E] ${
+        errors.phone
+          ? "border-red-500 focus:ring-red-300"
+          : "border-[#1E1E1E] focus:ring-[#F9B31B]"
+      }`}
+      placeholder="Enter your phone"
+    />
+    {errors.phone && (
+      <p className="text-red-500 text-sm mt-1">{errors.phone}</p>
+    )}
+  </div>
+
+  {/* Email */}
+  <div className="flex flex-col gap-1 w-full">
+    <label htmlFor="email" className="text-sm font-medium text-black">
+      Email
+    </label>
+    <input
+      type="email"
+      id="email"
+      name="email"
+      value={formData.email}
+      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+      className={`px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-[#1E1E1E] placeholder:text-[#1E1E1E] ${
+        errors.email
+          ? "border-red-500 focus:ring-red-300"
+          : "border-[#1E1E1E] focus:ring-[#F9B31B]"
+      }`}
+      placeholder="Enter your email"
+    />
+    {errors.email && (
+      <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+    )}
+  </div>
+</div>
+
+
+    {/* Submit Button */}
+    <button
+      onClick={() => {
+        handleSubmit();
+  
+      }}
+      className="w-full py-[8px] px-[23px] mb-3 rounded-[5px] bg-[#262626] shadow-[2px_2px_0px_0px_#F9B31B] text-white text-[16px] font-[400] italic flex justify-center items-center gap-[10px] self-stretch transition-all"
+    >
+      Submit
+    </button>
+  </>
+)} 
+
                 {!showEmailInput ? (
                   <button
                     onClick={() => {
@@ -815,7 +902,7 @@ const handleEmailSubmit = async () => {
                     <input
                       type="email"
                       placeholder="Enter your email"
-                      className="col-span-7 p-2 border border-[#1E1E1E] rounded w-full"
+                      className="col-span-7 p-2 border  border-[#1E1E1E] rounded w-full text-[#1E1E1E] placeholder:text-[#1E1E1E]"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                     />
@@ -833,6 +920,97 @@ const handleEmailSubmit = async () => {
         )}
       </section>
 
+  {showPopupForm && (
+  <div className="fixed inset-0  bg-opacity-60 flex items-center justify-center z-50">
+    <div className="relative bg-white rounded-[8px] border border-[#1E1E1E] shadow-[6px_5px_0px_0px_#262626] p-6 w-full max-w-[600px] max-h-[90vh] overflow-y-auto">
+      
+      {/* Close Button */}
+      <button
+        onClick={() => setShowPopupForm(false)}
+        className="absolute top-2 right-2 text-black text-lg font-bold"
+      >
+        ×
+      </button>
+
+      {/* Form Content from Section 7 Goes Here */}
+      <h3 className="text-[24px] font-poppins font-[700] text-black mb-2">
+        Apni information Dedo bhai!!
+      </h3>
+      <p className="text-[#797474] font-poppins text-[16px] font-[400] mb-4">
+        Choose your building platform from our tech bazaar!
+      </p>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        {/* Name */}
+        <div className="flex flex-col gap-1">
+          <label htmlFor="name" className="text-sm font-medium text-black">Name</label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            value={formData.name}
+            onChange={(e) =>
+    setFormData((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }))
+  }
+            className={`px-3 py-2 border rounded-[8px] focus:outline-none focus:ring-2 text-[#1E1E1E] placeholder:text-[#1E1E1E] ${
+              errors.name ? "border-red-500 focus:ring-red-300" : "border-[#1E1E1E] focus:ring-[#F9B31B]"
+            }`}
+            placeholder="Enter your name"
+          />
+          {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
+        </div>
+
+        {/* Phone */}
+        <div className="flex flex-col gap-1">
+          <label htmlFor="phone" className="text-sm font-medium text-black">Phone</label>
+          <input
+            type="tel"
+            id="phone"
+            name="phone"
+            value={formData.phone}
+           
+            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+            className={`px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-[#1E1E1E] placeholder:text-[#1E1E1E] ${
+              errors.phone ? "border-red-500 focus:ring-red-300" : "border-[#1E1E1E] focus:ring-[#F9B31B]"
+            }`}
+            placeholder="Enter your phone"
+          />
+          {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
+        </div>
+
+        {/* Email */}
+        <div className="flex flex-col gap-1">
+          <label htmlFor="email" className="text-sm font-medium text-black">Email</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            value={formData.email}
+           
+            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            className={`px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-[#1E1E1E] placeholder:text-[#1E1E1E] ${
+              errors.email ? "border-red-500 focus:ring-red-300" : "border-[#1E1E1E] focus:ring-[#F9B31B]"
+            }`}
+            placeholder="Enter your email"
+          />
+          {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+        </div>
+      </div>
+
+      {/* Submit Button */}
+      <button
+         onClick={handleSubmit}
+        className="mt-6 w-full py-[8px] px-[23px] rounded-[5px] bg-[#262626] text-white text-[16px] font-[400] italic flex justify-center items-center gap-[10px] transition-all"
+      >
+        Submit
+      </button>
+  
+    </div>
+  </div>
+)}
 
       {currentStep !== 99 && (
         <div className="flex justify-between items-center max-w-4xl mx-auto p-4 gap-4 mb-0 lg:mb-30">
@@ -888,97 +1066,9 @@ const handleEmailSubmit = async () => {
 </div>
 
       )}
-      {showPopupForm && (
-  <div className="fixed inset-0  bg-opacity-60 flex items-center justify-center z-50">
-    <div className="relative bg-white rounded-[8px] border border-[#1E1E1E] shadow-[6px_5px_0px_0px_#262626] p-6 w-full max-w-[600px] max-h-[90vh] overflow-y-auto">
+
+
       
-      {/* Close Button */}
-      <button
-        onClick={() => setShowPopupForm(false)}
-        className="absolute top-2 right-2 text-black text-lg font-bold"
-      >
-        ×
-      </button>
-
-      {/* Form Content from Section 7 Goes Here */}
-      <h3 className="text-[24px] font-poppins font-[700] text-black mb-2">
-        Apni information Dedo bhai!!
-      </h3>
-      <p className="text-[#797474] font-poppins text-[16px] font-[400] mb-4">
-        Choose your building platform from our tech bazaar!
-      </p>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        {/* Name */}
-        <div className="flex flex-col gap-1">
-          <label htmlFor="name" className="text-sm font-medium text-black">Name</label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            value={formData.name}
-            onChange={(e) =>
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }))
-  }
-            className={`px-3 py-2 border rounded-[8px] focus:outline-none focus:ring-2 ${
-              errors.name ? "border-red-500 focus:ring-red-300" : "border-[#1E1E1E] focus:ring-[#F9B31B]"
-            }`}
-            placeholder="Enter your name"
-          />
-          {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
-        </div>
-
-        {/* Phone */}
-        <div className="flex flex-col gap-1">
-          <label htmlFor="phone" className="text-sm font-medium text-black">Phone</label>
-          <input
-            type="tel"
-            id="phone"
-            name="phone"
-            value={formData.phone}
-           
-            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-            className={`px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
-              errors.phone ? "border-red-500 focus:ring-red-300" : "border-[#1E1E1E] focus:ring-[#F9B31B]"
-            }`}
-            placeholder="Enter your phone"
-          />
-          {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
-        </div>
-
-        {/* Email */}
-        <div className="flex flex-col gap-1">
-          <label htmlFor="email" className="text-sm font-medium text-black">Email</label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            value={formData.email}
-           
-            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-            className={`px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
-              errors.email ? "border-red-500 focus:ring-red-300" : "border-[#1E1E1E] focus:ring-[#F9B31B]"
-            }`}
-            placeholder="Enter your email"
-          />
-          {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
-        </div>
-      </div>
-
-      {/* Submit Button */}
-      <button
-         onClick={handleSubmit}
-        className="mt-6 w-full py-[8px] px-[23px] rounded-[5px] bg-[#262626] text-white text-[16px] font-[400] italic flex justify-center items-center gap-[10px] transition-all"
-      >
-        Submit
-      </button>
-  
-    </div>
-  </div>
-)}
     </div>
   );
 }

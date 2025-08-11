@@ -23,6 +23,7 @@ export default async function handler(req, res) {
       email,
       password: hashedPassword,
       role: "user", // default role
+      signupDate: new Date().toISOString(), // <-- add signup date
     };
 
     await db.collection("users").insertOne(newUser);
