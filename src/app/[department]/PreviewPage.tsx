@@ -685,7 +685,7 @@ const handleEmailSubmit = async () => {
             </div>
             <div className="flex flex-col md:flex-row gap-8">
               <div className="md:w-1/2 space-y-10 ">
-                <div>
+                <div className="ml-5 mt-5">
                   <h4 className=" text-black font-[Poppins] text-[24px] font-[700] leading-normal tracking-[-0.8px] capitalize mb-3 flex items-center gap-2">
                     Whats Always Included
                     {/* <Star className="w-4 h-4" /> */}
@@ -703,7 +703,7 @@ const handleEmailSubmit = async () => {
                     ))}
                   </ul>
                 </div>
-              {/* <div className="flex items-center  lg:mt-30 md:mt-20 gap-5 self-stretch rounded-[8px] border border-[#FFC250] bg-white shadow-[2px_2px_0px_0px_#F9B31B] p-5 md:p-[20px_15px]"> */}
+               {/* <div className="flex items-center  lg:mt-30 md:mt-20 gap-5 self-stretch rounded-[8px] border border-[#FFC250] bg-white shadow-[2px_2px_0px_0px_#F9B31B] p-5 md:p-[20px_15px]"> */}
                    <Testimonials />
                 {/* </div> */}
               </div>
