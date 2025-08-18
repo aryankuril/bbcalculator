@@ -10,9 +10,11 @@ import {
   Edit,
   Trash,
   ChevronDown,
+   ChevronRight,
   Building,
    BarChart3,   // ✅ icon
 } from 'lucide-react';
+
 import { motion } from "framer-motion";
 import {
   BarChart, Bar,
@@ -129,7 +131,7 @@ const [questionsData, setQuestionsData] = useState<QuestionsRoute[]>([]);
   const [editingOptionIndex, setEditingOptionIndex] = useState<number | null>(null);
   const [selectedDependencyOptions, setSelectedDependencyOptions] = useState<number[]>([]);
   const [selectedDependencyQuestion, setSelectedDependencyQuestion] = useState<number | null>(null);
-  // const [selectedDependencyOption, setSelectedDependencyOption] = useState<number | null>(null);
+  const [showCalculators, setShowCalculators] = useState(false);
   const [activeTab, setActiveTab] = useState<'forms' | 'questions' | 'users' | 'departments' | 'dashboard'>('dashboard');
   // const [newDeptMeta, setNewDeptMeta] = useState('');
   // State to hold data for each section
@@ -534,63 +536,111 @@ const handleAddOrUpdateQuestion = () => {
           onClose={() => setModal({ ...modal, isOpen: false })}
         />
       )}
+        <button
+    onClick={handleLogout}
+    className="absolute top-4 right-6 flex items-center gap-2 py-2 px-4 rounded-lg font-semibold bg-gray-900 hover:bg-gray-800 transition-colors shadow-lg"
+  >
+    <LogOut size={18} />
+    Logout
+  </button>
+
+       
 
       {/* Sidebar */}
-      <aside className="w-full md:w-64 bg-gray-900 text-white p-6 flex flex-col justify-between rounded-r-2xl shadow-xl">
-        <div>
-          <h2 className="text-3xl font-extrabold mb-8 text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-500">
-            Admin Panel
-          </h2>
-          <nav className="flex flex-col gap-2">
-                        <button
-  onClick={() => setActiveTab('dashboard')}
-  className={`flex items-center gap-3 py-3 px-4 rounded-lg font-semibold transition-colors ${
-    activeTab === 'dashboard' ? 'bg-gray-800 text-blue-400' : 'hover:bg-gray-800'
-  }`}
->
-  <BarChart3 size={20} />  
-  Dashboard
-</button>
+       <aside className="w-full md:w-64 bg-gray-900 text-white p-6 flex flex-col justify-between rounded-r-2xl shadow-xl">
+      <div>
+        <h2 className="text-3xl font-extrabold mb-8 text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-500">
+          Admin Panel
+        </h2>
+
+        <nav className="flex flex-col gap-2">
+          {/* Dashboard */} 
+          <button
+            onClick={() => setActiveTab("dashboard")}
+            className={`flex items-center gap-3 py-3 px-4 rounded-lg font-semibold transition-colors ${
+              activeTab === "dashboard"
+                ? "bg-gray-800 text-blue-400"
+                : "hover:bg-gray-800"
+            }`}
+          >
+            <BarChart3 size={20} />
+            Dashboard
+          </button>
+
+          {/* Form Submissions */}
+          <button
+            onClick={() => setActiveTab("forms")}
+            className={`flex items-center gap-3 py-3 px-4 rounded-lg font-semibold transition-colors ${
+              activeTab === "forms"
+                ? "bg-gray-800 text-blue-400"
+                : "hover:bg-gray-800"
+            }`}
+          >
+            <FormInput size={20} />
+            Form Submissions
+          </button>
+
+          {/* Manage Calculators (Dropdown) */}
+          <div>
             <button
-              onClick={() => setActiveTab('forms')}
-              className={`flex items-center gap-3 py-3 px-4 rounded-lg font-semibold transition-colors ${activeTab === 'forms' ? 'bg-gray-800 text-blue-400' : 'hover:bg-gray-800'}`}
+              onClick={() => setShowCalculators(!showCalculators)}
+              className="flex items-center justify-between gap-3 py-3 px-4 w-full rounded-lg font-semibold hover:bg-gray-800 transition-colors"
             >
-              <FormInput size={20} />
-              Form Submissions
-            </button>
-            <button
-              onClick={() => setActiveTab('questions')}
-              className={`flex items-center gap-3 py-3 px-4 rounded-lg font-semibold transition-colors ${activeTab === 'questions' ? 'bg-gray-800 text-blue-400' : 'hover:bg-gray-800'}`}
-            >
-              <FolderOpen size={20} />
-              Questions/Routes
-            </button>
-            <button
-              onClick={() => setActiveTab('users')}
-              className={`flex items-center gap-3 py-3 px-4 rounded-lg font-semibold transition-colors ${activeTab === 'users' ? 'bg-gray-800 text-blue-400' : 'hover:bg-gray-800'}`}
-            >
-              <Users size={20} />
-              Users
-            </button>
-            <button
-              onClick={() => setActiveTab('departments')}
-              className={`flex items-center gap-3 py-3 px-4 rounded-lg font-semibold transition-colors ${activeTab === 'departments' ? 'bg-gray-800 text-blue-400' : 'hover:bg-gray-800'}`}
-            >
-              <Building size={20} />
-              Departments
+              <span className="flex items-center gap-3">
+                
+              {showCalculators ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+                Manage Calculators
+              </span>
             </button>
 
+            {showCalculators && (
+              <div className="ml-6 mt-1 flex flex-col gap-1">
+                <button
+                  onClick={() => setActiveTab("questions")}
+                  className={`flex items-center gap-3 py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
+                    activeTab === "questions"
+                      ? "bg-gray-800 text-blue-400"
+                      : "hover:bg-gray-800"
+                  }`}
+                >
+                    <FolderOpen size={20} />
+                  Questions / Routes
+                </button>
 
-            <button
-              onClick={handleLogout}
-              className={`flex items-center gap-3 py-3 px-4 rounded-lg font-semibold transition-colors `}
-            >
-              <LogOut size={20} />
-          Logout
-            </button>
-          </nav>
-        </div>
-      </aside>
+                <button
+                  onClick={() => setActiveTab("departments")}
+                  className={`flex items-center gap-3 py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
+                    activeTab === "departments"
+                      ? "bg-gray-800 text-blue-400"
+                      : "hover:bg-gray-800"
+                  }`}
+                >
+                  <Building size={20} />
+                  Departments
+                </button>
+              </div>
+            )}
+          </div>
+        </nav>
+      </div>
+
+      {/* Bottom Section */}
+      <div className="flex flex-col gap-3">
+        {/* BB Users */}
+        <button
+          onClick={() => setActiveTab("users")}
+          className={`flex items-center gap-3 py-3 px-4 rounded-lg font-semibold transition-colors ${
+            activeTab === "users"
+              ? "bg-gray-800 text-blue-400"
+              : "hover:bg-gray-800"
+          }`}
+        >
+          <Users size={20} />
+          BB Users
+        </button>
+
+      </div>
+    </aside>
 
       {/* Main Content Area */}
       <main className="flex-1 p-8 md:p-12 overflow-auto">
@@ -796,7 +846,7 @@ const handleAddOrUpdateQuestion = () => {
         </PieChart>
       </ResponsiveContainer>
     </div>
-
+ 
     {/* Form Submissions (Bottom, Full Width, Area Chart) */}
  {/* Form Submissions (Bottom, Full Width, Area Chart) */}
 <div className="bg-gray-900 p-6 rounded-2xl shadow-lg border border-gray-800 col-span-1 md:col-span-2">
@@ -938,7 +988,7 @@ const handleAddOrUpdateQuestion = () => {
 
             
             <div className="mb-8">
-              <h3 className="text-xl font-semibold mb-4">Select Department to Edit</h3>
+              {/* <h3 className="text-xl font-semibold mb-4">Select Department to Edit</h3> */}
               <div className="flex flex-wrap gap-2">
                 {departments.map((dept) => (
                   <button
@@ -991,10 +1041,10 @@ const handleAddOrUpdateQuestion = () => {
                 
                 {/* Question Builder Form */}
                 <div className="mb-8 p-4 bg-gray-900 rounded-lg border border-gray-700">
-                  <h3 className="text-xl font-semibold mb-4">
+                  {/* <h3 className="text-xl font-semibold mb-4">
                     {editingQuestionIndex !== null ? 'Edit Question' : 'Add New Question'}
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                  </h3> */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-4 mb-4">
                     <input
   type="file"
   accept="image/*"
@@ -1026,14 +1076,14 @@ const handleAddOrUpdateQuestion = () => {
                     />
                     <input
                       type="text"
-                      placeholder="Sub Question Text"
+                      placeholder="Subtitle"
                       value={questionForm.subText}
                       onChange={(e) => setQuestionForm(prev => ({ ...prev, subText: e.target.value }))}
                       className="bg-gray-800 border border-gray-700 p-2 rounded-lg"
                     />
                     <input
                       type="text"
-                      placeholder="Type (e.g., 'Development Cost')" 
+                      placeholder="Type of question that links to estimates page" 
                       value={questionForm.type}
                       required
                       onChange={(e) => setQuestionForm(prev => ({ ...prev, type: e.target.value }))}
@@ -1185,7 +1235,7 @@ const handleAddOrUpdateQuestion = () => {
                       <h4 className="text-lg font-semibold mb-3">
                         {editingOptionIndex !== null ? 'Edit Option' : 'Add New Option'} for Q{qIndex + 1}
                       </h4>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 gap-4 mb-4">
                        <input
   type="file"
   accept="image/*"
