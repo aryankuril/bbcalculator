@@ -802,14 +802,18 @@ const handleAddOrUpdateQuestion = () => {
 <div className="bg-gray-900 p-6 rounded-2xl shadow-lg border border-gray-800 col-span-1 md:col-span-2">
   <h2 className="text-xl font-semibold mb-4">Form Submissions</h2>
   <ResponsiveContainer width="100%" height={300}>
-    <AreaChart
-       data={formsData.map((f, i) => ({
-    name: f.createdAt
-      ? format(new Date(f.createdAt), "MMM dd") // format date like "Aug 18"
-      : `Day ${i + 1}`,
-    submissions: f.count || Math.floor(Math.random() * 20) + 1,
-  }))}
-    >
+<AreaChart
+  data={Object.values(
+    formsData.reduce((acc: Record<string, { name: string; submissions: number }>, f) => {
+      const date = format(new Date(f.createdAt), "MMM dd"); // e.g., "Aug 18"
+      if (!acc[date]) {
+        acc[date] = { name: date, submissions: 0 };
+      }
+      acc[date].submissions += 1; // count submissions for that date
+      return acc;
+    }, {})
+  )}
+>
 
       
       <defs>
