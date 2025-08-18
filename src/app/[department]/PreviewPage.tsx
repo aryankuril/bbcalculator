@@ -2,7 +2,9 @@
 import { useEffect, useState,  useCallback,useMemo } from 'react';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
-import Testimonials from '../components/testimonials';
+import Testimonials from '../components/testimonials'; 
+import Header from '../components/Header'
+import Footer from '../components/Footer'
 
 
 
@@ -185,6 +187,7 @@ useEffect(() => {
 }, [selectedOptions, visibleQuestions, currentVisibleIdx, questions]);
 
 
+// ... existing useEffect
 useEffect(() => {
   if (visibleQuestions.length === 0 || costItems.length === 0 || totalEstimate === 0) return;
 
@@ -195,7 +198,17 @@ useEffect(() => {
         const res = await fetch("/api/submit-form", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name: null, phone: null, email: null, quote: costItems, total: totalEstimate }),
+          body: JSON.stringify({
+            // Add these two new fields to the submission
+            serviceCalculator: department, 
+            finalPrice: totalEstimate,
+            // Keep the rest of the existing fields
+            name: null, 
+            phone: null, 
+            email: null, 
+            quote: costItems, 
+            total: totalEstimate 
+          }),
         });
 
         const data = await res.json();
@@ -207,7 +220,7 @@ useEffect(() => {
       }
     })();
   }
-}, [visibleQuestions.length, costItems, totalEstimate]);
+}, [visibleQuestions.length, costItems, totalEstimate, department]); // Add 'department' to the dependency array
 
 
   // --- RENDER LOGIC STARTS HERE ---
@@ -272,6 +285,9 @@ const handleSubmit = async () => {
         name,
         phone,
         email,
+        // Add the service name and final price here
+        serviceCalculator: department,
+        finalPrice: totalEstimate,
         quote: costItems,
         total: totalEstimate,
         estimateId,
@@ -333,73 +349,61 @@ const handleEmailSubmit = async () => {
 
 
   return (
+
     <div>
+      <Header/>
         {toastMessage && (
   <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-4 py-2 rounded shadow-md z-50">
     {toastMessage}
   </div>
 )}
       <div
-        className="w-full h-[500px] md:h-[700px] relative bg-no-repeat bg-center bg-cover px-4 py-10 md:py-0"
+        className="w-full h-full relative bg-no-repeat bg-center bg-cover  py-10 md:py-0"
       >
-        <div className="max-w-7xl mx-auto w-full flex flex-col-reverse md:flex-row items-center justify-between gap-8 relative z-10 lg:top-0 top-10">
+        <div className="max-w-8xl mx-auto w-full flex flex-col-reverse md:flex-row items-center justify-between gap-8 relative z-10 lg:top-0 top-10">
           
           {/* Text Section */}
-          <div className="text-center md:text-left px-5 py-10 space-y-4 w-full md:w-1/2 z-20 md:static absolute top-1/2 left-1/2 md:top-auto md:left-auto transform md:transform-none -translate-x-1/2 -translate-y-1/2 md:translate-x-0 md:translate-y-0">
+          <div className="text-center lg:ml-20 ml-0 md:text-left px-5 py-10 space-y-4 w-full md:w-1/2 z-20 md:static absolute top-10 left-1/2 md:top-auto md:left-auto transform md:transform-none -translate-x-1/2 -translate-y-1/2 md:translate-x-0 md:translate-y-0">
             <h1 className="text-[34px] sm:text-[28px] md:text-5xl  text-black leading-tight">
               Estimate Your Project
               
             </h1>
       
-            <div className="flex md:flex-row  items-center justify-center md:justify-start gap-3 sm:gap-5">
+            <div className="flex md:flex-row  items-center justify-center md:justify-start gap-3 sm:gap-5 ">
              <span
-        className="relative flex items-center justify-center w-[93px] h-[43px] text-[26px] sm:text-[32px] md:text-[35px]  text-black text-center capitalize font-Poppins px-2 py-1 rounded-[5px]"
-        style={{ background: "#F9B31B", letterSpacing: "0.2px" }}
-      >
-        Cost
-        <Image
-          src="/images/Highlight.png"
-          alt="highlight"
-          width={25}
-          height={25}
-          className="absolute -top-5 -right-5"
-        />
-      </span>
+                className="relative flex items-center justify-center w-[93px] h-[43px] text-[26px] sm:text-[32px] md:text-[35px]  text-black text-center capitalize font-Poppins px-2 py-1 rounded-[5px]"
+                  style={{ background: "#F9B31B", letterSpacing: "0.2px" }}
+                 >
+                  Cost
+                 <Image
+                 src="/images/Highlight.png"
+                alt="highlight"
+                 width={25}
+                 height={25}
+                 className="absolute -top-5 -right-5"
+                 />
+                </span>
       
               <span className="text-[24px] sm:text-[28px] md:text-5xl  text-black">
                 Instantly
               </span>
             </div>
       
-      <button
-  className="mt-6 inline-flex items-center font-poppins justify-center gap-[10px] px-[30px] py-[10px] rounded-[5px] text-white text-[16px] sm:text-[18px]"
-  style={{
-    background: "#262626",
-    boxShadow: "2px 2px 0px 0px #F9B31B",
-  }}
-  onClick={() => window.location.href = "https://bombayblokes.com/estimates-calculator/"}
->
-  Calculate Now
-</button>
+                     <button
+                       className="mt-6 inline-flex items-center font-poppins justify-center gap-[10px] px-[30px] py-[10px] rounded-[5px] text-white text-[16px] sm:text-[18px]"
+                    style={{
+                     background: "#262626",
+                 boxShadow: "2px 2px 0px 0px #F9B31B",
+                   }}
+                 onClick={() => window.location.href = "https://bombayblokes.com/estimates-calculator/"}
+                    >
+                   Calculate Now
+                   </button>
 
-          </div>
+           </div>
            
       
-          {/* Image Section */}
-          <div className="relative w-full md:w-[600px] h-[400px] sm:h-[400px] md:h-[553px] z-0 lg:top-20">
-            <Image
-              src="/images/hero2.png"
-              alt="Desk Illustration"
-              fill
-              className="object-contain"
-            />
-          </div>
-        </div>
-      </div>
-
-
-
-      <section className="w-full px-4 flex flex-col items-center mt-0 lg:mt-30">
+             <section className="w-full px-4 flex flex-col items-center mt-40 lg:mt-30">
         <h2 className="text-center font-poppins lg:text-[32px] text-[23px] font-bold leading-normal tracking-[-0.8px] capitalize text-black">
           Plan Your Project, Step By Step
         </h2>
@@ -652,17 +656,17 @@ const handleEmailSubmit = async () => {
             </div>
           )
         ) : (
-          <div
-            className="
-                flex flex-col gap-6
-                mt-8 mb-5
-                w-full
-                max-w-[908px]
-                p-4 md:p-[40px_40px]
-                bg-white rounded-[8px] border border-[#1E1E1E]
-                shadow-[6px_5px_0px_0px_#262626]
-              "
-          >
+         <div
+    className="
+        flex flex-col gap-6
+        mt-8 mb-10
+        w-full
+        max-w-[908px]
+        p-4 md:p-[40px_40px]
+        bg-white rounded-[8px] border border-[#1E1E1E]
+        shadow-[6px_5px_0px_0px_#262626]
+    "
+>
             <h2 className=" text-black text-2xl md:text-[24px] font-[700] text-center ">
               Your Project Estimate
             </h2>
@@ -885,67 +889,60 @@ const handleEmailSubmit = async () => {
             </div>
           </div>
         )}
-      </section>
-
- 
-
-      {currentStep !== 99 && (
-        <div className="flex justify-between items-center max-w-4xl mx-auto p-4 gap-4 mb-0 lg:mb-30">
-  <button
-  onClick={() => {
-  if (currentVisibleIdx > 0 && questions && visibleQuestions.length > 0) {
-    const newSelectedOptions = { ...selectedOptions };
-    const origIdx = questions.findIndex(q => q.questionText === visibleQuestions[currentVisibleIdx].questionText);
-    newSelectedOptions[origIdx] = null;  // correct key into original questions
-    setSelectedOptions(newSelectedOptions);
-    setCurrentVisibleIdx((prev) => prev - 1);
-  }
-}}
-
-    disabled={currentVisibleIdx === 0}
-    className={`w-[130px] flex items-center justify-center gap-2 py-[10px] rounded-[5px] italic
-                border shadow-[2px_2px_0px_0px_#262626] transition-colors text-[16px] font-[400]
-                ${
-                  currentVisibleIdx  > 0
-                    ? "bg-[#F9B31B] border-[#262626] text-[#262626]"
-                    : "bg-gray-200 border-gray-200 text-gray-400 cursor-not-allowed shadow-none"
-                }`}
-  >
-    Previous
-  </button>
-
-<button
-           onClick={() => {
-            if (currentVisibleIdx === visibleQuestions.length - 1) {
-              setCurrentStep(99); // finished!
-            } else {
-              setCurrentVisibleIdx((prev) =>
-                Math.min(visibleQuestions.length - 1, prev + 1)
-              );
-            }
-          }}
-            disabled={!selectedOptions[originalIndex]}
-            
-
-            className={`w-[130px] flex items-center justify-center gap-2 py-[10px] rounded-[5px] font-medium
-                border-2 transition-colors
-                ${
-                   selectedOptions[originalIndex]
-                    ? "bg-black border-black text-white hover:bg-[#1a1a1a] shadow-[2px_2px_0px_0px_#F9B31B]"
-                    : "bg-black border-black text-white hover:bg-[#1a1a1a] shadow-[2px_2px_0px_0px_#F9B31B]"
-                }`}
-  
-          >
-            {currentVisibleIdx === visibleQuestions.length - 1
-            ? "See Estimate"
-            : "Next"}
-          </button>
-</div>
-
-      )}
-
-
-      
+{currentStep !== 99 && (
+  <div className="flex justify-center max-w-4xl mx-auto p-4 gap-4  lg:mb-30 lg:gap-160  gap-10 ">
+    <button
+      onClick={() => {
+        if (currentVisibleIdx > 0 && questions && visibleQuestions.length > 0) {
+          const newSelectedOptions = { ...selectedOptions };
+          const origIdx = questions.findIndex(
+            (q) => q.questionText === visibleQuestions[currentVisibleIdx].questionText
+          );
+          newSelectedOptions[origIdx] = null;
+          setSelectedOptions(newSelectedOptions);
+          setCurrentVisibleIdx((prev) => prev - 1);
+        }
+      }}
+      disabled={currentVisibleIdx === 0}
+      className={`w-[130px] flex items-center justify-center gap-2 py-[10px] rounded-[5px] italic
+        border shadow-[2px_2px_0px_0px_#262626] transition-colors text-[16px] font-[400]
+        ${
+          currentVisibleIdx > 0
+            ? "bg-[#F9B31B] border-[#262626] text-[#262626]"
+            : "bg-gray-200 border-gray-200 text-gray-400 cursor-not-allowed shadow-none"
+        }`}
+    >
+      Previous
+    </button>
+    <button
+      onClick={() => {
+        if (currentVisibleIdx === visibleQuestions.length - 1) {
+          setCurrentStep(99);
+        } else {
+          setCurrentVisibleIdx((prev) =>
+            Math.min(visibleQuestions.length - 1, prev + 1)
+          );
+        }
+      }}
+      disabled={!selectedOptions[originalIndex]}
+      className={`w-[130px] flex items-center justify-center gap-2 py-[10px] rounded-[5px] font-medium
+        border-2 transition-colors
+        ${
+          selectedOptions[originalIndex]
+            ? "bg-black border-black text-white hover:bg-[#1a1a1a] shadow-[2px_2px_0px_0px_#F9B31B]"
+            : "bg-black border-black text-white hover:bg-[#1a1a1a] shadow-[2px_2px_0px_0px_#F9B31B]"
+        }`}
+    >
+      {currentVisibleIdx === visibleQuestions.length - 1
+        ? "See Estimate"
+        : "Next"}
+    </button>
+  </div>
+)}
+      </section>    
+        </div>     
+      </div>
+      <Footer/>
     </div>
   );
 }

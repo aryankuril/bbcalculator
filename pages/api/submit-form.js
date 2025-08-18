@@ -7,7 +7,8 @@ import { ObjectId } from "mongodb";
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();
 
-  const { name, phone, email, quote, total, estimateId } = req.body;
+ const { name, phone, email, quote, total, estimateId, serviceCalculator, finalPrice } = req.body;
+
 
   if (!quote || !total) {
     return res.status(400).json({ message: "Missing required fields" });
@@ -20,13 +21,16 @@ export default async function handler(req, res) {
     // let insertedId = estimateId;
 
     // Case 1: if no estimateId, insert a new blank entry
-    if (!estimateId && (!name || !phone || !email)) {
+   if (!estimateId && (!name || !phone || !email)) {
       const result = await db.collection("formSubmissions").insertOne({
         name: null,
         phone: null,
         email: null,
         quote,
         total,
+        // Add the new fields for blank estimates
+        serviceCalculator: serviceCalculator,
+        finalPrice: finalPrice,
         createdAt: new Date(),
       });
 
@@ -34,7 +38,7 @@ export default async function handler(req, res) {
     }
 
     // Case 2: if estimateId is present & name, email, phone filled → update
-    if (estimateId && name && phone && email) {
+   if (estimateId && name && phone && email) {
       await db.collection("formSubmissions").updateOne(
         { _id: new ObjectId(estimateId) },
         {
@@ -44,6 +48,9 @@ export default async function handler(req, res) {
             email,
             quote,
             total,
+            // Add the new fields to the update operation
+            serviceCalculator,
+            finalPrice,
             updatedAt: new Date(),
           },
         }
