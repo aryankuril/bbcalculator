@@ -17,7 +17,6 @@ import { motion } from "framer-motion";
 import {
   BarChart, Bar,
   PieChart, Pie, Cell,
-  LineChart, Line,
   AreaChart, Area,  // ✅ add these
   XAxis, YAxis, Tooltip, Legend,
   ResponsiveContainer
