@@ -19,10 +19,10 @@ import {
   PieChart, Pie, Cell,
   AreaChart, Area,  // ✅ add these
   XAxis, YAxis, Tooltip, Legend,
-  ResponsiveContainer
+  ResponsiveContainer,
 } from 'recharts';
 
-
+import { format } from "date-fns"; // install if not already
 
 
 
@@ -803,11 +803,15 @@ const handleAddOrUpdateQuestion = () => {
   <h2 className="text-xl font-semibold mb-4">Form Submissions</h2>
   <ResponsiveContainer width="100%" height={300}>
     <AreaChart
-      data={formsData.map((f, i) => ({
-        name: f.date || `Day ${i + 1}`,   // use date or index
-        submissions: f.count || Math.floor(Math.random() * 20) + 1 // ✅ variable values
-      }))}
+       data={formsData.map((f, i) => ({
+    name: f.createdAt
+      ? format(new Date(f.createdAt), "MMM dd") // format date like "Aug 18"
+      : `Day ${i + 1}`,
+    submissions: f.count || Math.floor(Math.random() * 20) + 1,
+  }))}
     >
+
+      
       <defs>
         <linearGradient id="colorSubmissions" x1="0" y1="0" x2="0" y2="1">
           <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8} />

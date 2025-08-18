@@ -890,7 +890,7 @@ const handleEmailSubmit = async () => {
           </div>
         )}
 {currentStep !== 99 && (
-  <div className="flex justify-center max-w-4xl mx-auto p-4 gap-4  lg:mb-30 lg:gap-160  gap-10 ">
+  <div className="flex justify-center max-w-4xl mx-auto p-4 lg:mb-30 lg:gap-160  gap-10 ">
     <button
       onClick={() => {
         if (currentVisibleIdx > 0 && questions && visibleQuestions.length > 0) {
