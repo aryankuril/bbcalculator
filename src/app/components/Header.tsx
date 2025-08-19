@@ -104,7 +104,7 @@ const itemVariants = {
 
             {/* Menu Items */}
             <motion.ul
-              className="flex flex-col space-y-6 mt-15 px-6 bg-white"
+              className="flex flex-col space-y-6 mt-15 px-6 bg-white h-[500px] overflow-y-auto"
               variants={menuVariants}
               initial="hidden"
               animate="visible"
