@@ -109,7 +109,7 @@ const itemVariants = {
               initial="hidden"
               animate="visible"
             >
-               <div className="flex justify-end">
+               <div className="flex justify-end text-black">
   <button onClick={() => setIsOpen(false)} className="p-2">
     <X size={28} />
   </button>
