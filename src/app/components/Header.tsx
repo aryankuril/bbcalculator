@@ -3,7 +3,8 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, easeOut } from "framer-motion";
+
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
@@ -35,9 +36,10 @@ export default function Header() {
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: -50 },
-    visible: { opacity: 1, y: 0, transition: { ease: "easeOut", duration: 0.5 } },
-  };
+  hidden: { opacity: 0, y: -50 },
+  visible: { opacity: 1, y: 0, transition: { ease: easeOut, duration: 0.5 } },
+};
+
 
   return (
     <header
@@ -86,71 +88,57 @@ export default function Header() {
       </div>
 
       {/* Mobile Sidebar */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            className="fixed top-0 left-0 w-full h-[500px]  z-50  flex flex-col"
-            initial={{ y: -500 }}
-            animate={{ y: 0 }}
-            exit={{ y: -500 }}
-            transition={{ duration: 0.4, ease: "easeInOut" }}
-          >
-            {/* Header inside mobile menu */}
-            {/* <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200"> */}
-            {/* Header inside mobile menu
-               <Link href="https://bombayblokes.com/">
-          <Image
-            src={scrolled ? "/images/bblogo2.svg" : "/images/bblogo.webp"}
-            alt="Bombay Blokes Logo"
-            width={160}
-            height={50}
-            className="object-contain transition-opacity duration-300"
-          />
-        </Link>*/}
-{/* 
-              <button onClick={() => setIsOpen(false)}>
-                <X size={28} />
-              </button>
-            </div>  */}
+      {/* Mobile Sidebar */}
+<AnimatePresence>
+  {isOpen && (
+    <motion.div
+      className="fixed top-0 left-0 w-full h-screen bg-white z-50 flex flex-col"
+      initial={{ y: -500 }}
+      animate={{ y: 0 }}
+      exit={{ y: -500 }}
+      transition={{ duration: 0.4, ease: "easeInOut" }}
+    >
+      {/* Close Button (top-right) */}
+      <button
+        onClick={() => setIsOpen(false)}
+        className="absolute top-4 right-4 p-2"
+      >
+        <X size={28} />
+      </button>
 
-            {/* Menu Items */}
-            <motion.ul
-              className="flex flex-col space-y-6 mt-15 px-6 bg-white"
-              variants={menuVariants}
-              initial="hidden"
-              animate="visible"
+      {/* Menu Items */}
+      <motion.ul
+        className="flex flex-col space-y-6 mt-20 px-6"
+        variants={menuVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        {menuItems.map((item) => (
+          <motion.li key={item.name} variants={itemVariants}>
+            <Link
+              href={item.href}
+              className="text-xl font-bold text-black hover:text-[#F9B31B] transition"
+              onClick={() => setIsOpen(false)}
             >
-            <div className="flex justify-end">
-  <button onClick={() => setIsOpen(false)} className="p-2">
-    <X size={28} />
-  </button>
-</div>
+              {item.name}
+            </Link>
+          </motion.li>
+        ))}
 
-              {menuItems.map((item) => (
-                <motion.li key={item.name} variants={itemVariants}>
-                  <Link
-                    href={item.href}
-                    className="text-xl font-bold text-black hover:text-[#F9B31B] transition"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    {item.name}
-                  </Link>
-                </motion.li>
-              ))}
+        <motion.li variants={itemVariants}>
+          <Link
+            href="https://bombayblokes.com/contact/"
+            className="block text-center px-5 py-3 rounded-[10px] bg-black text-[#F9B31B] shadow-md hover:bg-white hover:text-black transition-colors duration-300"
+            onClick={() => setIsOpen(false)}
+          >
+            Contact Us
+          </Link>
+        </motion.li>
+      </motion.ul>
+    </motion.div>
+  )}
+</AnimatePresence>
 
-              <motion.li variants={itemVariants}>
-                <Link
-                  href="https://bombayblokes.com/contact/"
-                  className="block text-center px-5 py-3 rounded-[10px] bg-black text-[#F9B31B] shadow-md hover:bg-white hover:text-black transition-colors duration-300"
-                  onClick={() => setIsOpen(false)}
-                >
-                  Contact Us
-                </Link>
-              </motion.li>
-            </motion.ul>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </header>
   );
 }
