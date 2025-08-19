@@ -557,7 +557,7 @@ const handleAddOrUpdateQuestion = () => {
           {/* Dashboard */} 
           <button
             onClick={() => setActiveTab("dashboard")}
-            className={`flex items-center gap-3 py-3 px-4 rounded-lg font-semibold transition-colors ${
+            className={`flex items-center gap-3 py-3 px-2 rounded-lg font-semibold transition-colors ${
               activeTab === "dashboard"
                 ? "bg-gray-800 text-blue-400"
                 : "hover:bg-gray-800"
@@ -570,7 +570,7 @@ const handleAddOrUpdateQuestion = () => {
           {/* Form Submissions */}
           <button
             onClick={() => setActiveTab("forms")}
-            className={`flex items-center gap-3 py-3 px-4 rounded-lg font-semibold transition-colors ${
+            className={`flex items-center gap-3 py-3 px-2 rounded-lg font-semibold transition-colors ${
               activeTab === "forms"
                 ? "bg-gray-800 text-blue-400"
                 : "hover:bg-gray-800"
@@ -584,7 +584,7 @@ const handleAddOrUpdateQuestion = () => {
           <div>
             <button
               onClick={() => setShowCalculators(!showCalculators)}
-              className="flex items-center justify-between gap-3 py-3 px-4 w-full rounded-lg font-semibold hover:bg-gray-800 transition-colors"
+              className="flex items-center justify-between gap-3 py-3 px-2 w-full rounded-lg font-semibold hover:bg-gray-800 transition-colors"
             >
               <span className="flex items-center gap-3">
                 
@@ -695,8 +695,8 @@ const handleAddOrUpdateQuestion = () => {
                 <td className="py-4 px-4">{index + 1}</td>
                 <td className="py-4 px-4">{form.name || "N/A"}</td>
                 <td className="py-4 px-4">
-                  {new Date(form.createdAt).toLocaleDateString()}
-                </td>
+  {format(new Date(form.createdAt), 'dd/MM/yyyy')}
+</td>
                 <td className="py-4 px-4">
                   {form.serviceCalculator || "N/A"}
                 </td>
@@ -754,11 +754,10 @@ const handleAddOrUpdateQuestion = () => {
              <ExternalLink size={16} />
           </a>
         </td>
-  <td>
- {route.dateCreated
-  ? new Date(route.dateCreated).toLocaleDateString()
-  : "Unknown"}
-
+<td className="py-4 px-4">
+  {route.dateCreated
+    ? format(new Date(route.dateCreated), 'dd/MM/yyyy')
+    : "Unknown"}
 </td>
 
 
@@ -803,21 +802,33 @@ const handleAddOrUpdateQuestion = () => {
     className="grid grid-cols-1 md:grid-cols-2 gap-8"
   >
     {/* Users Growth (Bar Chart now, Top Left) */}
-    <div className="bg-gray-900 p-6 rounded-2xl shadow-lg border border-gray-800 text-black">
-      <h2 className="text-xl font-semibold mb-4 text-white">User Signups</h2>
-      <ResponsiveContainer width="100%" height={300}>
-        <BarChart data={usersData.map(u => ({
-          name: u.name,
-          signups: 1
-        }))}>
-          <XAxis dataKey="name" hide />
-          <YAxis />
-          <Tooltip />
-          <Legend />
-          <Bar dataKey="signups" fill="#3b82f6" radius={[6, 6, 0, 0]} />
-        </BarChart>
-      </ResponsiveContainer>
-    </div>
+    <div className="bg-gray-900 p-6 rounded-2xl shadow-lg border border-gray-800 text-white">
+  <h2 className="text-xl font-semibold mb-4">User Signups</h2>
+  <ResponsiveContainer width="100%" height={300}>
+    <BarChart
+      data={usersData.map(u => ({
+        name: u.name,
+        signups: 1
+      }))}
+    >
+      <XAxis dataKey="name" hide />
+      <YAxis stroke="#9ca3af" /> {/* light gray axis */}
+      <Tooltip
+        contentStyle={{
+          backgroundColor: "#1f2937", // dark tooltip background
+          border: "none",
+          borderRadius: "0.5rem",
+          color: "#fff"
+        }}
+        itemStyle={{ color: "#fff" }} // tooltip text color
+        cursor={{ fill: "rgba(255,255,255,0.1)" }} // soft hover cursor
+      />
+      <Legend wrapperStyle={{ color: "#fff" }} />
+      <Bar dataKey="signups" fill="#3b82f6" radius={[6, 6, 0, 0]} />
+    </BarChart>
+  </ResponsiveContainer>
+</div>
+
 
     {/* Routes Distribution (Top Right) */}
     <div className="bg-gray-900 p-6 rounded-2xl shadow-lg border border-gray-800">
@@ -841,7 +852,16 @@ const handleAddOrUpdateQuestion = () => {
               />
             ))}
           </Pie>
-          <Tooltip />
+           <Tooltip
+        contentStyle={{
+          backgroundColor: "#1f2937", // dark tooltip background
+          border: "none",
+          borderRadius: "0.5rem",
+          color: "#fff"
+        }}
+        itemStyle={{ color: "#fff" }} // tooltip text color
+        cursor={{ fill: "rgba(255,255,255,0.1)" }} // soft hover cursor
+      /> 
           <Legend />
         </PieChart>
       </ResponsiveContainer>
@@ -874,7 +894,16 @@ const handleAddOrUpdateQuestion = () => {
       </defs>
       <XAxis dataKey="name" />
       <YAxis />
-      <Tooltip />
+     <Tooltip
+        contentStyle={{
+          backgroundColor: "#1f2937", // dark tooltip background
+          border: "none",
+          borderRadius: "0.5rem",
+          color: "#fff"
+        }}
+        itemStyle={{ color: "#fff" }} // tooltip text color
+        cursor={{ fill: "rgba(255,255,255,0.1)" }} // soft hover cursor
+      />
       <Area
         type="monotone"
         dataKey="submissions"
@@ -1339,7 +1368,7 @@ const handleAddOrUpdateQuestion = () => {
                           </div>
                         </div>
                       ))}
-                    </div>
+                    </div> 
                   </div>
                 ))}
               </div>
