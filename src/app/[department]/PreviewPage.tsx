@@ -403,7 +403,7 @@ const handleEmailSubmit = async () => {
           </div>
            
       
-             <section className="w-full px-4  flex flex-col items-center  py-20 lg:mt-10 mt-50">
+             <section className="w-full px-4  flex flex-col items-center  py-20 lg:mt-8 mt-50">
         <h2 className="text-center font-poppins lg:text-[32px] text-[23px] font-bold leading-normal tracking-[-0.8px] capitalize text-black">
           Plan Your Project, Step By Step
         </h2>
