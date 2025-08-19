@@ -1,4 +1,4 @@
-"use client";
+ "use client";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -35,7 +35,7 @@ export default function Header() {
     },
   };
 
-  const itemVariants = {
+const itemVariants = {
   hidden: { opacity: 0, y: -50 },
   visible: { opacity: 1, y: 0, transition: { ease: easeOut, duration: 0.5 } },
 };
@@ -83,62 +83,64 @@ export default function Header() {
           className="md:hidden text-black"
           onClick={() => setIsOpen(!isOpen)}
         >
-           <Menu size={28} />
+          {/* {isOpen ? <X size={28} /> : <Menu size={28} />} */}
+          <Menu size={28} />
         </button>
       </div>
 
       {/* Mobile Sidebar */}
-      {/* Mobile Sidebar */}
-<AnimatePresence>
-  {isOpen && (
-    <motion.div
-      className="fixed top-0 left-0 w-full h-screen bg-white z-50 flex flex-col"
-      initial={{ y: -500 }}
-      animate={{ y: 0 }}
-      exit={{ y: -500 }}
-      transition={{ duration: 0.4, ease: "easeInOut" }}
-    >
-      {/* Close Button (top-right) */}
-      <button
-        onClick={() => setIsOpen(false)}
-        className="absolute top-4 right-4 p-2"
-      >
-        <X size={28} />
-      </button>
-
-      {/* Menu Items */}
-      <motion.ul
-        className="flex flex-col space-y-6 mt-20 px-6"
-        variants={menuVariants}
-        initial="hidden"
-        animate="visible"
-      >
-        {menuItems.map((item) => (
-          <motion.li key={item.name} variants={itemVariants}>
-            <Link
-              href={item.href}
-              className="text-xl font-bold text-black hover:text-[#F9B31B] transition"
-              onClick={() => setIsOpen(false)}
-            >
-              {item.name}
-            </Link>
-          </motion.li>
-        ))}
-
-        <motion.li variants={itemVariants}>
-          <Link
-            href="https://bombayblokes.com/contact/"
-            className="block text-center px-5 py-3 rounded-[10px] bg-black text-[#F9B31B] shadow-md hover:bg-white hover:text-black transition-colors duration-300"
-            onClick={() => setIsOpen(false)}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            className="fixed top-0 left-0 w-full h-[500px]  z-50  flex flex-col"
+            initial={{ y: -500 }}
+            animate={{ y: 0 }}
+            exit={{ y: -500 }}
+            transition={{ duration: 0.4, ease: "easeInOut" }}
           >
-            Contact Us
-          </Link>
-        </motion.li>
-      </motion.ul>
-    </motion.div>
-  )}
-</AnimatePresence>
 
+          
+         
+
+            {/* Menu Items */}
+            <motion.ul
+              className="flex flex-col space-y-6 mt-15 px-6 bg-white"
+              variants={menuVariants}
+              initial="hidden"
+              animate="visible"
+            >
+               <div className="flex justify-end">
+  <button onClick={() => setIsOpen(false)} className="p-2">
+    <X size={28} />
+  </button>
+</div>
+
+              {menuItems.map((item) => (
+                <motion.li key={item.name} variants={itemVariants}>
+                  
+                  <Link
+                    href={item.href}
+                    className="text-xl font-bold text-black hover:text-[#F9B31B] transition"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    {item.name}
+                  </Link>
+                </motion.li>
+              ))}
+
+              <motion.li variants={itemVariants}>
+                <Link
+                  href="https://bombayblokes.com/contact/"
+                  className="block text-center px-5 py-3 rounded-[10px] bg-black text-[#F9B31B] shadow-md hover:bg-white hover:text-black transition-colors duration-300"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Contact Us
+                </Link>
+              </motion.li>
+            </motion.ul>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 }
