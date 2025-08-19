@@ -4,7 +4,7 @@ import Link from "next/link";
 export default function Footer() {
   return (
     <footer className="w-full bg-white border-t border-gray-200">
-      <div className="max-w-7xl mx-auto px-6 py-10">
+      <div className="max-w-7xl  mx-auto px-6 mt-3 py-5">
         {/* Top Section */}
         <div className="grid grid-cols-1 md:grid-cols-3 items-start lg:gap-8 gap-4 text-left">
           {/* Logo */}
@@ -23,63 +23,63 @@ export default function Footer() {
 
           {/* Mail */}
           <div>
-            <p className="text-black font-semibold">Mail Us</p>
-            <p className="font-bold text-lg  text-gray-500  break-words">
+            <p className="text-gray-500 font-semibold">Mail Us</p>
+            <p className="font-bold  text-black text-[22px] break-words">
               hello@bombayblokes.com
             </p>
           </div>
 
           {/* Call */}
           <div>
-            <p className="text-black font-semibold">Call Us</p>
-            <p className="font-bold text-lg text-gray-500 ">+91 99875 58189</p>
+            <p className="text-gray-500 font-semibold">Call Us</p>
+            <p className="font-bold text-[22px] text-black ">+91 99875 58189</p>
           </div>
         </div>
 
         {/* Bottom Section */}
-        <div className="mt-10 border-t pt-6 flex flex-col gap-4 md:flex-row md:justify-between md:items-center text-gray-500 text-sm">
+        <div className="mt-6 border-t pt-4 lg:pt-1 flex flex-col gap-4 md:flex-row md:justify-between md:items-center text-gray-500 text-sm">
           {/* Links */}
-          <div className="flex  items-start gap-1 md:gap-3 md:order-2">
-            <Link
-              href="https://bombayblokes.com/"
-              className="hover:text-[#F9B31B] transition-colors"
-            >
-              Home
-            </Link>
-            <Link
-              href="https://bombayblokes.com/our-clients/"
-              className="hover:text-[#F9B31B] transition-colors"
-            >
-              Our Clients
-            </Link>
-            <Link
-              href="https://bombayblokes.com/contact/"
-              className="hover:text-[#F9B31B] transition-colors"
-            >
-              Contact
-            </Link>
-            <Link
-              href="https://bombayblokes.com/client-registration/"
-              className="hover:text-[#F9B31B] transition-colors"
-            >
-              Client Registration
-            </Link>
-            <Link
-              href="https://bombayblokes.com/service-affiliates/"
-              className="hover:text-[#F9B31B] transition-colors"
-            >
-              Service Affiliates
-            </Link>
-            <Link
-              href="https://bombayblokes.com/service-affiliates/"
-              className="hover:text-[#F9B31B] transition-colors"
-            >
-              Blogs
-            </Link>
-          </div>
+         <div className="flex flex-wrap items-start gap-1 md:gap-3 md:order-2">
+  <Link
+    href="https://bombayblokes.com/"
+    className="hover:text-[#F9B31B] transition-colors border-r border-gray-400 pr-2"
+  >
+    Home
+  </Link>
+  <Link
+    href="https://bombayblokes.com/our-clients/"
+    className="hover:text-[#F9B31B] transition-colors border-r border-gray-400 pr-2"
+  >
+    Our Clients
+  </Link>
+  <Link
+    href="https://bombayblokes.com/contact/"
+    className="hover:text-[#F9B31B] transition-colors border-r border-gray-400 pr-2"
+  >
+    Contact
+  </Link>
+  <Link
+    href="https://bombayblokes.com/client-registration/"
+    className="hover:text-[#F9B31B] transition-colors border-r border-gray-400 pr-2"
+  >
+    Client Registration
+  </Link>
+  <Link
+    href="https://bombayblokes.com/service-affiliates/"
+    className="hover:text-[#F9B31B] transition-colors border-r border-gray-400 pr-2"
+  >
+    Service Affiliates
+  </Link>
+  <Link
+    href="https://bombayblokes.com/service-affiliates/"
+    className="hover:text-[#F9B31B] transition-colors"
+  >
+    Blogs
+  </Link>
+</div>
 
           {/* Copyright */}
-          <p className="text-left md:order-1">
+          <p className="text-left md:order-1 mt-2 ">
             Copyright ©2023 Bombay Blokes. All rights reserved.
           </p>
         </div>

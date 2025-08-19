@@ -363,7 +363,7 @@ const handleEmailSubmit = async () => {
         <div className="max-w-8xl mx-auto w-full flex flex-col-reverse md:flex-row items-center justify-between gap-8 relative z-10 lg:top-0 top-10">
           
           {/* Text Section */}
-          <div className="text-center lg:ml-20 ml-0 md:text-left px-5 py-10 space-y-4 w-full md:w-1/2 z-20 md:static absolute top-10 left-1/2 md:top-auto md:left-auto transform md:transform-none -translate-x-1/2 -translate-y-1/2 md:translate-x-0 md:translate-y-0">
+          <div className="text-center lg:ml-20 ml-0 md:text-left px-5 py-10  mt-20 space-y-4 w-full md:w-1/2 z-20 md:static absolute top-10 left-1/2 md:top-auto md:left-auto transform md:transform-none -translate-x-1/2 -translate-y-1/2 md:translate-x-0 md:translate-y-0">
             <h1 className="text-[34px] sm:text-[28px] md:text-5xl  text-black leading-tight">
               Estimate Your Project
               
@@ -400,10 +400,10 @@ const handleEmailSubmit = async () => {
                    Calculate Now
                    </button>
 
-           </div>
+          </div>
            
       
-             <section className="w-full px-4 flex flex-col items-center mt-40 lg:mt-30">
+             <section className="w-full px-4  flex flex-col items-center  py-20 lg:mt-10 mt-40">
         <h2 className="text-center font-poppins lg:text-[32px] text-[23px] font-bold leading-normal tracking-[-0.8px] capitalize text-black">
           Plan Your Project, Step By Step
         </h2>
@@ -890,7 +890,7 @@ const handleEmailSubmit = async () => {
           </div>
         )}
 {currentStep !== 99 && (
-  <div className="flex justify-center max-w-4xl mx-auto p-4 lg:mb-30 lg:gap-160  gap-10 ">
+  <div className="flex justify-center max-w-4xl mx-auto p-4 lg:gap-160  gap-10 ">
     <button
       onClick={() => {
         if (currentVisibleIdx > 0 && questions && visibleQuestions.length > 0) {
