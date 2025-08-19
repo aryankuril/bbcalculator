@@ -24,7 +24,7 @@ export default function Footer() {
           {/* Mail */}
           <div>
             <p className="text-black font-semibold">Mail Us</p>
-            <p className="font-bold text-lg break-words">
+            <p className="font-bold text-lg  text-gray-500  break-words">
               hello@bombayblokes.com
             </p>
           </div>
@@ -32,7 +32,7 @@ export default function Footer() {
           {/* Call */}
           <div>
             <p className="text-black font-semibold">Call Us</p>
-            <p className="font-bold text-lg">+91 99875 58189</p>
+            <p className="font-bold text-lg text-gray-500 ">+91 99875 58189</p>
           </div>
         </div>
 
