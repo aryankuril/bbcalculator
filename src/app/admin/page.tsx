@@ -577,7 +577,7 @@ const handleAddOrUpdateQuestion = () => {
             }`}
           >
             <FormInput size={20} />
-            Form Submissions
+            Manage Submissions
           </button>
 
           {/* Manage Calculators (Dropdown) */}
@@ -604,7 +604,7 @@ const handleAddOrUpdateQuestion = () => {
                   }`}
                 >
                     <FolderOpen size={20} />
-                  Questions / Routes
+                  All Calculators
                 </button>
 
                 <button
@@ -616,7 +616,7 @@ const handleAddOrUpdateQuestion = () => {
                   }`}
                 >
                   <Building size={20} />
-                  Departments
+                  Services
                 </button>
               </div>
             )}
@@ -648,9 +648,9 @@ const handleAddOrUpdateQuestion = () => {
         <h1 className="text-4xl font-bold mb-8">
           {activeTab === 'dashboard' && 'Dashbord'}
           {activeTab === 'forms' && 'Form Submissions'}
-          {activeTab === 'questions' && 'Questions / Routes'}
+          {activeTab === 'questions' && 'All Calculators'}
           {activeTab === 'users' && 'User Management'}
-          {activeTab === 'departments' && 'Department & Route Builder'}
+          {activeTab === 'departments' && 'Services Builder'}
         </h1>
          
         {/* Loading Indicator */}
@@ -670,8 +670,8 @@ const handleAddOrUpdateQuestion = () => {
 
 {!isLoading && activeTab === 'forms' && (
   <div className="bg-gray-900 p-6 rounded-2xl shadow-lg border border-gray-800">
-    <div className="flex justify-center items-center mb-4">
-      <h2 className="text-2xl font-semibold text-center">Latest Submissions</h2>
+    <div className="flex mb-4">
+      <h2 className="text-2xl font-semibold ">All Submissions</h2>
     </div>
     {formsData.length > 0 ? (
       <div className="overflow-x-auto">
@@ -726,13 +726,13 @@ const handleAddOrUpdateQuestion = () => {
 
         {!isLoading && activeTab === 'questions' && ( 
           <div className="bg-gray-900 p-6 rounded-2xl shadow-lg border border-gray-800">
-            <h2 className="text-2xl font-semibold mb-4">Routes and Questions</h2>
+            <h2 className="text-2xl font-semibold mb-4">Calculators</h2>
             <div className="overflow-x-auto">
               <table className="w-full text-left table-auto">
                 <thead className="text-gray-400 border-b border-gray-700">
                   <tr>
                     <th className="py-3 px-4">SR No.</th>
-                    <th className="py-3 px-4">Route Name</th>
+                    <th className="py-3 px-4">Calculators Name</th>
                     <th className="py-3 px-4">Preview Link</th>
                     <th className="py-3 px-4">Date Created</th>
                     <th className="py-3 px-4 text-center">Actions</th>
@@ -821,7 +821,7 @@ const handleAddOrUpdateQuestion = () => {
 
     {/* Routes Distribution (Top Right) */}
     <div className="bg-gray-900 p-6 rounded-2xl shadow-lg border border-gray-800">
-      <h2 className="text-xl font-semibold mb-4">Routes Overview</h2>
+      <h2 className="text-xl font-semibold mb-4">Calculators Overview</h2>
       <ResponsiveContainer width="100%" height={300}>
         <PieChart>
           <Pie
@@ -947,7 +947,7 @@ const handleAddOrUpdateQuestion = () => {
 
         {!isLoading && activeTab === 'departments' && (
           <div className="bg-gray-900 p-6 rounded-2xl shadow-lg border border-gray-800">
-            <h2 className="text-2xl font-semibold mb-4">Department Management</h2>
+            <h2 className="text-2xl font-semibold mb-4">Services Management</h2>
            <div className="mb-6 flex flex-col sm:flex-row gap-4">
     <input
       type="text"

@@ -76,7 +76,7 @@ export default function Header() {
 
       {/* Mobile Nav Dropdown */}
       {isOpen && (
- <div className="fixed inset-0 bg-white flex flex-col justify-start pt-24 px-6 space-y-6 shadow-md z-40">
+ <div className="fixed inset-0 bg-white flex flex-col text-black justify-start pt-24 px-6 space-y-6 shadow-md z-40">
           <Link
             href="https://bombayblokes.com/services/"
             className="block px-3 py-2 rounded-md hover:bg-black hover:text-[#F9B31B] transition"

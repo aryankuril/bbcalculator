@@ -23,7 +23,7 @@ export default function Footer() {
 
           {/* Mail */}
           <div>
-            <p className="text-gray-500 font-semibold">Mail Us</p>
+            <p className="text-black font-semibold">Mail Us</p>
             <p className="font-bold text-lg break-words">
               hello@bombayblokes.com
             </p>
@@ -31,7 +31,7 @@ export default function Footer() {
 
           {/* Call */}
           <div>
-            <p className="text-gray-500 font-semibold">Call Us</p>
+            <p className="text-black font-semibold">Call Us</p>
             <p className="font-bold text-lg">+91 99875 58189</p>
           </div>
         </div>
@@ -39,7 +39,7 @@ export default function Footer() {
         {/* Bottom Section */}
         <div className="mt-10 border-t pt-6 flex flex-col gap-4 md:flex-row md:justify-between md:items-center text-gray-500 text-sm">
           {/* Links */}
-          <div className="flex  items-start gap-1 md:flex-row md:gap-3 md:order-2">
+          <div className="flex  items-start gap-1 md:gap-3 md:order-2">
             <Link
               href="https://bombayblokes.com/"
               className="hover:text-[#F9B31B] transition-colors"
