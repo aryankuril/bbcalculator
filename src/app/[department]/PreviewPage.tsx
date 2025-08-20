@@ -407,10 +407,19 @@ const handleEmailSubmit = async () => {
       >
         <div  ref={firstSectionRef}
         style={{ minHeight: "100vh", touchAction: "pan-y" /* allow vertical scroll gestures */ }}
-         className="max-w-8xl mx-auto w-full flex flex-col-reverse md:flex-row items-center justify-between gap-8 relative z-10 lg:top-0 top-10">
+         className=" max-w-8xl mx-auto w-full flex flex-col-reverse md:flex-row items-center justify-between gap-8 relative z-10 lg:top-0 top-10">
           
+
           {/* Text Section */}
           <div className="text-center md:text-left px-5 py-10 snap-start mt-20 space-y-4 w-full md:w-1/2 z-20 md:static absolute top-10 left-1/2 md:top-auto md:left-auto transform md:transform-none -translate-x-1/2 -translate-y-1/2 md:translate-x-0 md:translate-y-0">
+           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[300px] md:w-[400px] h-[300px] lg:h-[500px] -mt-10 lg:-mt-35">
+  <img
+    src="/images/hero2.png"
+    alt="Desk Illustration"
+    className="w-full h-full object-contain md:object-contain  md:opacity-100"
+  />
+</div>
+
             <h1 className="text-[34px] sm:text-[28px] md:text-5xl  text-black leading-tight">
               Estimate Your Project
               
@@ -437,7 +446,7 @@ const handleEmailSubmit = async () => {
             </div>      
           </div>
                               
-             <section ref={secondSectionRef} className="w-full px-4  flex flex-col items-center  py-20 lg:mt-8 mt-50 ">
+             <section ref={secondSectionRef} className="w-full px-4  flex flex-col items-center  py-20 lg:mt-8 mt-60 ">
         <h2 className="text-center font-poppins text-[28px] sm:text-[28px] md:text-5xl  leading-normal tracking-[-0.8px] capitalize text-black">
           Plan Your Project, Step By Step
         </h2>
