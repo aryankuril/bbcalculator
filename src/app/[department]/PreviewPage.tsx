@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState,  useCallback,useMemo } from 'react';
+import { useEffect, useState,  useCallback,useMemo ,useRef} from 'react';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import Testimonials from '../components/testimonials'; 
@@ -64,6 +64,50 @@ export default function PreviewPage() {
   const [showCallForm, setShowCallForm] = useState(false);
 
 
+    const firstSectionRef = useRef(null);
+  const secondSectionRef = useRef(null);
+
+  useEffect(() => {
+    // Function to smoothly scroll to second section
+    const scrollToSecondSection = () => {
+      if (secondSectionRef.current) {
+        secondSectionRef.current.scrollIntoView({ behavior: "smooth" });
+      }
+    };
+
+    let touchStartY = 0;
+    let touchEndY = 0;
+
+    const onTouchStart = (e) => {
+      touchStartY = e.touches[0].clientY;
+    };
+
+    const onTouchMove = (e) => {
+      touchEndY = e.touches.clientY;
+    };
+
+    const onTouchEnd = () => {
+      if (touchStartY - touchEndY > 50) {
+        // User swiped up sufficiently, scroll to second section
+        scrollToSecondSection();
+      }
+    };
+
+    const firstSection = firstSectionRef.current;
+    if (firstSection) {
+      firstSection.addEventListener("touchstart", onTouchStart, { passive: true });
+      firstSection.addEventListener("touchmove", onTouchMove, { passive: true });
+      firstSection.addEventListener("touchend", onTouchEnd);
+    }
+
+    return () => {
+      if (firstSection) {
+        firstSection.removeEventListener("touchstart", onTouchStart);
+        firstSection.removeEventListener("touchmove", onTouchMove);
+        firstSection.removeEventListener("touchend", onTouchEnd);
+      }
+    };
+  }, []);
   const totalEstimate = useMemo(() => {
     return Object.values(selectedOptions).reduce((sum, opt) => {
       if (!opt || (opt.price == null)) return sum;
@@ -360,10 +404,10 @@ const handleEmailSubmit = async () => {
       <div
         className="w-full h-full relative bg-no-repeat bg-center bg-cover  py-10 md:py-0 lg:px-15 px-0 "
       >
-        <div className="max-w-8xl mx-auto w-full flex flex-col-reverse md:flex-row items-center justify-between gap-8 relative z-10 lg:top-0 top-10">
+        <div ref={firstSectionRef} className="max-w-8xl mx-auto w-full flex flex-col-reverse md:flex-row items-center justify-between gap-8 relative z-10 lg:top-0 top-10">
           
           {/* Text Section */}
-          <div className="text-center md:text-left px-5 py-10  mt-20 space-y-4 w-full md:w-1/2 z-20 md:static absolute top-10 left-1/2 md:top-auto md:left-auto transform md:transform-none -translate-x-1/2 -translate-y-1/2 md:translate-x-0 md:translate-y-0">
+          <div className="text-center md:text-left px-5 py-10 snap-start mt-20 space-y-4 w-full md:w-1/2 z-20 md:static absolute top-10 left-1/2 md:top-auto md:left-auto transform md:transform-none -translate-x-1/2 -translate-y-1/2 md:translate-x-0 md:translate-y-0">
             <h1 className="text-[34px] sm:text-[28px] md:text-5xl  text-black leading-tight">
               Estimate Your Project
               
@@ -387,24 +431,11 @@ const handleEmailSubmit = async () => {
               <span className="text-[24px] sm:text-[28px] md:text-5xl  text-black">
                 Instantly
               </span>
-            </div>
-      
-
+            </div>      
           </div>
-                     {/* <button
-                       className="mt-6 inline-flex items-center font-poppins justify-center gap-[10px] px-[30px] py-[10px] rounded-[5px] text-white text-[16px] sm:text-[18px]"
-                    style={{
-                     background: "#262626",
-                 boxShadow: "2px 2px 0px 0px #F9B31B",
-                   }}
-                 onClick={() => window.location.href = "https://bombayblokes.com/estimates-calculator/"}
-                    >
-                   Calculate Now
-                   </button> */}
-           
-      
-             <section className="w-full px-4  flex flex-col items-center  py-20 lg:mt-8 mt-50">
-        <h2 className="text-center font-poppins text-[34px] sm:text-[28px] md:text-5xl  leading-normal tracking-[-0.8px] capitalize text-black">
+                              
+             <section ref={secondSectionRef} className="w-full px-4  flex flex-col items-center  py-20 lg:mt-8 mt-50 ">
+        <h2 className="text-center font-poppins text-[28px] sm:text-[28px] md:text-5xl  leading-normal tracking-[-0.8px] capitalize text-black">
           Plan Your Project, Step By Step
         </h2>
         <div className="flex items-center gap-2 mt-1 text-sm text-gray-600">
