@@ -64,49 +64,48 @@ export default function PreviewPage() {
   const [showCallForm, setShowCallForm] = useState(false);
 
 
-     const firstSectionRef = useRef<HTMLDivElement | null>(null);
-  const secondSectionRef = useRef<HTMLDivElement | null>(null);
+const firstSectionRef = useRef<HTMLDivElement | null>(null);
+const secondSectionRef = useRef<HTMLDivElement | null>(null);
 
-  useEffect(() => {
-    // Scroll function, with null check and typed ref
-    const scrollToSecondSection = () => {
-      secondSectionRef.current?.scrollIntoView({ behavior: "smooth" });
-    };
+useEffect(() => {
+  let touchStartY = 0;
+  let touchEndY = 0;
 
-    let touchStartY = 0;
-    let touchEndY = 0;
+  const scrollToSecondSection = () => {
+    secondSectionRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
-    // Add type annotations for event params
-const onTouchStart = (e: TouchEvent) => {
-  touchStartY = e.touches[0].clientY; // Access clientY on the first Touch object
-};
+  const onTouchStart = (e: TouchEvent) => {
+    touchStartY = e.touches[0].clientY;
+  };
 
 const onTouchMove = (e: TouchEvent) => {
-  touchEndY = e.touches[0].clientY;
+touchEndY = e.touches[0].clientY;
+
 };
 
 
-    const onTouchEnd = () => {
-      if (touchStartY - touchEndY > 50) {
-        scrollToSecondSection();
-      }
-    };
-
-    const firstSection = firstSectionRef.current;
-    if (firstSection) {
-      firstSection.addEventListener("touchstart", onTouchStart, { passive: true });
-      firstSection.addEventListener("touchmove", onTouchMove, { passive: true });
-      firstSection.addEventListener("touchend", onTouchEnd);
+  const onTouchEnd = () => {
+    if (touchStartY - touchEndY > 50) {
+      scrollToSecondSection();
     }
+  };
 
-    return () => {
-      if (firstSection) {
-        firstSection.removeEventListener("touchstart", onTouchStart);
-        firstSection.removeEventListener("touchmove", onTouchMove);
-        firstSection.removeEventListener("touchend", onTouchEnd);
-      }
-    };
-  }, []);
+  const firstSection = firstSectionRef.current;
+  if (firstSection) {
+    firstSection.addEventListener("touchstart", onTouchStart);
+    firstSection.addEventListener("touchmove", onTouchMove);
+    firstSection.addEventListener("touchend", onTouchEnd);
+  }
+
+  return () => {
+    if (firstSection) {
+      firstSection.removeEventListener("touchstart", onTouchStart);
+      firstSection.removeEventListener("touchmove", onTouchMove);
+      firstSection.removeEventListener("touchend", onTouchEnd);
+    }
+  };
+}, []);
 
 
 
@@ -406,7 +405,9 @@ const handleEmailSubmit = async () => {
       <div
         className="w-full h-full relative bg-no-repeat bg-center bg-cover  py-10 md:py-0 lg:px-15 px-0 "
       >
-        <div ref={firstSectionRef} className="max-w-8xl mx-auto w-full flex flex-col-reverse md:flex-row items-center justify-between gap-8 relative z-10 lg:top-0 top-10">
+        <div  ref={firstSectionRef}
+        style={{ minHeight: "100vh", touchAction: "pan-y" /* allow vertical scroll gestures */ }}
+         className="max-w-8xl mx-auto w-full flex flex-col-reverse md:flex-row items-center justify-between gap-8 relative z-10 lg:top-0 top-10">
           
           {/* Text Section */}
           <div className="text-center md:text-left px-5 py-10 snap-start mt-20 space-y-4 w-full md:w-1/2 z-20 md:static absolute top-10 left-1/2 md:top-auto md:left-auto transform md:transform-none -translate-x-1/2 -translate-y-1/2 md:translate-x-0 md:translate-y-0">
