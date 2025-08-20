@@ -78,11 +78,11 @@ export default function PreviewPage() {
 
     // Add type annotations for event params
 const onTouchStart = (e: TouchEvent) => {
-  touchStartY = e.touches.clientY; // Access clientY on the first Touch object
+  touchStartY = e.touches[0].clientY; // Access clientY on the first Touch object
 };
 
 const onTouchMove = (e: TouchEvent) => {
-  touchEndY = e.touches.clientY;
+  touchEndY = e.touches[0].clientY;
 };
 
 
