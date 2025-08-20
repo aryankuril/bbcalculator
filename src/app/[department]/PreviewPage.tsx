@@ -64,31 +64,30 @@ export default function PreviewPage() {
   const [showCallForm, setShowCallForm] = useState(false);
 
 
-    const firstSectionRef = useRef(null);
-  const secondSectionRef = useRef(null);
+     const firstSectionRef = useRef<HTMLDivElement | null>(null);
+  const secondSectionRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    // Function to smoothly scroll to second section
+    // Scroll function, with null check and typed ref
     const scrollToSecondSection = () => {
-      if (secondSectionRef.current) {
-        secondSectionRef.current.scrollIntoView({ behavior: "smooth" });
-      }
+      secondSectionRef.current?.scrollIntoView({ behavior: "smooth" });
     };
 
     let touchStartY = 0;
     let touchEndY = 0;
 
-    const onTouchStart = (e) => {
-      touchStartY = e.touches[0].clientY;
-    };
+    // Add type annotations for event params
+const onTouchStart = (e: TouchEvent) => {
+  touchStartY = e.touches.clientY; // Access clientY on the first Touch object
+};
 
-    const onTouchMove = (e) => {
-      touchEndY = e.touches.clientY;
-    };
+const onTouchMove = (e: TouchEvent) => {
+  touchEndY = e.touches.clientY;
+};
+
 
     const onTouchEnd = () => {
       if (touchStartY - touchEndY > 50) {
-        // User swiped up sufficiently, scroll to second section
         scrollToSecondSection();
       }
     };
@@ -108,6 +107,9 @@ export default function PreviewPage() {
       }
     };
   }, []);
+
+
+
   const totalEstimate = useMemo(() => {
     return Object.values(selectedOptions).reduce((sum, opt) => {
       if (!opt || (opt.price == null)) return sum;
