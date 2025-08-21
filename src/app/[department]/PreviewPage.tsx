@@ -438,17 +438,17 @@ const handleEmailSubmit = async () => {
             </div>      
           </div>
                               
-             <section ref={secondSectionRef} style={{ minHeight: "100vh" }}
+             <section 
                className="w-full px-4  flex flex-col items-center  py-20 lg:mt-8 mt-60 ">
-        <h2 className="text-center font-poppins text-[28px] sm:text-[28px] md:text-5xl  leading-normal tracking-[-0.8px] capitalize text-black">
+        <h2 className="text-center font-poppins text-[25px] sm:text-[28px] md:text-5xl  leading-normal tracking-[-0.8px] capitalize text-black">
           Plan Your Project, Step By Step
         </h2>
-        <div className="flex items-center gap-2 mt-1 text-sm text-gray-600">
+        {/* <div className="flex items-center gap-2 mt-1 text-sm text-gray-600">
           <span className="text-center font-poppins text-[20px] font-[400] leading-normal text-[#797474]">
             Calculate your digital dream
           </span>
-        </div>
-        <div className="w-full max-w-6xl max-h-7xl lg:mt-1 mt-5">
+        </div> */}
+        <div ref={secondSectionRef} className="w-full max-w-6xl max-h-7xl lg:mt-1 mt-2">
           <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
             <span className="text-[#797474] text-center font-[Poppins] text-[20px] italic font-light leading-none tracking-[0.2px] capitalize">
               Progress
@@ -457,11 +457,11 @@ const handleEmailSubmit = async () => {
               {percent}%
             </span>
           </div>
-         <div className="flex gap-3">
-  {visibleQuestions.map((_, visibleIdx) => {
-    // Find the real index of the visible question in the full questions list
-    const question = visibleQuestions[visibleIdx];
-    const realIndex = questions.findIndex(q => q.questionText === question.questionText);
+         <div  className="flex gap-3 ">
+              {visibleQuestions.map((_, visibleIdx) => {
+               // Find the real index of the visible question in the full questions list
+              const question = visibleQuestions[visibleIdx];
+              const realIndex = questions.findIndex(q => q.questionText === question.questionText);
 
     return (
       <div
@@ -482,14 +482,16 @@ const handleEmailSubmit = async () => {
         </div>
 
      
-
+     <div  > 
         {/* ... The rest of your component remains the same from the previous response ... */}
         {currentStep !== 99 ? (
           hasMultiLineSubtitle ? (
             <div
+            
               className="
+              
                   flex flex-col gap-6
-                  mt-8 mb-5
+                  lg:mt-8  mt-3 mb-5
                   w-full
                   max-w-[908px]
                   p-5 md:p-[40px_40px]
@@ -586,7 +588,7 @@ const handleEmailSubmit = async () => {
             <div
               className="
                   flex flex-col gap-6
-                  mt-8 mb-5
+                  lg:mt-8  mt-3 mb-5
                   w-full max-w-[908px]
                   p-5 md:p-[30px_30px]
                   bg-white rounded-[8px] border border-[#1E1E1E]
@@ -697,7 +699,7 @@ const handleEmailSubmit = async () => {
          <div
     className="
         flex flex-col gap-6
-        mt-8 mb-10
+        lg:mt-8  mt-3 mb-10
         w-full
         max-w-[908px]
         p-4 md:p-[40px_40px]
@@ -978,6 +980,7 @@ const handleEmailSubmit = async () => {
   </div>
 )}
 
+</div>
 
       </section>    
         </div>     
