@@ -63,6 +63,9 @@ export default function PreviewPage() {
     const [currentVisibleIdx, setCurrentVisibleIdx] = useState(0);
   const [showCallForm, setShowCallForm] = useState(false);
 
+  const totalQuestions = visibleQuestions.length;
+const answeredQuestions = Object.values(selectedOptions).filter(option => option !== null).length;
+const totalProgressPercentage = (answeredQuestions / totalQuestions) * 100;
 
 const firstSectionRef = useRef<HTMLDivElement | null>(null);
 const secondSectionRef = useRef<HTMLDivElement | null>(null);
@@ -479,7 +482,7 @@ const handleEmailSubmit = async () => {
             Calculate your digital dream
           </span>
         </div>
-        <div ref={secondSectionRef} className="w-full max-w-6xl max-h-7xl lg:mt-1 mt-2">
+        <div ref={secondSectionRef} className="w-full max-w-6xl max-h-7xl lg:mt-10 mt-5">
           <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
             <span className="text-[#797474] text-center font-[Poppins] text-[20px] italic font-light leading-none tracking-[0.2px] capitalize">
               Progress
@@ -488,26 +491,43 @@ const handleEmailSubmit = async () => {
               {percent}%
             </span>
           </div>
-         <div  className="flex gap-3 ">
-              {visibleQuestions.map((_, visibleIdx) => {
-               // Find the real index of the visible question in the full questions list
-              const question = visibleQuestions[visibleIdx];
-              const realIndex = questions.findIndex(q => q.questionText === question.questionText);
+        <div className="flex flex-col gap-2">
+  {/* Progress Wrapper (relative so car is inside) */}
+  <div className="flex gap-3 relative items-center">
+    {/* Progress Bars */}
+    {visibleQuestions.map((_, visibleIdx) => {
+      const question = visibleQuestions[visibleIdx];
+      const realIndex = questions.findIndex(
+        (q) => q.questionText === question.questionText
+      );
 
-    return (
-      <div
-        key={visibleIdx}
-        className="flex-1 h-[10px] rounded-[20px] border border-[#1E1E1E] bg-transparent overflow-hidden"
-      >
+      return (
         <div
-          className="h-full bg-[#F9B31B] transition-all duration-500"
-          style={{
-            width: selectedOptions[realIndex] ? "100%" : "0%",
-          }}
-        />
-      </div>
-    );
-  })}
+          key={visibleIdx}
+          className="flex-1 h-[10px] rounded-[20px] border border-[#1E1E1E] bg-transparent overflow-hidden"
+        >
+          <div
+            className="h-full bg-[#F9B31B] transition-all duration-500"
+            style={{
+              width: selectedOptions[realIndex] ? "100%" : "0%",
+            }}
+          />
+        </div>
+      );
+    })}
+
+    {/* Car Image */}
+    <div
+      className="absolute transition-all duration-500 "
+      style={{
+        left: `${totalProgressPercentage}%`,
+        transform: "translateX(-20%)", // keeps it centered
+        bottom: '1px',
+      }}
+    >
+      <img src="/images/taxi1.png" alt="Car" className="lg:h-[80px] h-[50px] lg:w-[80px] w-[50px]" />
+    </div>
+  </div>
 </div>
 
         </div>
