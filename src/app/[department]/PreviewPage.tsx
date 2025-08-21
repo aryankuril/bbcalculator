@@ -66,46 +66,37 @@ export default function PreviewPage() {
 
 const firstSectionRef = useRef<HTMLDivElement | null>(null);
 const secondSectionRef = useRef<HTMLDivElement | null>(null);
-
 const footerRef = useRef<HTMLDivElement | null>(null);
 
+const [currentSection, setCurrentSection] = useState(0); 
+// 0 = hero, 1 = second section, 2 = footer
+
+
 useEffect(() => {
-  let currentSection = 0; // 0 = first, 1 = second, 2 = footer
-  let isScrolling = false;
-
-  const sections = [
-    firstSectionRef,
-    secondSectionRef,
-    footerRef,
-  ];
-
-  const scrollToSection = (index: number) => {
-    if (sections[index]?.current) {
-      sections[index].current.scrollIntoView({ behavior: "smooth" });
+  const handleWheel = (e: WheelEvent) => {
+    if (e.deltaY > 50) { 
+      // Scrolling down
+      setCurrentSection((prev) => Math.min(prev + 1, 2));
+    } else if (e.deltaY < -50) { 
+      // Scrolling up
+      setCurrentSection((prev) => Math.max(prev - 1, 0));
     }
   };
 
-  const onWheel = (e: WheelEvent) => {
-    if (isScrolling) return;
-    isScrolling = true;
-
-    if (e.deltaY > 0 && currentSection < sections.length - 1) {
-      currentSection++;
-      scrollToSection(currentSection);
-    } else if (e.deltaY < 0 && currentSection > 0) {
-      currentSection--;
-      scrollToSection(currentSection);
-    }
-
-    setTimeout(() => (isScrolling = false), 800); // debounce
-  };
-
-  window.addEventListener("wheel", onWheel, { passive: false });
-
-  return () => {
-    window.removeEventListener("wheel", onWheel);
-  };
+  window.addEventListener("wheel", handleWheel, { passive: true });
+  return () => window.removeEventListener("wheel", handleWheel);
 }, []);
+
+useEffect(() => {
+  if (currentSection === 0) {
+    firstSectionRef.current?.scrollIntoView({ behavior: "smooth" });
+  } else if (currentSection === 1) {
+    secondSectionRef.current?.scrollIntoView({ behavior: "smooth" });
+  } else if (currentSection === 2) {
+    footerRef.current?.scrollIntoView({ behavior: "smooth" });
+  }
+}, [currentSection]);
+
 
 
 
@@ -396,7 +387,7 @@ const handleEmailSubmit = async () => {
 
   return (
 
-    <div>
+    <div ref={firstSectionRef}>
       <Header/>
         {toastMessage && (
   <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-4 py-2 rounded shadow-md z-50">
@@ -406,7 +397,7 @@ const handleEmailSubmit = async () => {
       <div
         className="w-full h-full relative bg-no-repeat bg-center bg-cover  py-10 md:py-0 lg:px-15 px-0 "
       >
-        <div  ref={firstSectionRef}
+        <div 
         style={{ minHeight: "100vh", touchAction: "pan-y" /* allow vertical scroll gestures */ }}
          className=" max-w-8xl mx-auto w-full flex flex-col-reverse md:flex-row items-center justify-between gap-8 relative z-10 lg:top-0 top-10">
           
@@ -447,7 +438,8 @@ const handleEmailSubmit = async () => {
             </div>      
           </div>
                               
-             <section  className="w-full px-4  flex flex-col items-center  py-20 lg:mt-8 mt-60 ">
+             <section ref={secondSectionRef} style={{ minHeight: "100vh" }}
+               className="w-full px-4  flex flex-col items-center  py-20 lg:mt-8 mt-60 ">
         <h2 className="text-center font-poppins text-[28px] sm:text-[28px] md:text-5xl  leading-normal tracking-[-0.8px] capitalize text-black">
           Plan Your Project, Step By Step
         </h2>
@@ -489,7 +481,7 @@ const handleEmailSubmit = async () => {
 
         </div>
 
-        <div ref={secondSectionRef} >
+     
 
         {/* ... The rest of your component remains the same from the previous response ... */}
         {currentStep !== 99 ? (
@@ -986,7 +978,7 @@ const handleEmailSubmit = async () => {
   </div>
 )}
 
-</div>
+
       </section>    
         </div>     
       </div>
