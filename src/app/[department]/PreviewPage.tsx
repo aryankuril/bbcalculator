@@ -73,29 +73,48 @@ const [currentSection, setCurrentSection] = useState(0);
 
 
 useEffect(() => {
-  const handleWheel = (e: WheelEvent) => {
-    if (e.deltaY > 50) { 
-      // Scrolling down
-      setCurrentSection((prev) => Math.min(prev + 1, 2));
-    } else if (e.deltaY < -50) { 
-      // Scrolling up
-      setCurrentSection((prev) => Math.max(prev - 1, 0));
+  // Only enable touch scroll on mobile
+  if (typeof window === "undefined" || window.innerWidth > 1024) return;
+
+  let touchStartY = 0;
+  let touchEndY = 0;
+
+  const handleTouchStart = (e: TouchEvent) => {
+    if (e.touches.length > 0) {
+      touchStartY = e.touches[0].clientY;
+      touchEndY = e.touches[0].clientY;
     }
   };
+  const handleTouchMove = (e: TouchEvent) => {
+    if (e.touches.length > 0) {
+      touchEndY = e.touches[0].clientY;
+    }
+  };
+  const handleTouchEnd = () => {
+    // Swipe up
+    if (touchStartY - touchEndY > 50) {
+      setCurrentSection((prev) => Math.min(prev + 1, 2));
+    }
+    // Swipe down
+    else if (touchEndY - touchStartY > 50) {
+      setCurrentSection((prev) => Math.max(prev - 1, 0));
+    }
+    // Otherwise, do nothing (tap or micro scroll)
+  };
 
-  window.addEventListener("wheel", handleWheel, { passive: true });
-  return () => window.removeEventListener("wheel", handleWheel);
+  // Attach to the document (captures all swipes)
+  document.addEventListener("touchstart", handleTouchStart, { passive: true });
+  document.addEventListener("touchmove", handleTouchMove, { passive: true });
+  document.addEventListener("touchend", handleTouchEnd, { passive: true });
+
+  // Cleanup
+  return () => {
+    document.removeEventListener("touchstart", handleTouchStart);
+    document.removeEventListener("touchmove", handleTouchMove);
+    document.removeEventListener("touchend", handleTouchEnd);
+  };
 }, []);
 
-useEffect(() => {
-  if (currentSection === 0) {
-    firstSectionRef.current?.scrollIntoView({ behavior: "smooth" });
-  } else if (currentSection === 1) {
-    secondSectionRef.current?.scrollIntoView({ behavior: "smooth" });
-  } else if (currentSection === 2) {
-    footerRef.current?.scrollIntoView({ behavior: "smooth" });
-  }
-}, [currentSection]);
 
 
 
