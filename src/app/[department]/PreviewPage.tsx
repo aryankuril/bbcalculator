@@ -131,6 +131,7 @@ useEffect(() => {
 
 
 
+
   const totalEstimate = useMemo(() => {
     return Object.values(selectedOptions).reduce((sum, opt) => {
       if (!opt || (opt.price == null)) return sum;
@@ -473,11 +474,11 @@ const handleEmailSubmit = async () => {
         <h2 className="text-center font-poppins text-[25px] sm:text-[28px] md:text-5xl  leading-normal tracking-[-0.8px] capitalize text-black">
           Plan Your Project, Step By Step
         </h2>
-        {/* <div className="flex items-center gap-2 mt-1 text-sm text-gray-600">
+        <div className="flex items-center gap-2 mt-1 text-sm text-gray-600">
           <span className="text-center font-poppins text-[20px] font-[400] leading-normal text-[#797474]">
             Calculate your digital dream
           </span>
-        </div> */}
+        </div>
         <div ref={secondSectionRef} className="w-full max-w-6xl max-h-7xl lg:mt-1 mt-2">
           <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
             <span className="text-[#797474] text-center font-[Poppins] text-[20px] italic font-light leading-none tracking-[0.2px] capitalize">
@@ -512,7 +513,7 @@ const handleEmailSubmit = async () => {
         </div>
 
      
-     <div  > 
+
         {/* ... The rest of your component remains the same from the previous response ... */}
         {currentStep !== 99 ? (
           hasMultiLineSubtitle ? (
@@ -612,7 +613,60 @@ const handleEmailSubmit = async () => {
                     </button>
                   );
                 })}
+
+{currentStep !== 99 && (
+  <div className="flex justify-center max-w-4xl mx-auto p-4 lg:gap-160  gap-10 block lg:hidden">
+    <button
+      onClick={() => {
+        if (currentVisibleIdx > 0 && questions && visibleQuestions.length > 0) {
+          const newSelectedOptions = { ...selectedOptions };
+          const origIdx = questions.findIndex(
+            (q) => q.questionText === visibleQuestions[currentVisibleIdx].questionText
+          );
+          newSelectedOptions[origIdx] = null;
+          setSelectedOptions(newSelectedOptions);
+          setCurrentVisibleIdx((prev) => prev - 1);
+        }
+      }}
+      disabled={currentVisibleIdx === 0}
+      className={`w-[130px] flex items-center justify-center gap-2 py-[10px] rounded-[5px] italic
+        border shadow-[2px_2px_0px_0px_#262626] transition-colors text-[16px] font-[400]
+        ${
+          currentVisibleIdx > 0
+            ? "bg-[#F9B31B] border-[#262626] text-[#262626]"
+            : "bg-gray-200 border-gray-200 text-gray-400 cursor-not-allowed shadow-none"
+        }`}
+    >
+      Previous
+    </button>
+    <button
+      onClick={() => {
+        if (currentVisibleIdx === visibleQuestions.length - 1) {
+          setCurrentStep(99);
+        } else {
+          setCurrentVisibleIdx((prev) =>
+            Math.min(visibleQuestions.length - 1, prev + 1)
+          );
+        }
+      }}
+      disabled={!selectedOptions[originalIndex]}
+      className={`w-[130px] flex items-center justify-center gap-2 py-[10px] rounded-[5px] font-medium
+        border-2 transition-colors
+        ${
+          selectedOptions[originalIndex]
+            ? "bg-black border-black text-white hover:bg-[#1a1a1a] shadow-[2px_2px_0px_0px_#F9B31B]"
+            : "bg-black border-black text-white hover:bg-[#1a1a1a] shadow-[2px_2px_0px_0px_#F9B31B]"
+        }`}
+    >
+      {currentVisibleIdx === visibleQuestions.length - 1
+        ? "See Estimate"
+        : "Next"}
+    </button>
+  </div>
+)}
+
               </div>
+              
             </div>
           ) : (
             <div
@@ -722,6 +776,58 @@ const handleEmailSubmit = async () => {
                     </button>
                   );
                 })}
+
+                {currentStep !== 99 && (
+  <div className="flex justify-center max-w-4xl mx-auto p-4 lg:gap-160 gap-10  lg:hidden">
+    <button
+      onClick={() => {
+        if (currentVisibleIdx > 0 && questions && visibleQuestions.length > 0) {
+          const newSelectedOptions = { ...selectedOptions };
+          const origIdx = questions.findIndex(
+            (q) => q.questionText === visibleQuestions[currentVisibleIdx].questionText
+          );
+          newSelectedOptions[origIdx] = null;
+          setSelectedOptions(newSelectedOptions);
+          setCurrentVisibleIdx((prev) => prev - 1);
+        }
+      }}
+      disabled={currentVisibleIdx === 0}
+      className={`w-[130px] flex items-center justify-center gap-2 py-[10px] rounded-[5px] italic
+        border shadow-[2px_2px_0px_0px_#262626] transition-colors text-[16px] font-[400]
+        ${
+          currentVisibleIdx > 0
+            ? "bg-[#F9B31B] border-[#262626] text-[#262626]"
+            : "bg-gray-200 border-gray-200 text-gray-400 cursor-not-allowed shadow-none"
+        }`}
+    >
+      Previous
+    </button>
+    <button
+      onClick={() => {
+        if (currentVisibleIdx === visibleQuestions.length - 1) {
+          setCurrentStep(99);
+        } else {
+          setCurrentVisibleIdx((prev) =>
+            Math.min(visibleQuestions.length - 1, prev + 1)
+          );
+        }
+      }}
+      disabled={!selectedOptions[originalIndex]}
+      className={`w-[130px] flex items-center justify-center gap-2 py-[10px] rounded-[5px] font-medium
+        border-2 transition-colors
+        ${
+          selectedOptions[originalIndex]
+            ? "bg-black border-black text-white hover:bg-[#1a1a1a] shadow-[2px_2px_0px_0px_#F9B31B]"
+            : "bg-black border-black text-white hover:bg-[#1a1a1a] shadow-[2px_2px_0px_0px_#F9B31B]"
+        }`}
+    >
+      {currentVisibleIdx === visibleQuestions.length - 1
+        ? "See Estimate"
+        : "Next"}
+    </button>
+  </div>
+)}
+
               </div>
             </div>
           )
@@ -759,7 +865,7 @@ const handleEmailSubmit = async () => {
             </div>
             <div className="flex flex-col md:flex-row gap-8">
               <div className="md:w-1/2 space-y-10 ">
-                <div className="ml-5 mt-5">
+                <div className="lg:ml-5 lg:mt-5">
                   <h4 className=" text-black font-[Poppins] text-[24px] font-[700] leading-normal tracking-[-0.8px] capitalize mb-3 flex items-center gap-2">
                     Whats Always Included
                     {/* <Star className="w-4 h-4" /> */}
@@ -960,57 +1066,62 @@ const handleEmailSubmit = async () => {
           </div>
         )}
 {currentStep !== 99 && (
-  <div className="flex justify-center max-w-4xl mx-auto p-4 lg:gap-160  gap-10 ">
-    <button
-      onClick={() => {
-        if (currentVisibleIdx > 0 && questions && visibleQuestions.length > 0) {
-          const newSelectedOptions = { ...selectedOptions };
-          const origIdx = questions.findIndex(
-            (q) => q.questionText === visibleQuestions[currentVisibleIdx].questionText
-          );
-          newSelectedOptions[origIdx] = null;
-          setSelectedOptions(newSelectedOptions);
-          setCurrentVisibleIdx((prev) => prev - 1);
-        }
-      }}
-      disabled={currentVisibleIdx === 0}
-      className={`w-[130px] flex items-center justify-center gap-2 py-[10px] rounded-[5px] italic
-        border shadow-[2px_2px_0px_0px_#262626] transition-colors text-[16px] font-[400]
-        ${
-          currentVisibleIdx > 0
-            ? "bg-[#F9B31B] border-[#262626] text-[#262626]"
-            : "bg-gray-200 border-gray-200 text-gray-400 cursor-not-allowed shadow-none"
-        }`}
-    >
-      Previous
-    </button>
-    <button
-      onClick={() => {
-        if (currentVisibleIdx === visibleQuestions.length - 1) {
-          setCurrentStep(99);
-        } else {
-          setCurrentVisibleIdx((prev) =>
-            Math.min(visibleQuestions.length - 1, prev + 1)
-          );
-        }
-      }}
-      disabled={!selectedOptions[originalIndex]}
-      className={`w-[130px] flex items-center justify-center gap-2 py-[10px] rounded-[5px] font-medium
-        border-2 transition-colors
-        ${
-          selectedOptions[originalIndex]
-            ? "bg-black border-black text-white hover:bg-[#1a1a1a] shadow-[2px_2px_0px_0px_#F9B31B]"
-            : "bg-black border-black text-white hover:bg-[#1a1a1a] shadow-[2px_2px_0px_0px_#F9B31B]"
-        }`}
-    >
-      {currentVisibleIdx === visibleQuestions.length - 1
-        ? "See Estimate"
-        : "Next"}
-    </button>
-  </div>
+    <div className="flex justify-center max-w-4xl mx-auto p-4 lg:gap-160 gap-10">
+        {/* Previous Button */}
+        <button
+            onClick={() => {
+                if (currentVisibleIdx > 0 && questions && visibleQuestions.length > 0) {
+                    const newSelectedOptions = { ...selectedOptions };
+                    const origIdx = questions.findIndex(
+                        (q) =>
+                            q.questionText === visibleQuestions[currentVisibleIdx].questionText
+                    );
+                    newSelectedOptions[origIdx] = null;
+                    setSelectedOptions(newSelectedOptions);
+                    setCurrentVisibleIdx((prev) => prev - 1);
+                }
+            }}
+            disabled={currentVisibleIdx === 0}
+            className={`w-[130px] items-center justify-center gap-2 py-[10px] rounded-[5px] italic
+                border shadow-[2px_2px_0px_0px_#262626] transition-colors text-[16px] font-[400]
+                sm:flex hidden
+                ${
+                    currentVisibleIdx > 0
+                        ? "bg-[#F9B31B] border-[#262626] text-[#262626]"
+                        : "bg-gray-200 border-gray-200 text-gray-400 cursor-not-allowed shadow-none"
+                }`}
+        >
+            Previous
+        </button>
+
+        {/* Next Button */}
+        <button
+            onClick={() => {
+                if (currentVisibleIdx === visibleQuestions.length - 1) {
+                    setCurrentStep(99);
+                } else {
+                    setCurrentVisibleIdx((prev) =>
+                        Math.min(visibleQuestions.length - 1, prev + 1)
+                    );
+                }
+            }}
+            disabled={!selectedOptions[originalIndex]}
+            className={`w-[130px] items-center justify-center gap-2 py-[10px] rounded-[5px] font-medium
+                border-2 transition-colors
+                sm:flex hidden
+                ${
+                    selectedOptions[originalIndex]
+                        ? "bg-black border-black text-white hover:bg-[#1a1a1a] shadow-[2px_2px_0px_0px_#F9B31B]"
+                        : "bg-black border-black text-white hover:bg-[#1a1a1a] shadow-[2px_2px_0px_0px_#F9B31B]"
+                }`}
+        >
+            {currentVisibleIdx === visibleQuestions.length - 1
+                ? "See Estimate"
+                : "Next"}
+        </button>
+    </div>
 )}
 
-</div>
 
       </section>    
         </div>     
