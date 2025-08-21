@@ -600,7 +600,8 @@ const handleEmailSubmit = async () => {
                             border: "2px solid #000",
                           }}
                         >
-                          ₹{opt.price}
+                            ₹{Number(opt.price).toLocaleString("en-IN")}
+
                         </span>
                       </div>
                       {opt.subtitle && opt.subtitle.trim() !== '' ? (
@@ -769,12 +770,13 @@ const handleEmailSubmit = async () => {
                         </div>
                       </div>
                       <span
-                        className={`md:text-[13px] lg:text-[14px] font-[500] leading-normal font-poppins ${
-                          active ? 'text-white' : 'text-[#111827]'
-                        }`}
-                      >
-                        ₹{opt.price}
-                      </span>
+  className={`md:text-[13px] lg:text-[14px] font-[500] leading-normal font-poppins ${
+    active ? 'text-white' : 'text-[#111827]'
+  }`}
+>
+  ₹{Number(opt.price).toLocaleString("en-IN")}
+</span>
+
                     </button>
                   );
                 })}
@@ -921,7 +923,7 @@ const handleEmailSubmit = async () => {
                       </span>
                     </p>
                     <p className="whitespace-nowrap text-[#1E1E1E] text-center font-[Poppins] text-[14px] font-[500] not-italic  leading-normal">
-                      ₹{item.price.toLocaleString()}
+                       ₹{item.price.toLocaleString("en-IN")}
                     </p>
                   </div>
                 ))}
