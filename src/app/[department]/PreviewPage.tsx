@@ -93,11 +93,13 @@ useEffect(() => {
   const handleTouchEnd = () => {
     // Swipe up
     if (touchStartY - touchEndY > 50) {
-      setCurrentSection((prev) => Math.min(prev + 1, 2));
+     setCurrentSection((prev) => globalThis.Math.min(prev + 1, 2));
+
     }
     // Swipe down
     else if (touchEndY - touchStartY > 50) {
-      setCurrentSection((prev) => Math.max(prev - 1, 0));
+      setCurrentSection((prev) => globalThis.Math.max(prev - 1, 0));
+
     }
     // Otherwise, do nothing (tap or micro scroll)
   };
