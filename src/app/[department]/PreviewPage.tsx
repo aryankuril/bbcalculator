@@ -68,7 +68,7 @@ const firstSectionRef = useRef<HTMLDivElement | null>(null);
 const secondSectionRef = useRef<HTMLDivElement | null>(null);
 const footerRef = useRef<HTMLDivElement | null>(null);
 
-const [ setCurrentSection] = useState(0); 
+const [currentSection, setCurrentSection] = useState(0); 
 // 0 = hero, 1 = second section, 2 = footer
 
 
@@ -115,7 +115,16 @@ useEffect(() => {
   };
 }, []);
 
-
+useEffect(() => {
+  // Now this effect actually uses currentSection!
+  if (currentSection === 0) {
+    firstSectionRef.current?.scrollIntoView({ behavior: "smooth" });
+  } else if (currentSection === 1) {
+    secondSectionRef.current?.scrollIntoView({ behavior: "smooth" });
+  } else if (currentSection === 2) {
+    footerRef.current?.scrollIntoView({ behavior: "smooth" });
+  }
+}, [currentSection]);
 
 
 
