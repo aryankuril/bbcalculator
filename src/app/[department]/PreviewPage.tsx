@@ -68,7 +68,7 @@ const firstSectionRef = useRef<HTMLDivElement | null>(null);
 const secondSectionRef = useRef<HTMLDivElement | null>(null);
 const footerRef = useRef<HTMLDivElement | null>(null);
 
-const [currentSection, setCurrentSection] = useState(0); 
+const [ setCurrentSection] = useState(0); 
 // 0 = hero, 1 = second section, 2 = footer
 
 
