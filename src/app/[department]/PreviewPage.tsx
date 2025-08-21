@@ -522,7 +522,7 @@ const handleEmailSubmit = async () => {
               className="
               
                   flex flex-col gap-6
-                  lg:mt-8  mt-3 mb-5
+                  lg:mt-8  mt-5 mb-5
                   w-full
                   max-w-[908px]
                   p-5 md:p-[40px_40px]
@@ -604,7 +604,7 @@ const handleEmailSubmit = async () => {
                         </span>
                       </div>
                       {opt.subtitle && opt.subtitle.trim() !== '' ? (
-                        <ul className=" md:text-[12px] lg:text-[14px] font-poppins text-[#444] list-disc ml-5 space-y-1">
+                        <ul className=" md:text-[12px] lg:text-[14px] text-[15px] leading-tight font-poppins text-[#444] list-disc ml-5 space-y-1">
                           {opt.subtitle.split("|").map((item, i) => (
                             <li key={i}>{item.trim()}</li>
                           ))}
@@ -615,7 +615,7 @@ const handleEmailSubmit = async () => {
                 })}
 
 {currentStep !== 99 && (
-  <div className="flex justify-center max-w-4xl mx-auto p-4 lg:gap-160  gap-10 block lg:hidden">
+  <div className="flex justify-center max-w-4xl mx-auto gap-13 lg:hidden">
     <button
       onClick={() => {
         if (currentVisibleIdx > 0 && questions && visibleQuestions.length > 0) {
@@ -672,7 +672,7 @@ const handleEmailSubmit = async () => {
             <div
               className="
                   flex flex-col gap-6
-                  lg:mt-8  mt-3 mb-5
+                  lg:mt-8  mt-5 mb-5
                   w-full max-w-[908px]
                   p-5 md:p-[30px_30px]
                   bg-white rounded-[8px] border border-[#1E1E1E]
@@ -756,11 +756,13 @@ const handleEmailSubmit = async () => {
                             {opt.title}
                           </h4>
                           {opt.subtitle && opt.subtitle.trim() !== '' ? (
-                            <p
-                              className={`font-poppins lowercase font-[500]
-                                md:text-[10px] lg:text-[12px]
-                                ${active ? "text-[#111827]" : "text-[#111827]"}`}
-                            >
+                           <p
+  className={`font-poppins lowercase font-[500] 
+    md:text-[10px] lg:text-[12px] text-[15px] 
+    leading-[1.2] 
+    ${active ? "text-[#111827]" : "text-[#111827]"}
+  `}
+>
                               {opt.subtitle}
                             </p>
                           ) : null}
@@ -778,7 +780,7 @@ const handleEmailSubmit = async () => {
                 })}
 
                 {currentStep !== 99 && (
-  <div className="flex justify-center max-w-4xl mx-auto p-4 lg:gap-160 gap-10  lg:hidden">
+  <div className="flex justify-center max-w-4xl mx-auto gap-13  lg:hidden">
     <button
       onClick={() => {
         if (currentVisibleIdx > 0 && questions && visibleQuestions.length > 0) {
