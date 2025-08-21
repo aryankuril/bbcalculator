@@ -67,45 +67,46 @@ export default function PreviewPage() {
 const firstSectionRef = useRef<HTMLDivElement | null>(null);
 const secondSectionRef = useRef<HTMLDivElement | null>(null);
 
+const footerRef = useRef<HTMLDivElement | null>(null);
+
 useEffect(() => {
-  let touchStartY = 0;
-  let touchEndY = 0;
+  let currentSection = 0; // 0 = first, 1 = second, 2 = footer
+  let isScrolling = false;
 
-  const scrollToSecondSection = () => {
-    secondSectionRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  const sections = [
+    firstSectionRef,
+    secondSectionRef,
+    footerRef,
+  ];
 
-  const onTouchStart = (e: TouchEvent) => {
-    touchStartY = e.touches[0].clientY;
-  };
-
-const onTouchMove = (e: TouchEvent) => {
-touchEndY = e.touches[0].clientY;
-
-};
-
-
-  const onTouchEnd = () => {
-    if (touchStartY - touchEndY > 50) {
-      scrollToSecondSection();
+  const scrollToSection = (index: number) => {
+    if (sections[index]?.current) {
+      sections[index].current.scrollIntoView({ behavior: "smooth" });
     }
   };
 
-  const firstSection = firstSectionRef.current;
-  if (firstSection) {
-    firstSection.addEventListener("touchstart", onTouchStart);
-    firstSection.addEventListener("touchmove", onTouchMove);
-    firstSection.addEventListener("touchend", onTouchEnd);
-  }
+  const onWheel = (e: WheelEvent) => {
+    if (isScrolling) return;
+    isScrolling = true;
+
+    if (e.deltaY > 0 && currentSection < sections.length - 1) {
+      currentSection++;
+      scrollToSection(currentSection);
+    } else if (e.deltaY < 0 && currentSection > 0) {
+      currentSection--;
+      scrollToSection(currentSection);
+    }
+
+    setTimeout(() => (isScrolling = false), 800); // debounce
+  };
+
+  window.addEventListener("wheel", onWheel, { passive: false });
 
   return () => {
-    if (firstSection) {
-      firstSection.removeEventListener("touchstart", onTouchStart);
-      firstSection.removeEventListener("touchmove", onTouchMove);
-      firstSection.removeEventListener("touchend", onTouchEnd);
-    }
+    window.removeEventListener("wheel", onWheel);
   };
 }, []);
+
 
 
 
@@ -446,7 +447,7 @@ const handleEmailSubmit = async () => {
             </div>      
           </div>
                               
-             <section ref={secondSectionRef} className="w-full px-4  flex flex-col items-center  py-20 lg:mt-8 mt-60 ">
+             <section  className="w-full px-4  flex flex-col items-center  py-20 lg:mt-8 mt-60 ">
         <h2 className="text-center font-poppins text-[28px] sm:text-[28px] md:text-5xl  leading-normal tracking-[-0.8px] capitalize text-black">
           Plan Your Project, Step By Step
         </h2>
@@ -487,6 +488,8 @@ const handleEmailSubmit = async () => {
 </div>
 
         </div>
+
+        <div ref={secondSectionRef} >
 
         {/* ... The rest of your component remains the same from the previous response ... */}
         {currentStep !== 99 ? (
@@ -982,10 +985,15 @@ const handleEmailSubmit = async () => {
     </button>
   </div>
 )}
+
+</div>
       </section>    
         </div>     
       </div>
-      <Footer/>
+     <div ref={footerRef}>
+  <Footer />
+</div>
+
     </div>
   );
 }
