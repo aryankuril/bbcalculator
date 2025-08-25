@@ -153,7 +153,7 @@ const filteredForms = formsData.filter((form) => {
   if (dateFilter) {
     const formDate = new Date(form.createdAt);
     const now = new Date();
-    let cutoff = new Date();
+    const cutoff = new Date();
 
     if (dateFilter === "1y") cutoff.setFullYear(now.getFullYear() - 1);
     if (dateFilter === "6m") cutoff.setMonth(now.getMonth() - 6);

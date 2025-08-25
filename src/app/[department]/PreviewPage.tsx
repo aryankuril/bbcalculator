@@ -620,7 +620,9 @@ const handleEmailSubmit = async () => {
                             borderRadius: "5px",
                             border: "2px solid #000",
                           }}
-                        >
+                        > 
+
+                        {/*  */}
                             ₹{Number(opt.price).toLocaleString("en-IN")}
 
                         </span>

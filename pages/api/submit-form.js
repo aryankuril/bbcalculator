@@ -3,7 +3,7 @@
 import clientPromise from "../../lib/mongodb";
 import nodemailer from "nodemailer";
 import { renderToStream } from "@react-pdf/renderer";
-import QuotationPDF from "../../lib/QuotationPDF";
+// import QuotationPDF from "../../lib/QuotationPDF";
 import quotationTableHTML from "../../lib/quotationTableHTML";
 import { ObjectId } from "mongodb";
 
@@ -55,10 +55,10 @@ export default async function handler(req, res) {
       );
 
       // Generate PDF
-      const pdfStream = await renderToStream(<QuotationPDF costItems={quote} total={total} />);
-      const chunks = [];
-      for await (const chunk of pdfStream) chunks.push(chunk);
-      const pdfBuffer = Buffer.concat(chunks);
+      // const pdfStream = await renderToStream(<QuotationPDF costItems={quote} total={total} />);
+      // const chunks = [];
+      // for await (const chunk of pdfStream) chunks.push(chunk);
+      // const pdfBuffer = Buffer.concat(chunks);
 
       // Send Email
       const transporter = nodemailer.createTransport({
