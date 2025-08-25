@@ -477,20 +477,12 @@ const handleEmailSubmit = async () => {
         <h2 className="text-center font-poppins text-[25px] sm:text-[28px] md:text-5xl  leading-normal tracking-[-0.8px] capitalize text-black">
           Plan Your Project, Step By Step
         </h2>
-        <div className="flex items-center gap-2 mt-1 text-sm text-gray-600">
+        <div className="flex items-center gap-2 text-sm text-gray-600">
           <span className="text-center font-poppins text-[20px] font-[400] leading-normal text-[#797474]">
             Calculate your digital dream
           </span>
         </div>
-        <div ref={secondSectionRef} className="w-full max-w-6xl max-h-7xl lg:mt-10 mt-5">
-          <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
-            <span className="text-[#797474] text-center font-[Poppins] text-[20px] italic font-light leading-none tracking-[0.2px] capitalize">
-              Progress
-            </span>
-            <span className="text-[#797474] text-center font-[Poppins] text-[20px] not-italic font-light leading-none tracking-[0.2px] capitalize">
-              {percent}%
-            </span>
-          </div>
+        <div ref={secondSectionRef} className="w-full max-w-6xl max-h-7xl lg:mt-12 mt-8">
         <div className="flex flex-col gap-2">
   {/* Progress Wrapper (relative so car is inside) */}
   <div className="flex gap-3 relative items-center">
@@ -530,6 +522,15 @@ const handleEmailSubmit = async () => {
   </div>
 </div>
 
+<div className="flex items-center justify-between text-sm text-gray-600 lg:mt-3 mt-1">
+            <span className="text-[#797474] text-center font-[Poppins] text-[20px] italic font-light leading-none tracking-[0.2px] capitalize">
+              Progress
+            </span>
+            <span className="text-[#797474] text-center font-[Poppins] text-[20px] not-italic font-light leading-none tracking-[0.2px] capitalize">
+              {percent}%
+            </span>
+          </div>
+
         </div>
 
      
@@ -542,7 +543,7 @@ const handleEmailSubmit = async () => {
               className="
               
                   flex flex-col gap-6
-                  lg:mt-8  mt-5 mb-5
+                  lg:mt-5  mt-5 mb-5
                   w-full
                   max-w-[908px]
                   p-5 md:p-[40px_40px]
@@ -693,7 +694,7 @@ const handleEmailSubmit = async () => {
             <div
               className="
                   flex flex-col gap-6
-                  lg:mt-8  mt-5 mb-5
+                  lg:mt-5  mt-5 mb-5
                   w-full max-w-[908px]
                   p-5 md:p-[30px_30px]
                   bg-white rounded-[8px] border border-[#1E1E1E]
@@ -859,7 +860,7 @@ const handleEmailSubmit = async () => {
          <div
     className="
         flex flex-col gap-6
-        lg:mt-8  mt-3 mb-10
+        lg:mt-5  mt-3 mb-10
         w-full
         max-w-[908px]
         p-4 md:p-[40px_40px]

@@ -133,15 +133,45 @@ const [questionsData, setQuestionsData] = useState<QuestionsRoute[]>([]);
   const [selectedDependencyQuestion, setSelectedDependencyQuestion] = useState<number | null>(null);
   const [showCalculators, setShowCalculators] = useState(false);
   const [activeTab, setActiveTab] = useState<'forms' | 'questions' | 'users' | 'departments' | 'dashboard'>('dashboard');
-  // const [newDeptMeta, setNewDeptMeta] = useState('');
-  // State to hold data for each section
- 
-
+  
   // State for a custom modal to handle confirmations, etc.
   const [modal, setModal] = useState({ isOpen: false, message: '', onConfirm: () => {} });
   
   // State to handle loading status
   const [isLoading, setIsLoading] = useState(false);
+
+const [searchTerm, setSearchTerm] = useState("");
+const [dateFilter, setDateFilter] = useState("");
+const [serviceFilter, setServiceFilter] = useState("");
+
+// 📌 Filtering logic
+const filteredForms = formsData.filter((form) => {
+  const nameMatch = form.name?.toLowerCase().includes(searchTerm.toLowerCase());
+
+  // Date filter
+  let dateMatch = true;
+  if (dateFilter) {
+    const formDate = new Date(form.createdAt);
+    const now = new Date();
+    let cutoff = new Date();
+
+    if (dateFilter === "1y") cutoff.setFullYear(now.getFullYear() - 1);
+    if (dateFilter === "6m") cutoff.setMonth(now.getMonth() - 6);
+    if (dateFilter === "3m") cutoff.setMonth(now.getMonth() - 3);
+    if (dateFilter === "1m") cutoff.setMonth(now.getMonth() - 1);
+    if (dateFilter === "1w") cutoff.setDate(now.getDate() - 7);
+
+    dateMatch = formDate >= cutoff;
+  }
+
+  // Service filter
+  let serviceMatch = true;
+  if (serviceFilter) {
+    serviceMatch = form.serviceCalculator === serviceFilter;
+  }
+
+  return nameMatch && dateMatch && serviceMatch;
+});
 
 
 
@@ -420,8 +450,9 @@ const handleAddOrUpdateQuestion = () => {
   }
    const CustomModal: React.FC<CustomModalProps> = ({ message, onConfirm, onClose }) => {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-75">
-        <div className="bg-gray-800 p-8 rounded-xl shadow-lg border border-gray-700 w-full max-w-sm mx-4">
+      <div  style={{ background: "linear-gradient(153deg, #EBEBEB 23.63%, #FFD54F 140.11%)" }} 
+      className="fixed inset-0 z-50 flex items-center justify-center bg-opacity-75">
+        <div className="bg-black p-8 rounded-xl shadow-lg border border-gray-700 w-full max-w-sm mx-4">
           <p className="text-white text-lg font-medium mb-6">{message}</p>
           <div className="flex justify-end gap-4">
             <button
@@ -528,30 +559,36 @@ const handleAddOrUpdateQuestion = () => {
 
 
   return (
-     <div className="flex min-h-screen bg-gray-950 text-gray-100 font-sans antialiased">
-      {modal.isOpen && (
-        <CustomModal
-          message={modal.message}
-          onConfirm={modal.onConfirm}
-          onClose={() => setModal({ ...modal, isOpen: false })}
-        />
-      )}
-        <button
-    onClick={handleLogout}
-    className="absolute top-4 right-6 flex items-center gap-2 py-2 px-4 rounded-lg font-semibold bg-gray-900 hover:bg-gray-800 transition-colors shadow-lg"
-  >
-    <LogOut size={18} />
-    Logout
-  </button>
+  <div className="flex min-h-screen text-gray-900 font-sans antialiased"
+     style={{ background: "linear-gradient(153deg, #EBEBEB 23.63%, #FFD54F 140.11%)" }}>
+  {modal.isOpen && (
+    <CustomModal
+      message={modal.message}
+      onConfirm={modal.onConfirm}
+      onClose={() => setModal({ ...modal, isOpen: false })}
+    />
+  )}
+
+  {/* Logout Button */}
+<button
+  onClick={handleLogout}
+  className="absolute top-4 right-6 rounded-[5px] bg-[#262626] shadow-[2px_2px_0px_0px_#F9B31B] 
+             flex justify-center items-center gap-[10px] px-[30px] py-[10px] 
+             text-[#F9B31B] font-semibold transition-colors w-full sm:w-auto"
+>
+  <LogOut size={18} />
+  Logout
+</button>
+
 
        
 
       {/* Sidebar */}
-       <aside className="w-full md:w-64 bg-gray-900 text-white p-6 flex flex-col justify-between rounded-r-2xl shadow-xl">
+       <aside className="w-full md:w-64 bg-black text-white p-6 flex flex-col justify-between rounded-r-2xl shadow-xl">
       <div>
-        <h2 className="text-3xl font-extrabold mb-8 text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-500">
-          Admin Panel
-        </h2>
+        <h2 className="text-3xl font-extrabold mb-8 text-transparent bg-clip-text bg-gradient-to-r from-[#FFD54F] to-[#EBEBEB]">
+            Admin Panel
+          </h2>
 
         <nav className="flex flex-col gap-2">
           {/* Dashboard */} 
@@ -559,7 +596,7 @@ const handleAddOrUpdateQuestion = () => {
             onClick={() => setActiveTab("dashboard")}
             className={`flex items-center gap-3 py-3 px-2 rounded-lg font-semibold transition-colors ${
               activeTab === "dashboard"
-                ? "bg-gray-800 text-blue-400"
+                ? "bg-gray-800 text-[#F9B31B] "
                 : "hover:bg-gray-800"
             }`}
           >
@@ -572,7 +609,7 @@ const handleAddOrUpdateQuestion = () => {
             onClick={() => setActiveTab("forms")}
             className={`flex items-center gap-3 py-3 px-2 rounded-lg font-semibold transition-colors ${
               activeTab === "forms"
-                ? "bg-gray-800 text-blue-400"
+                ? "bg-gray-800 text-[#F9B31B]"
                 : "hover:bg-gray-800"
             }`}
           >
@@ -599,7 +636,7 @@ const handleAddOrUpdateQuestion = () => {
                   onClick={() => setActiveTab("questions")}
                   className={`flex items-center gap-3 py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
                     activeTab === "questions"
-                      ? "bg-gray-800 text-blue-400"
+                      ? "bg-gray-800 text-[#F9B31B]"
                       : "hover:bg-gray-800"
                   }`}
                 >
@@ -611,7 +648,7 @@ const handleAddOrUpdateQuestion = () => {
                   onClick={() => setActiveTab("departments")}
                   className={`flex items-center gap-3 py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
                     activeTab === "departments"
-                      ? "bg-gray-800 text-blue-400"
+                      ? "bg-gray-800 text-[#F9B31B]"
                       : "hover:bg-gray-800"
                   }`}
                 >
@@ -631,7 +668,7 @@ const handleAddOrUpdateQuestion = () => {
           onClick={() => setActiveTab("users")}
           className={`flex items-center gap-3 py-3 px-4 rounded-lg font-semibold transition-colors ${
             activeTab === "users"
-              ? "bg-gray-800 text-blue-400"
+              ? "bg-gray-800 text-[#F9B31B] "
               : "hover:bg-gray-800"
           }`}
         >
@@ -669,50 +706,122 @@ const handleAddOrUpdateQuestion = () => {
 
 
 {!isLoading && activeTab === 'forms' && (
-  <div className="bg-gray-900 p-6 rounded-2xl shadow-lg border border-gray-800">
-    <div className="flex mb-4">
-      <h2 className="text-2xl font-semibold ">All Submissions</h2>
-    </div>
+  <div className="bg-[#ffffff] p-2 rounded-2xl shadow-lg">
     {formsData.length > 0 ? (
-      <div className="overflow-x-auto">
-        <table className="w-full table-auto text-center">
-          <thead className="text-gray-400 border-b border-gray-700">
-            <tr>
-              <th className="py-3 px-4">SR No.</th>
-              <th className="py-3 px-4">Name</th>
-              <th className="py-3 px-4">Date</th>
-              <th className="py-3 px-4">Service Calculator</th>
-              <th className="py-3 px-4">Final Price</th>
-              <th className="py-3 px-4">Contact Details</th>
-            </tr>
-          </thead>
-          <tbody>
-            {formsData.map((form, index) => (
-              <tr
-                key={form._id}
-                className="border-b border-gray-800 last:border-b-0 hover:bg-gray-800 transition-colors"
-              >
-                <td className="py-4 px-4">{index + 1}</td>
-                <td className="py-4 px-4">{form.name || "N/A"}</td>
-                <td className="py-4 px-4">
-  {format(new Date(form.createdAt), 'dd/MM/yyyy')}
-</td>
-                <td className="py-4 px-4">
-                  {form.serviceCalculator || "N/A"}
-                </td>
-                <td className="py-4 px-4">
-                  {form.finalPrice
-                    ? `₹${form.finalPrice.toFixed(2)}`
-                    : "N/A"}
-                </td>
-                 <td className="py-4 px-4">
-                  <div>Email: {form.email || "N/A"}</div>
-                  <div>Phone: {form.phone || "N/A"}</div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div>
+        {/* 🔎 Search + Filters */}
+        <div className="flex flex-col md:flex-row justify-between items-center mb-4 gap-3">
+          {/* Search Field */}
+          <input
+            type="text"
+            placeholder="Search by name..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="border border-gray-300 rounded-lg px-4 py-2 w-64 focus:outline-none focus:ring-2 focus:ring-[#262626]"
+          />
+
+          {/* Filters */}
+          <div className="flex gap-3">
+            {/* Filter by Date */}
+            <select
+  value={dateFilter}
+  onChange={(e) => setDateFilter(e.target.value)}
+  className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#262626]"
+>
+  <option value="" disabled hidden>
+    Filter by Date
+  </option>
+  <option value="1y">All</option>
+  <option value="1y">Last 1 Year</option>
+  <option value="6m">Last 6 Months</option>
+  <option value="3m">Last 3 Months</option>
+  <option value="1m">Last 1 Month</option>
+  <option value="1w">Last 1 Week</option>
+</select>
+
+
+            {/* Filter by Service */}
+            <select
+              value={serviceFilter}
+              onChange={(e) => setServiceFilter(e.target.value)}
+              className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#262626]"
+            >
+              <option value="" disabled hidden>
+    Filter by Date
+  </option>
+              {[...new Set(formsData.map((form) => form.serviceCalculator))].map(
+                (service, index) => (
+                  <option key={index} value={service}>
+                    {service}
+                  </option>
+                )
+              )}
+            </select>
+          </div>
+        </div>
+
+        {/* 📌 Table or No User Found */}
+        {filteredForms.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="w-full table-auto text-center">
+              <thead className="border-b bg-[#ffffff] text-[#1D1D1B]">
+                <tr>
+                  <th className="py-3 px-4">SR No.</th>
+                  <th className="py-3 px-4">Date</th>
+                  <th className="py-3 px-4">Name</th>
+                  <th className="py-3 px-4">Service</th>
+                  <th className="py-3 px-4">Final Price</th>
+                  <th className="py-3 px-4">Contact Details</th>
+                  <th className="py-3 px-4">Action</th>
+                </tr>
+              </thead>
+              <tbody className="bg-[#fcfcf9] text-[#000]">
+                {filteredForms.map((form, index) => (
+                  <tr
+                    key={form._id}
+                    className="border-b border-gray-800 last:border-b-0"
+                  >
+                    <td className="py-4 px-4">{index + 1}</td>
+                    <td className="py-4 px-4">
+                      {format(new Date(form.createdAt), "dd/MM/yyyy")}
+                    </td>
+                    <td className="py-4 px-4 capitalize">
+                      {form.name || "N/A"}
+                    </td>
+                    <td className="py-4 px-4 capitalize">
+                      {form.serviceCalculator || "N/A"}
+                    </td>
+                    <td className="py-4 px-4">
+                      {form.finalPrice
+                        ? `₹${form.finalPrice.toLocaleString("en-IN")}`
+                        : "N/A"}
+                    </td>
+                    <td className="py-4 px-4">
+                      <div>{form.email || "N/A"}</div>
+                      <div>{form.phone || "N/A"}</div>
+                    </td>
+                    <td className="py-4 px-4">
+                      <button
+                        onClick={() =>
+                          window.open(`/admin/form-preview/${form._id}`, "_blank")
+                        }
+                        className="rounded-[5px] bg-[#262626] shadow-[2px_2px_0px_0px_#F9B31B] 
+                                   flex justify-center items-center gap-[10px] px-[20px] py-[6px] 
+                                   text-[#F9B31B] font-semibold transition-colors"
+                      >
+                        Preview
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="text-center py-10 text-gray-500 font-medium">
+            No user found with this name.
+          </div>
+        )}
       </div>
     ) : (
       <div className="text-center py-10 text-gray-400">
@@ -724,12 +833,14 @@ const handleAddOrUpdateQuestion = () => {
 
 
 
+
+
+
         {!isLoading && activeTab === 'questions' && ( 
-          <div className="bg-gray-900 p-6 rounded-2xl shadow-lg border border-gray-800">
-            <h2 className="text-2xl font-semibold mb-4">Calculators</h2>
+          <div className="bg-[#ffffff] p-2 rounded-2xl shadow-lg">
             <div className="overflow-x-auto">
               <table className="w-full text-left table-auto">
-                <thead className="text-gray-400 border-b border-gray-700">
+                <thead className="border-b bg-[#ffffff] text-[#1D1D1B]">
                   <tr>
                     <th className="py-3 px-4">SR No.</th>
                     <th className="py-3 px-4">Calculators Name</th>
@@ -738,18 +849,18 @@ const handleAddOrUpdateQuestion = () => {
                     <th className="py-3 px-4 text-center">Actions</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className=" bg-[#fcfcf9] text-[#000]">
             
   {questionsData.map((route, idx) => (
     
     <React.Fragment key={route.id}>
       {/* Main route row */}
-      <tr className="border-b border-gray-800 last:border-b-0 hover:bg-gray-800 transition-colors">
+      <tr className="border-b border-gray-800 last:border-b-0">
         <td className="py-4 px-4 align-top">{idx + 1}</td>
         <td className="py-4 px-4 align-top">{route.name}</td>
         <td className="py-4 px-4 align-top">
           <a href={route.link || `/${route.name}`} target="_blank" rel="noopener noreferrer"
-             className="text-blue-400 hover:text-blue-300 flex items-center gap-2">
+             className="text-[#F9B31B] flex items-center gap-2">
             {route.link || `${route.name}`}
              <ExternalLink size={16} />
           </a>
@@ -767,13 +878,13 @@ const handleAddOrUpdateQuestion = () => {
         <td className="py-4 px-4 align-top text-center">
           <button
             onClick={() => handleEditRoute(route)}
-            className=" text-blue-400 hover:text-blue-300 px-3 py-1 rounded-lg  transition-colors"
+            className=" text-[#F9B31B] px-3 py-1 rounded-lg  transition-colors"
           >
             <Edit size={18} />
           </button>
           <button
                           onClick={() => handleDeleteRoute(route.id)}
-                          className="p-2 rounded-lg text-red-400 hover:bg-red-900 transition-colors"
+                          className="p-2 rounded-lg text-red-400"
                           title="Delete"
                         >
                           <Trash size={18} />
@@ -802,8 +913,8 @@ const handleAddOrUpdateQuestion = () => {
     className="grid grid-cols-1 md:grid-cols-2 gap-8"
   >
     {/* Users Growth (Bar Chart now, Top Left) */}
-    <div className="bg-gray-900 p-6 rounded-2xl shadow-lg border border-gray-800 text-white">
-  <h2 className="text-xl font-semibold mb-4">User Signups</h2>
+    <div className="bg-[#ffffff] p-2  rounded-2xl shadow-lg  text-black">
+  <h2 className="text-xl font-semibold mb-4 ml-5">User Signups</h2>
   <ResponsiveContainer width="100%" height={300}>
     <BarChart
       data={usersData.map(u => ({
@@ -812,10 +923,10 @@ const handleAddOrUpdateQuestion = () => {
       }))}
     >
       <XAxis dataKey="name" hide />
-      <YAxis stroke="#9ca3af" /> {/* light gray axis */}
+      <YAxis stroke="black" /> {/* light gray axis */}
       <Tooltip
         contentStyle={{
-          backgroundColor: "#1f2937", // dark tooltip background
+          backgroundColor: "#1D1D1B", // dark tooltip background
           border: "none",
           borderRadius: "0.5rem",
           color: "#fff"
@@ -831,46 +942,52 @@ const handleAddOrUpdateQuestion = () => {
 
 
     {/* Routes Distribution (Top Right) */}
-    <div className="bg-gray-900 p-6 rounded-2xl shadow-lg border border-gray-800">
-      <h2 className="text-xl font-semibold mb-4">Calculators Overview</h2>
-      <ResponsiveContainer width="100%" height={300}>
-        <PieChart>
-          <Pie
-            data={questionsData.map(q => ({
-              name: q.name,
-              value: q.questions.length
-            }))}
-            dataKey="value"
-            outerRadius={100}
-            fill="#3b82f6"
-            label
-          >
-            {questionsData.map((_, index) => (
-              <Cell
-                key={index}
-                fill={['#3b82f6', '#22c55e', '#eab308', '#ef4444'][index % 4]}
-              />
-            ))}
-          </Pie>
-           <Tooltip
+   <div className="bg-[#ffffff] p-2 rounded-2xl shadow-lg text-black">
+  <h2 className="text-xl font-semibold mb-4 ml-5">Calculators Overview</h2>
+  <ResponsiveContainer width="100%" height={300}>
+    <PieChart>
+      <Pie
+        data={questionsData.map((q) => ({
+          name: q.name,
+          value: q.questions.length,
+        }))}
+        dataKey="value"
+        outerRadius={100}
+        fill="#3b82f6"
+        label
+      >
+        {questionsData.map((_, index) => (
+          <Cell
+            key={index}
+            fill={[
+              "#3b82f6", "#22c55e", "#eab308", "#ef4444", "#8b5cf6",
+              "#ec4899", "#14b8a6", "#f97316", "#0ea5e9", "#84cc16",
+              "#f43f5e", "#6366f1", "#06b6d4", "#d946ef", "#f59e0b",
+              "#10b981", "#4b5563", "#71717a", "#a855f7", "#f87171"
+            ][index % 20]}
+          />
+        ))}
+      </Pie>
+      <Tooltip
         contentStyle={{
-          backgroundColor: "#1f2937", // dark tooltip background
+          backgroundColor: "#1D1D1B", // dark tooltip background
           border: "none",
           borderRadius: "0.5rem",
-          color: "#fff"
+          color: "#fff",
         }}
         itemStyle={{ color: "#fff" }} // tooltip text color
         cursor={{ fill: "rgba(255,255,255,0.1)" }} // soft hover cursor
-      /> 
-          <Legend />
-        </PieChart>
-      </ResponsiveContainer>
-    </div>
+      />
+      <Legend />
+    </PieChart>
+  </ResponsiveContainer>
+</div>
+
  
     {/* Form Submissions (Bottom, Full Width, Area Chart) */}
  {/* Form Submissions (Bottom, Full Width, Area Chart) */}
-<div className="bg-gray-900 p-6 rounded-2xl shadow-lg border border-gray-800 col-span-1 md:col-span-2">
-  <h2 className="text-xl font-semibold mb-4">Form Submissions</h2>
+<div className=" text-black bg-[#ffffff] p-2 rounded-2xl shadow-lg  col-span-1 md:col-span-2">
+  <h2 className="text-xl font-semibold mb-4 ml-5">Form Submissions</h2>
   <ResponsiveContainer width="100%" height={300}>
 <AreaChart
   data={Object.values(
@@ -892,11 +1009,11 @@ const handleAddOrUpdateQuestion = () => {
           <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
         </linearGradient>
       </defs>
-      <XAxis dataKey="name" />
-      <YAxis />
+      <XAxis dataKey="name" stroke="black" />
+       <YAxis stroke="black" />
      <Tooltip
         contentStyle={{
-          backgroundColor: "#1f2937", // dark tooltip background
+          backgroundColor: "#1D1D1B", // dark tooltip background
           border: "none",
           borderRadius: "0.5rem",
           color: "#fff"
@@ -922,11 +1039,10 @@ const handleAddOrUpdateQuestion = () => {
 
 
         {!isLoading && activeTab === 'users' && (
-          <div className="bg-gray-900 p-6 rounded-2xl shadow-lg border border-gray-800">
-            <h2 className="text-2xl font-semibold mb-4">User Accounts</h2>
+          <div className="bg-[#ffffff] p-2 rounded-2xl shadow-lg borde">
             <div className="overflow-x-auto">
               <table className="w-full text-left table-auto">
-                <thead className="text-gray-400 border-b border-gray-700">
+                <thead className=" border-b bg-[#ffffff] text-[#1D1D1B]">
                   <tr>
                     <th className="py-3 px-4">Name</th>
                     <th className="py-3 px-4">Email</th>
@@ -934,10 +1050,10 @@ const handleAddOrUpdateQuestion = () => {
                     <th className="py-3 px-4">Role</th>
                     <th className="py-3 px-4 text-center">Actions</th>
                   </tr>
-                </thead>
-                <tbody>
+                </thead >
+                <tbody className=" bg-[#fcfcf9] text-[#000]">
                   {usersData.map((user) => (
-                    <tr key={user.id} className="border-b border-gray-800 last:border-b-0 hover:bg-gray-800 transition-colors">
+                    <tr key={user.id} className="border-b border-gray-800 last:border-b-0">
                       <td className="py-4 px-4">{user.name}</td>
                       <td className="py-4 px-4">{user.email}</td>
                       <td className="py-4 px-4">
@@ -949,12 +1065,12 @@ const handleAddOrUpdateQuestion = () => {
                           <select
                             value={user.role}
                             onChange={(e) => handleRoleChange(user.id, e.target.value)}
-                            className="bg-gray-800 text-white rounded-md pl-3 pr-8 py-2 appearance-none cursor-pointer"
+                            className="bg-black text-white rounded-md pl-3 pr-8 py-2 appearance-none cursor-pointer"
                           >
                             <option value="user">User</option>
                             <option value="admin">Admin</option>
                           </select>
-                          <ChevronDown size={16} className="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-400" />
+                          <ChevronDown size={16} className="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none text-white" />
                         </div>
                       </td>
                       <td className="py-4 px-4 flex justify-center">
@@ -974,56 +1090,51 @@ const handleAddOrUpdateQuestion = () => {
           </div>
         )}
 
-        {!isLoading && activeTab === 'departments' && (
-          <div className="bg-gray-900 p-6 rounded-2xl shadow-lg border border-gray-800">
+       {!isLoading && activeTab === 'departments' && (
+          <div className="bg-white/50 backdrop-blur-md p-6 rounded-2xl shadow-lg border border-gray-300">
             <h2 className="text-2xl font-semibold mb-4">Services Management</h2>
-           <div className="mb-6 flex flex-col sm:flex-row gap-4">
-    <input
-      type="text"
-      placeholder="Add or edit department"
-      value={newDept}
-      onChange={handleDeptInput}
-      className="border border-gray-700 bg-gray-800 p-2 rounded-lg text-gray-100 w-full sm:w-auto focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-    />
+            <div className="mb-6 flex flex-col sm:flex-row gap-4">
+              <input
+                type="text"
+                placeholder="Add or edit department"
+                value={newDept}
+                onChange={handleDeptInput}
+                className="border border-gray-300 bg-white p-2 rounded-lg text-black w-full sm:w-auto focus:ring-2 focus:ring-[#FFD54F] focus:border-transparent"
+              />
+              {selectedDept ? (
+                <button
+                  onClick={() => {
+                    if (!newDept.trim()) {
+                      showAlert("Please enter a department name.");
+                      return;
+                    }
+                    autoSaveToMongo(newDept, new Date().toISOString());
+                    setSelectedDept(null);
+                    setNewDept('');
+                    showAlert("✅ Department updated successfully!");
+                  }}
+  className="rounded-[5px] bg-[#F9B31B] shadow-[2px_2px_0_0_#262626] flex justify-center items-center gap-[10px] px-[30px] py-[10px] text-[#262626] font-semibold transition-colors w-full sm:w-auto"
+                >
+                  Update Department
+                </button>
+              ) : (
+                <button
+  onClick={handleAddDepartment}
+  className="rounded-[5px] bg-[#262626] shadow-[2px_2px_0px_0px_#F9B31B] flex justify-center items-center gap-[10px] px-[30px] py-[10px] text-[#F9B31B] font-semibold transition-colors w-full sm:w-auto"
+>
+  Add Department
+</button>
 
-    {selectedDept ? (
-      <button
-        onClick={() => {
-          if (!newDept.trim()) {
-            alert("Please enter a department name.");
-            return;
-          }
-          // Save existing department
-          // Save current meta title along with questions too
-          autoSaveToMongo(newDept, new Date().toISOString());
-          // Reset UI state
-          setSelectedDept(null);
-          setNewDept('');
-          alert("✅ Department updated successfully!");
-        }}
-        className="bg-green-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-700 transition-colors w-full sm:w-auto"
-      >
-        Update Department
-      </button>
-    ) : (
-      <button
-        onClick={handleAddDepartment}
-        className="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors w-full sm:w-auto"
-      >
-        Add Department
-      </button>
-    )}
-  </div>
+              )}
+            </div>
 
-            
             <div className="mb-8">
-              {/* <h3 className="text-xl font-semibold mb-4">Select Department to Edit</h3> */}
               <div className="flex flex-wrap gap-2">
                 {departments.map((dept) => (
                   <button
                     key={dept}
                     onClick={() => setSelectedDept(dept)}
-                    className={`px-4 py-2 rounded-lg capitalize transition-colors ${selectedDept === dept ? 'bg-blue-500 text-white' : 'bg-gray-800 hover:bg-gray-700'}`}
+                    className={`px-4 py-2 rounded-lg capitalize transition-colors ${selectedDept === dept ? 'bg-black text-[#FFD54F] shadow-[2px_2px_0px_0px_#262626]' : 'bg-gray-200 hover:bg-gray-300'}`}
                   >
                     {dept}
                   </button>
@@ -1032,68 +1143,66 @@ const handleAddOrUpdateQuestion = () => {
             </div>
 
             {selectedDept && (
-              <div className="bg-gray-800 p-6 rounded-2xl border border-gray-700">
-<div className="mb-6">
-  <label className="block text-gray-200 mb-2 font-semibold">
-    Meta Title for {selectedDept}
-  </label>
-  <input
-    type="text"
-    value={metaTitles[selectedDept] || ""}
-    onChange={e =>
-      setMetaTitles(prev => ({ ...prev, [selectedDept]: e.target.value }))
-    }
-    className="w-full p-2 rounded bg-gray-900 border border-gray-700 text-gray-100"
-    placeholder="Enter SEO Page Title"
-  />
+              <div className="bg-white/50 backdrop-blur-md p-6 rounded-2xl border border-gray-300">
+                <div className="mb-6">
+                  <label className="block text-black mb-2 font-semibold">
+                    Meta Title for {selectedDept}
+                  </label>
+                  <input
+                    type="text"
+                    value={metaTitles[selectedDept] || ""}
+                    onChange={e =>
+                      setMetaTitles(prev => ({ ...prev, [selectedDept]: e.target.value }))
+                    }
+                    className="w-full p-2 rounded bg-white border border-gray-300 text-black"
+                    placeholder="Enter SEO Page Title"
+                  />
+                  <button
+  onClick={() => {
+    if (!selectedDept) return;
+    autoSaveToMongo(selectedDept, new Date().toISOString());
+    showAlert("✅ Meta title saved successfully!");
+  }}
+  className={`mt-3 rounded-[5px] shadow-[2px_2px_0px_0px] flex justify-center items-center gap-[10px] px-[30px] py-[10px] font-semibold transition-colors w-full sm:w-auto
+    ${
+      metaTitles[selectedDept]
+        ? "bg-[#F9B31B] shadow-[2px_2px_0px_0px_#262626] text-[#262626]"
+        : "bg-[#262626] shadow-[2px_2px_0px_0px_#F9B31B] text-[#F9B31B]"
+    }`}
+>
+  {metaTitles[selectedDept] ? "Update Meta Title" : "Add Meta Title"}
+</button>
 
-  {/* NEW BUTTON */}
-  <button
-    onClick={() => {
-      if (!selectedDept) return;
-      // Call save immediately
-      autoSaveToMongo(selectedDept, new Date().toISOString());
-      alert("✅ Meta title saved successfully!");
-    }}
-    className="mt-2 bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
-  >
-    {metaTitles[selectedDept] ? "Update Meta Title" : "Add Meta Title"}
-  </button>
-</div>
+                </div>
 
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-2xl font-semibold capitalize">{selectedDept} Questions</h2>
-                  <a href={`/${selectedDept}`} target="_blank" rel="noopener noreferrer" className="text-purple-400 underline flex items-center gap-2 hover:text-purple-300">
+                  <a href={`/${selectedDept}`} target="_blank" rel="noopener noreferrer" className="text-purple-600 underline flex items-center gap-2 hover:text-purple-800">
                     Preview Page <ExternalLink size={16} />
                   </a>
                 </div>
-                
-                {/* Question Builder Form */}
-                <div className="mb-8 p-4 bg-gray-900 rounded-lg border border-gray-700">
-                  {/* <h3 className="text-xl font-semibold mb-4">
-                    {editingQuestionIndex !== null ? 'Edit Question' : 'Add New Question'}
-                  </h3> */}
+
+                <div className="mb-8 p-4 bg-white rounded-lg border border-gray-300">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-4 mb-4">
                     <input
-  type="file"
-  accept="image/*"
-  onChange={(e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        // Narrow reader.result to string or fallback to empty string
-        const result = reader.result;
-        setQuestionForm(prev => ({
-          ...prev,
-          icon: typeof result === "string" ? result : ""
-        }));
-      };
-      reader.readAsDataURL(file);
-    }
-  }}
-  className="text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-500 file:text-white hover:file:bg-blue-600"
-/>
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onloadend = () => {
+                            const result = reader.result;
+                            setQuestionForm(prev => ({
+                              ...prev,
+                              icon: typeof result === "string" ? result : ""
+                            }));
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                      className="text-black file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#FFD54F] file:text-black hover:file:bg-yellow-400"
+                    />
 
                     <input
                       type="text"
@@ -1101,26 +1210,25 @@ const handleAddOrUpdateQuestion = () => {
                       value={questionForm.text}
                       required
                       onChange={(e) => setQuestionForm(prev => ({ ...prev, text: e.target.value }))}
-                      className="bg-gray-800 border border-gray-700 p-2 rounded-lg"
+                      className="bg-white border border-gray-300 p-2 rounded-lg"
                     />
                     <input
                       type="text"
                       placeholder="Subtitle"
                       value={questionForm.subText}
                       onChange={(e) => setQuestionForm(prev => ({ ...prev, subText: e.target.value }))}
-                      className="bg-gray-800 border border-gray-700 p-2 rounded-lg"
+                      className="bg-white border border-gray-300 p-2 rounded-lg"
                     />
                     <input
                       type="text"
-                      placeholder="Type of question that links to estimates page" 
+                      placeholder="Type of question that links to estimates page"
                       value={questionForm.type}
                       required
                       onChange={(e) => setQuestionForm(prev => ({ ...prev, type: e.target.value }))}
-                      className="bg-gray-800 border border-gray-700 p-2 rounded-lg"
+                      className="bg-white border border-gray-300 p-2 rounded-lg"
                     />
                   </div>
-                  
-                  {/* Dependency Inputs */}
+
                   <div className="flex items-center space-x-4 mb-4">
                     <label className="flex items-center space-x-2">
                       <input
@@ -1148,52 +1256,56 @@ const handleAddOrUpdateQuestion = () => {
 
                   {questionForm.isDependent && (
                     <div className="flex flex-col sm:flex-row gap-4 mb-4">
-                       <select
-      className="bg-gray-800 border border-gray-700 p-2 rounded-lg w-full text-gray-300"
-      value={selectedDependencyQuestion ?? ''}
-      onChange={(e) => {
-        const index = parseInt(e.target.value);
-        setSelectedDependencyQuestion(index);
-        setSelectedDependencyOptions([]); // reset when question changes
-      }}
-    >
-      <option value="">Select dependency question</option>
-      {formState[selectedDept]?.map((q, idx) => (
-        <option key={idx} value={idx}>{q.questionText}</option>
-      ))}
-    </select>
+                      <select
+                        className="bg-white/50 backdrop-blur-md border border-gray-300 p-2 rounded-lg w-full text-black"
+                        value={selectedDependencyQuestion ?? ''}
+                        onChange={(e) => {
+                          const index = parseInt(e.target.value);
+                          setSelectedDependencyQuestion(index);
+                          setSelectedDependencyOptions([]);
+                        }}
+                      >
+                        <option value="">Select dependency question</option>
+                        {formState[selectedDept]?.map((q, idx) => (
+                          <option key={idx} value={idx}>{q.questionText}</option>
+                        ))}
+                      </select>
                       {selectedDependencyQuestion !== null && (
-      <select
-        multiple
-        className="bg-gray-800 border border-gray-700 p-2 rounded-lg w-full text-gray-300"
-        value={selectedDependencyOptions.map(String)}
-        onChange={(e) => {
-          const values = Array.from(e.target.selectedOptions, opt => parseInt(opt.value));
-          setSelectedDependencyOptions(values);
-        }}
-      >
-        {formState[selectedDept]?.[selectedDependencyQuestion]?.options.map((opt, idx) => (
-          <option key={idx} value={idx}>{opt.title}</option>
-        ))}
-      </select>
-    )}
+                        <select
+                          multiple
+                          className="bg-gray-200 border border-gray-300 p-2 rounded-lg w-full text-black"
+                          value={selectedDependencyOptions.map(String)}
+                          onChange={(e) => {
+                            const values = Array.from(e.target.selectedOptions, opt => parseInt(opt.value));
+                            setSelectedDependencyOptions(values);
+                          }}
+                        >
+                          {formState[selectedDept]?.[selectedDependencyQuestion]?.options.map((opt, idx) => (
+                            <option key={idx} value={idx}>{opt.title}</option>
+                          ))}
+                        </select>
+                      )}
                     </div>
                   )}
 
                   <button
-                    onClick={handleAddOrUpdateQuestion}
-                    className="bg-green-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-700 transition-colors"
+                   onClick={handleAddOrUpdateQuestion}
+  className={`rounded-[5px] flex justify-center items-center gap-[10px] px-[30px] py-[10px] font-semibold transition-colors w-full sm:w-auto
+    ${
+      editingQuestionIndex !== null
+        ? "bg-[#F9B31B] text-[#262626] shadow-[2px_2px_0_0_#262626]" // Update (Save)
+        : "bg-[#262626] text-[#F9B31B] shadow-[2px_2px_0px_0px_#F9B31B]" // Add
+    }`}
                   >
                     {editingQuestionIndex !== null ? 'Save Question' : 'Add Question'}
                   </button>
                 </div>
 
-                {/* Questions and Options Display */}
                 {formState[selectedDept]?.map((q, qIndex) => (
-                  <div key={qIndex} className="mb-6 p-6 border border-gray-700 rounded-2xl bg-gray-900 relative">
+                  <div key={qIndex} className="mb-6 p-6 border border-gray-300  rounded-2xl bg-white/50 backdrop-blur-md relative">
                     <div className="absolute top-4 right-4 flex gap-2">
                       <button
-                        className="p-2 rounded-lg text-blue-400 hover:bg-gray-700 transition-colors"
+                        className="p-2 rounded-lg text-[#FFD54F] hover:bg-gray-300 transition-colors"
                         title="Edit Question"
                         onClick={() => {
                           setQuestionForm({
@@ -1205,32 +1317,26 @@ const handleAddOrUpdateQuestion = () => {
                             dependentOn: q.dependentOn,
                           });
                           if (q.isDependent && Array.isArray(q.dependentOn) && q.dependentOn.length > 0) {
-  // your UI only supports picking one previous question, so take the first questionIndex
-  const qIdx = q.dependentOn[0].questionIndex;
-  setSelectedDependencyQuestion(qIdx);
-  setSelectedDependencyOptions(q.dependentOn.map(dep => dep.optionIndex));
-} else {
-  setSelectedDependencyQuestion(null);
-  setSelectedDependencyOptions([]);
-}
-
- setEditingQuestionIndex(qIndex);
-
+                            const qIdx = q.dependentOn[0].questionIndex;
+                            setSelectedDependencyQuestion(qIdx);
+                            setSelectedDependencyOptions(q.dependentOn.map(dep => dep.optionIndex));
+                          } else {
+                            setSelectedDependencyQuestion(null);
+                            setSelectedDependencyOptions([]);
+                          }
+                          setEditingQuestionIndex(qIndex);
                         }}
                       >
                         <Edit size={18} />
                       </button>
                       <button
-                        className="p-2 rounded-lg text-red-400 hover:bg-gray-700 transition-colors"
+                        className="p-2 rounded-lg text-red-600 hover:bg-gray-300 transition-colors"
                         title="Delete Question"
-                       onClick={() => {
- showAlert('Are you sure you want to delete this question?', () => {
-  handleDeleteQuestion(selectedDept, qIndex);
-});
-
-
-}}
-
+                        onClick={() => {
+                          showAlert('Are you sure you want to delete this question?', () => {
+                            handleDeleteQuestion(selectedDept, qIndex);
+                          });
+                        }}
                       >
                         <Trash size={18} />
                       </button>
@@ -1246,82 +1352,83 @@ const handleAddOrUpdateQuestion = () => {
                       )}
                       <div>
                         <h3 className="text-xl font-bold">Q{qIndex + 1}: {q.questionText}</h3>
-                        <p className="text-gray-400">{q.questionSubText}</p>
-                        <p className="text-gray-400 font-semibold text-sm">Type: {q.type}</p>
-                       {q.isDependent && Array.isArray(q.dependentOn) && q.dependentOn.length > 0 && (
-  <p className="text-sm text-gray-500 mt-1">
-    Depends on Q{q.dependentOn[0].questionIndex + 1} — Option(s): {q.dependentOn.map(d => d.optionIndex + 1).join(', ')}
-  </p>
-)}
-
+                        <p className="text-gray-600">{q.questionSubText}</p>
+                        <p className="text-gray-600 font-semibold text-sm">Type: {q.type}</p>
+                        {q.isDependent && Array.isArray(q.dependentOn) && q.dependentOn.length > 0 && (
+                          <p className="text-sm text-gray-500 mt-1">
+                            Depends on Q{q.dependentOn[0].questionIndex + 1} — Option(s): {q.dependentOn.map(d => d.optionIndex + 1).join(', ')}
+                          </p>
+                        )}
                       </div>
                     </div>
 
-                    <hr className="border-gray-700 my-4" />
+                    <hr className="border-gray-300 my-4" />
 
-                    {/* Option Builder Form */}
-                    <div className="p-4 bg-gray-900 rounded-lg border border-gray-700 mb-4">
+                    <div className="p-4 bg-white rounded-lg border border-gray-300 mb-4">
                       <h4 className="text-lg font-semibold mb-3">
                         {editingOptionIndex !== null ? 'Edit Option' : 'Add New Option'} for Q{qIndex + 1}
                       </h4>
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 gap-4 mb-4">
-                       <input
-  type="file"
-  accept="image/*"
-  onChange={(e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const result = reader.result;
-        setOption(prev => ({
-          ...prev,
-          icon: typeof result === "string" ? result : ""
-        }));
-      };
-      reader.readAsDataURL(file);
-    }
-  }}
-  className="text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-500 file:text-white hover:file:bg-blue-600"
-/>
-
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              const reader = new FileReader();
+                              reader.onloadend = () => {
+                                const result = reader.result;
+                                setOption(prev => ({
+                                  ...prev,
+                                  icon: typeof result === "string" ? result : ""
+                                }));
+                              };
+                              reader.readAsDataURL(file);
+                            }
+                          }}
+                          className="text-black file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#FFD54F] file:text-black hover:file:bg-yellow-400"
+                        />
                         <input
                           type="text"
                           placeholder="Title"
                           value={option.title}
                           onChange={(e) => setOption({ ...option, title: e.target.value })}
-                          className="bg-gray-800 border border-gray-700 p-2 rounded-lg"
+                          className="bg-white border border-gray-300 p-2 rounded-lg"
                         />
                         <input
                           type="text"
                           placeholder="Subtitle"
                           value={option.subtitle}
                           onChange={(e) => setOption({ ...option, subtitle: e.target.value })}
-                          className="bg-gray-800 border border-gray-700 p-2 rounded-lg"
+                          className="bg-white border border-gray-300 p-2 rounded-lg"
                         />
                         <input
                           type="text"
                           placeholder="Price"
                           value={option.price}
                           onChange={(e) => setOption({ ...option, price: e.target.value })}
-                          className="bg-gray-800 border border-gray-700 p-2 rounded-lg"
+                          className="bg-white border border-gray-300 p-2 rounded-lg"
                         />
                       </div>
                       <button
-                        onClick={() => handleAddOrUpdateOption(qIndex)}
-                        className="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                      onClick={() => handleAddOrUpdateOption(qIndex)}
+  className={`rounded-[5px] flex justify-center items-center gap-[10px] px-[30px] py-[10px] font-semibold transition-colors w-full sm:w-auto
+    ${
+      editingOptionIndex !== null
+        ? "bg-[#F9B31B] shadow-[2px_2px_0px_0px_#262626] text-[#262626]"
+        : "bg-[#262626] shadow-[2px_2px_0px_0px_#F9B31B] text-[#F9B31B]"
+    }`}
                       >
                         {editingOptionIndex !== null ? 'Save Option' : 'Add Option'}
                       </button>
                     </div>
 
-                    {/* Option Cards Display */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                       {q.options.map((opt, idx) => (
-                        <div key={idx} className="relative p-4 rounded-xl shadow-md bg-gray-800 border border-gray-700">
+                        <div key={idx} className="relative p-4 rounded-xl shadow-md bg-white border border-gray-300">
                           <div className="absolute top-4 right-4 flex gap-2">
                             <button
-                              className="p-1 rounded-md text-blue-400 hover:bg-gray-700 transition-colors"
+                              className="p-1 rounded-md text-[#FFD54F] hover:bg-gray-300 transition-colors"
                               title="Edit Option"
                               onClick={() => {
                                 setOption(opt);
@@ -1330,7 +1437,7 @@ const handleAddOrUpdateQuestion = () => {
                             >
                               <Edit size={16} />
                             </button>
-                         <button
+                             <button
   className="p-1 rounded-md text-red-400 hover:bg-gray-700 transition-colors"
   title="Delete Option"
   onClick={() => {
@@ -1348,27 +1455,20 @@ const handleAddOrUpdateQuestion = () => {
 >
   <Trash size={16} />
 </button>
-
                           </div>
-                          <div className="flex items-start gap-4">
-                            {opt.icon && (
-                              opt.icon?.startsWith("data:image") ? (
-                                <img src={opt.icon} alt="icon" className="w-10 h-10 object-contain rounded-lg" />
-                              ) : (
-                                <span className="text-4xl">{opt.icon}</span>
-                              )
-                            )}
-                            <div>
-                              <h4 className="text-lg font-semibold">{opt.title}</h4>
-                              <p className="text-gray-400 text-sm">{opt.subtitle}</p>
-                              <div className="text-right text-green-400 font-bold mt-2 text-lg">
-                                ₹{opt.price}
-                              </div>
-                            </div>
-                          </div>
+                          {opt.icon && (
+                            opt.icon.startsWith("data:image") ? (
+                              <img src={opt.icon} alt="icon" className="w-12 h-12 object-contain rounded-lg mb-2" />
+                            ) : (
+                              <span className="text-4xl mb-2 block">{opt.icon}</span>
+                            )
+                          )}
+                          <h5 className="font-semibold text-lg">{opt.title}</h5>
+                          <p className="text-sm text-gray-500">{opt.subtitle}</p>
+                          <p className="text-xl font-bold mt-2 text-[#FFD54F]">₹{opt.price}</p>
                         </div>
                       ))}
-                    </div> 
+                    </div>
                   </div>
                 ))}
               </div>
