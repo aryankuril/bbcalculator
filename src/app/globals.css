@@ -28,6 +28,6 @@
 /* ✅ Global Styles */
 body {
   background: linear-gradient(180deg, rgba(255,255,255,0.28) 18%, rgba(252,220,84,0.24) 100%);
-  color: var(--foreground);
+  /* color: var(--foreground); */
   font-family: 'Poppins';
 }

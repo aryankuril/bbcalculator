@@ -63,8 +63,7 @@ await transporter.sendMail({
       </div>
       <img src="https://i.postimg.cc/J4X4Bx6Q/BB-Email-Sign.png" 
            alt="Bombay Blokes Signature" 
-           style="display:block; width:100%; max-width:500px; height:auto; border:0; margin:0 0 10px 0;">
-      <p style="color:#888; font-size:12px; margin:8px 0 0 0;">Thank you for your business!</p>
+           style="display:block; width:100%; max-width:400px; height:auto; border:0; margin:0 0 10px 0;">
     </div>
   `,
   attachments: [

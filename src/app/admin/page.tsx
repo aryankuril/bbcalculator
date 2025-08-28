@@ -723,10 +723,12 @@ const handleAddOrUpdateQuestion = () => {
           {/* Filters */}
           <div className="flex gap-3">
             {/* Filter by Date */}
+
+                  <div className="relative">
             <select
   value={dateFilter}
   onChange={(e) => setDateFilter(e.target.value)}
-  className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#262626]"
+ className="appearance-none w-full border border-gray-300 rounded-lg px-4 py-2 pr-10 focus:outline-none"
 >
   <option value="" disabled hidden>
     Filter by Date
@@ -738,25 +740,35 @@ const handleAddOrUpdateQuestion = () => {
   <option value="1m">Last 1 Month</option>
   <option value="1w">Last 1 Week</option>
 </select>
+<div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+    <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+  </div>
+  </div>
 
 
             {/* Filter by Service */}
-            <select
-              value={serviceFilter}
-              onChange={(e) => setServiceFilter(e.target.value)}
-              className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#262626]"
-            >
-              <option value="" disabled hidden>
-    Filter by Date
-  </option>
-              {[...new Set(formsData.map((form) => form.serviceCalculator))].map(
-                (service, index) => (
-                  <option key={index} value={service}>
-                    {service}
-                  </option>
-                )
-              )}
-            </select>
+        <div className="relative">
+  <select
+    value={serviceFilter}
+    onChange={(e) => setServiceFilter(e.target.value)}
+    className="appearance-none w-full border border-gray-300 rounded-lg px-4 py-2 pr-10 focus:outline-none"
+  >
+    <option value="" disabled hidden>
+      Filter by Service
+    </option>
+    <option value="">All Services</option>
+    {[...new Set(formsData.map((form) => form.serviceCalculator))].map(
+      (service, index) => (
+        <option key={index} value={service}>
+          {service}
+        </option>
+      )
+    )}
+  </select>
+  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+    <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+  </div>
+</div>
           </div>
         </div>
 
