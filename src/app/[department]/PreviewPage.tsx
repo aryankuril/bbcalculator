@@ -73,6 +73,8 @@ const footerRef = useRef<HTMLDivElement | null>(null);
 
 const [currentSection, setCurrentSection] = useState(0); 
 // 0 = hero, 1 = second section, 2 = footer
+const [isSending, setIsSending] = useState(false);
+const [isSubmitting, setIsSubmitting] = useState(false);
 
 
 useEffect(() => {
@@ -343,10 +345,15 @@ const handleOptionSelect = (opt: Option) => {
     return isValid;
   };
   
+
+
 const handleSubmit = async () => {
   if (!validate()) return;
   const { name, phone, email } = formData;
-  const estimateId = typeof window !== "undefined" ? localStorage.getItem("estimateId") : null;
+  const estimateId =
+    typeof window !== "undefined" ? localStorage.getItem("estimateId") : null;
+
+  setIsSubmitting(true); // start loading
 
   try {
     const res = await fetch("/api/submit-form", {
@@ -356,7 +363,6 @@ const handleSubmit = async () => {
         name,
         phone,
         email,
-        // Add the service name and final price here
         serviceCalculator: department,
         finalPrice: totalEstimate,
         quote: costItems,
@@ -370,9 +376,8 @@ const handleSubmit = async () => {
       console.log("✅ Final Form Submitted:", formData);
       setToastMessage("✅ Thank you! We'll connect with you soon.");
       setTimeout(() => setToastMessage(""), 4000);
-      setShowCallForm(false);      // hide form
-      setDisableCallBtn(true); 
-
+      setShowCallForm(false);
+      setDisableCallBtn(true);
 
       localStorage.removeItem("estimateId"); // cleanup
     } else {
@@ -380,40 +385,51 @@ const handleSubmit = async () => {
     }
   } catch (err) {
     console.error("❌ Submission error:", err);
-    alert('Something went wrong while submitting.');
+    alert("Something went wrong while submitting.");
+  } finally {
+    setIsSubmitting(false); // stop loading
   }
 };
 
 
-const handleEmailSubmit = async () => {
-    if (!email) {
-        alert("Please enter a valid email address.");
-        return;
-    }
-    try {
-        const res = await fetch("/api/send-quotation", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            // FIX: Use totalEstimate here too
-            body: JSON.stringify({ email, quote: costItems, total: totalEstimate }),
-        });
-        const data = await res.json();
-        console.log("API response:", data);
 
-        if (res.ok) {
-            setToastMessage("✅ Quotation sent successfully!");
-            setTimeout(() => setToastMessage(""), 4000);
-            setShowEmailInput(false);
-            setEmail("");
-            setDisableEmailBtn(false);
-        } else {
-            alert("❌ Failed to send email.");
-        }
-    } catch (err) {
-        console.error("❌ Error sending email:", err);
-        alert("Something went wrong while sending the email.");
+
+
+const handleEmailSubmit = async () => {
+  if (!email) {
+    alert("Please enter a valid email address.");
+    return;
+  }
+
+  setIsSending(true); // start loading
+
+  try {
+    const res = await fetch("/api/send-quotation", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, quote: costItems, total: totalEstimate }),
+    });
+
+    const data = await res.json();
+    console.log("API response:", data);
+
+    if (res.ok) {
+      setToastMessage("✅ Quotation sent successfully!");
+      setTimeout(() => setToastMessage(""), 4000);
+      setShowEmailInput(false);
+      setEmail("");
+      setDisableEmailBtn(false);
+    } else {
+      alert("❌ Failed to send email.");
     }
+  } catch (err) {
+    console.error("❌ Error sending email:", err);
+    alert("Something went wrong while sending the email.");
+  } finally {
+    setIsSending(false); // stop loading
+  }
 };
+
   
 
 
@@ -517,7 +533,7 @@ const handleEmailSubmit = async () => {
         bottom: '1px',
       }}
     >
-      <img src="/images/taxi1.png" alt="Car" className="lg:h-[80px] h-[50px] lg:w-[80px] w-[50px]" />
+      <img src="/images/taxi1.png" alt="Car" className="lg:h-[65px] h-[45px] lg:w-[70px] w-[50px]" />
     </div>
   </div>
 </div>
@@ -1049,14 +1065,13 @@ const handleEmailSubmit = async () => {
 
     {/* Submit Button */}
     <button
-      onClick={() => {
-        handleSubmit();
-  
-      }}
-      className="w-full py-[8px] px-[23px] mb-3 rounded-[5px] bg-[#262626] shadow-[2px_2px_0px_0px_#F9B31B] text-white text-[16px] font-[400] italic flex justify-center items-center gap-[10px] self-stretch transition-all"
-    >
-      Submit
-    </button>
+  onClick={handleSubmit}
+  className="w-full py-[8px] px-[23px] mb-3 rounded-[5px] bg-[#262626] shadow-[2px_2px_0px_0px_#F9B31B] text-white text-[16px] font-[400] italic flex justify-center items-center gap-[10px] self-stretch transition-all disabled:opacity-50"
+  disabled={isSubmitting}
+>
+  {isSubmitting ? "Submitting..." : "Submit"}
+</button>
+
   </>
 )} 
 
@@ -1081,11 +1096,12 @@ const handleEmailSubmit = async () => {
                       onChange={(e) => setEmail(e.target.value)}
                     />
                     <button
-                      onClick={handleEmailSubmit}
-                      className="col-span-3 py-[8px] px-[12px] rounded-[5px] bg-[#262626] text-white font-[400] italic shadow-[2px_2px_0px_0px_#F9B31B] transition w-full"
-                    >
-                      Send
-                    </button>
+  onClick={handleEmailSubmit}
+  className="col-span-3 py-[8px] px-[12px] rounded-[5px] bg-[#262626] text-white font-[400] italic shadow-[2px_2px_0px_0px_#F9B31B] transition w-full disabled:opacity-50"
+  disabled={isSending}
+>
+  {isSending ? "Sending..." : "Send"}
+</button>
                   </div>
                 )}
               </div>

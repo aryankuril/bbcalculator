@@ -22,31 +22,6 @@ export default async function handler(req, res) {
       },
     });
 
-//    await transporter.sendMail({
-//   from: process.env.EMAIL_USER || 'aryankuril09@gmail.com',
-//   to: email,
-//   subject: 'Your Quotation Estimate',
-//   html: `
-//     <div style="font-family: Arial, sans-serif;">
-//       <p style="margin:0;">Hii,</p>
-//       <br>
-//       <p style="margin:0;">Please find your quotation in the attached PDF.</p>
-//       <br>
-//       <p style="margin:0;">Regards,</p>
-//       <p style="margin:0;">Priyank Shah | <strong>Head Bloke</strong></p>
-//       <p style="margin:0;">+91 98191 67856 | Follow <a href="https://www.instagram.com/bombay_blokes/" target="_blank" style="color:#0073e6; text-decoration:none;">@bombay_blokes</a>. Stay Updated!</p>
-//       <br>
-//       <img src="https://i.postimg.cc/J4X4Bx6Q/BB-Email-Sign.png" alt="Bombay Blokes Signature" style="display:block; width:100%; max-width:600px; height:auto; border:0;">
-//     </div>
-//   `,
-//   attachments: [
-//     {
-//       filename: 'quotation.pdf',
-//       content: pdfBuffer,
-//     },
-//   ],
-// });
-
 
 await transporter.sendMail({
   from: process.env.EMAIL_USER || 'aryankuril09@gmail.com',
