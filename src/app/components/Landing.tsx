@@ -42,7 +42,8 @@ const Landing = () => {
           background: "#262626",
           boxShadow: "2px 2px 0px 0px #F9B31B",
         }}
-         onClick={() => window.location.href = "https://bombayblokes.com/estimates-calculator/"}
+        //  onClick={() => window.location.href = "https://bombayblokes.com/estimates-calculator/"}
+          onClick={() => window.location.href = "https://estimates.bombayblokes.com/website"}
       >
         Calculate Now
       </button>

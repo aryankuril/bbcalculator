@@ -1164,8 +1164,7 @@ const handleEmailSubmit = async () => {
         </button>
     </div>
 )}
-
-
+ 
       </section>    
         </div>     
       </div>
