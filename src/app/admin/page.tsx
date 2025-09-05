@@ -1,6 +1,7 @@
 "use client"
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect ,useRef} from 'react';
 import { useRouter } from 'next/navigation';
+import FormPreview from '../components/FormPreview';
 import {
   FormInput,
   FolderOpen,
@@ -23,10 +24,17 @@ import {
   XAxis, YAxis, Tooltip, Legend,
   ResponsiveContainer,
 } from 'recharts';
-
 import { format } from "date-fns"; // install if not already
+import { DateRange } from "react-date-range";
+import "react-date-range/dist/styles.css";
+import "react-date-range/dist/theme/default.css";
+import { DateRangePicker, RangeKeyDict } from "react-date-range";
 
-
+type DateRangeType = {
+  startDate: Date | null;
+  endDate: Date | null;
+  key: string;
+};
 
 type DependentOn = {
   questionIndex: number;
@@ -51,16 +59,24 @@ type Option = {
   price: string;
 };
 
-type FormSubmission = {
-    _id: string;
-    name: string;
-    email: string;
-    phone: string;
-    createdAt: string;
-    // These fields are the ones you added to the database, so the frontend needs to know about them.
-    serviceCalculator?: string; 
-    finalPrice?: number; 
+type QuoteItem = {
+  type: string;
+  label: string;
+  value: string;
+  price: number;
 };
+
+type FormSubmission = {
+  _id: string;
+  name: string;
+  email: string;
+  phone: string;
+  createdAt: string;
+  serviceCalculator?: string; 
+  finalPrice?: number; 
+  quote?: QuoteItem[];  // 👈 add this
+};
+
 
 type QuestionsRoute = {
   link: string;
@@ -133,10 +149,15 @@ const [questionsData, setQuestionsData] = useState<QuestionsRoute[]>([]);
   const [selectedDependencyQuestion, setSelectedDependencyQuestion] = useState<number | null>(null);
   const [showCalculators, setShowCalculators] = useState(false);
   const [activeTab, setActiveTab] = useState<'forms' | 'questions' | 'users' | 'departments' | 'dashboard'>('dashboard');
-  
+const [selectedFormId, setSelectedFormId] = useState<string | null>(null);
+
+
+
   // State for a custom modal to handle confirmations, etc.
   const [modal, setModal] = useState({ isOpen: false, message: '', onConfirm: () => {} });
-  
+  const [currentPage, setCurrentPage] = useState(1);
+const leadsPerPage = 25;
+
   // State to handle loading status
   const [isLoading, setIsLoading] = useState(false);
 
@@ -144,34 +165,50 @@ const [searchTerm, setSearchTerm] = useState("");
 const [dateFilter, setDateFilter] = useState("");
 const [serviceFilter, setServiceFilter] = useState("");
 
+const [dateRange, setDateRange] = useState<DateRangeType[]>([
+  { startDate: null, endDate: null, key: "selection" },
+]);
+const [open, setOpen] = useState(false);
+const dateRef = useRef<HTMLDivElement>(null);
 // 📌 Filtering logic
-const filteredForms = formsData.filter((form) => {
+// 1️⃣ Filter forms first
+const filteredForms = formsData.filter((form) => { 
   const nameMatch = form.name?.toLowerCase().includes(searchTerm.toLowerCase());
+  const matchesPhone = form.phone?.toLowerCase().includes(searchTerm.toLowerCase());
+  const serviceMatch = !serviceFilter || form.serviceCalculator === serviceFilter;
 
-  // Date filter
+  const formDate = new Date(form.createdAt);
+  const { startDate, endDate } = dateRange[0];
+
   let dateMatch = true;
-  if (dateFilter) {
-    const formDate = new Date(form.createdAt);
-    const now = new Date();
-    const cutoff = new Date();
 
-    if (dateFilter === "1y") cutoff.setFullYear(now.getFullYear() - 1);
-    if (dateFilter === "6m") cutoff.setMonth(now.getMonth() - 6);
-    if (dateFilter === "3m") cutoff.setMonth(now.getMonth() - 3);
-    if (dateFilter === "1m") cutoff.setMonth(now.getMonth() - 1);
-    if (dateFilter === "1w") cutoff.setDate(now.getDate() - 7);
+  if (startDate && endDate) {
+    const start = new Date(startDate);
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(endDate);
+    end.setHours(23, 59, 59, 999);
 
-    dateMatch = formDate >= cutoff;
+    const current = new Date(formDate);
+    current.setHours(12, 0, 0, 0);
+
+    dateMatch = current >= start && current <= end;
   }
 
-  // Service filter
-  let serviceMatch = true;
-  if (serviceFilter) {
-    serviceMatch = form.serviceCalculator === serviceFilter;
-  }
-
-  return nameMatch && dateMatch && serviceMatch;
+  return nameMatch && matchesPhone && serviceMatch && dateMatch;
 });
+
+// 2️⃣ Pagination
+const indexOfLastLead = currentPage * leadsPerPage;
+const indexOfFirstLead = indexOfLastLead - leadsPerPage;
+const currentForms = filteredForms.slice(indexOfFirstLead, indexOfLastLead);
+
+// 3️⃣ Total pages
+const totalPages = Math.ceil(filteredForms.length / leadsPerPage);
+
+
+
+
+
 
 
 
@@ -270,6 +307,18 @@ const handleDeleteQuestion = (dept: string, questionIndex: number) => {
     fetchData();
   }, [activeTab]);
 
+
+
+// Close dropdown on outside click
+useEffect(() => {
+  const handleClickOutside = (event: MouseEvent) => {
+    if (dateRef.current && !dateRef.current.contains(event.target as Node)) {
+      setOpen(false);
+    }
+  };
+  document.addEventListener("mousedown", handleClickOutside);
+  return () => document.removeEventListener("mousedown", handleClickOutside);
+}, []);
 
   const autoSaveToMongo = async (selectedDept: string , dateCreated:string ) => {
   const questions = formState[selectedDept];
@@ -485,14 +534,6 @@ const handleAddOrUpdateQuestion = () => {
     });
   };
 
-  // Handler for the logout button
-  // const handleLogout = () => {
-  //   showAlert('Are you sure you want to log out?', () => {
-  //     // In a real app, you would clear the user session/token here
-  //     console.log('User logged out.');
-  //     // Redirect to login page or home page
-  //   });
-  // };
 
   // Handler for deleting a route/question
   const handleDeleteRoute = (id: string | number) => {
@@ -584,7 +625,7 @@ const handleAddOrUpdateQuestion = () => {
        
 
       {/* Sidebar */}
-       <aside className="w-full md:w-64 bg-black text-white p-6 flex flex-col justify-between rounded-r-2xl shadow-xl">
+       <aside className="w-full md:w-70 bg-black text-white p-6 flex flex-col justify-between rounded-r-2xl shadow-xl">
       <div>
         <h2 className="text-3xl font-extrabold mb-8 text-transparent bg-clip-text bg-gradient-to-r from-[#FFD54F] to-[#EBEBEB]">
             Admin Panel
@@ -594,7 +635,7 @@ const handleAddOrUpdateQuestion = () => {
           {/* Dashboard */} 
           <button
             onClick={() => setActiveTab("dashboard")}
-            className={`flex items-center gap-3 py-3 px-2 rounded-lg font-semibold transition-colors ${
+            className={`flex items-center gap-3 py-3 px-2 w-[240px] rounded-lg font-semibold transition-colors ${
               activeTab === "dashboard"
                 ? "bg-gray-800 text-[#F9B31B] "
                 : "hover:bg-gray-800"
@@ -605,23 +646,31 @@ const handleAddOrUpdateQuestion = () => {
           </button>
 
           {/* Form Submissions */}
-          <button
-            onClick={() => setActiveTab("forms")}
-            className={`flex items-center gap-3 py-3 px-2 rounded-lg font-semibold transition-colors ${
-              activeTab === "forms"
-                ? "bg-gray-800 text-[#F9B31B]"
-                : "hover:bg-gray-800"
-            }`}
-          >
-            <FormInput size={20} />
-            Manage Submissions
-          </button>
+          {/* Form Submissions */}
+<button
+  onClick={() => setActiveTab("forms")}
+  className={`flex items-center justify-between py-3 px-2 w-[240px] rounded-lg font-semibold transition-colors ${
+    activeTab === "forms"
+      ? "bg-gray-800 text-[#F9B31B]"
+      : "hover:bg-gray-800"
+  }`}
+>
+  <span className="flex items-center gap-3">
+    <FormInput size={20} />
+    Manage Submissions
+  </span>
+  {/* Total submissions badge */}
+  <span className="bg-[#F9B31B] text-black text-xs font-semibold px-2 py-0.5 rounded-full ml-2">
+    {formsData.length || 0}
+  </span>
+</button>
+
 
           {/* Manage Calculators (Dropdown) */}
           <div>
             <button
               onClick={() => setShowCalculators(!showCalculators)}
-              className="flex items-center justify-between gap-3 py-3 px-2 w-full rounded-lg font-semibold hover:bg-gray-800 transition-colors"
+              className="flex items-center justify-between gap-3 py-3 px-2 w-[240px] rounded-lg font-semibold hover:bg-gray-800 transition-colors"
             >
               <span className="flex items-center gap-3">
                 
@@ -653,7 +702,7 @@ const handleAddOrUpdateQuestion = () => {
                   }`}
                 >
                   <Building size={20} />
-                  Services
+                  Add Services
                 </button>
               </div>
             )}
@@ -680,7 +729,7 @@ const handleAddOrUpdateQuestion = () => {
     </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 p-8 md:p-12 overflow-auto">
+      <main className="flex-1 p-8 md:p-6 overflow-auto">
         {/* Title for the current section */}
         <h1 className="text-4xl font-bold mb-8">
           {activeTab === 'dashboard' && 'Dashbord'}
@@ -693,157 +742,256 @@ const handleAddOrUpdateQuestion = () => {
         {/* Loading Indicator */}
         {isLoading && (
           <div className="flex justify-center items-center h-48">
-            <div className="animate-spin rounded-full h-12 w-12 border-4 border-t-4 border-blue-500 border-opacity-25"></div>
-            <p className="ml-4 text-xl text-blue-400">Loading data...</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-t-4 border-black border-opacity-25"></div>
+            <p className="ml-4 text-xl text-black">Loading data...</p>
           </div>
         )}
 
 
       
         {/* Conditional Rendering for Tables */}
+{!selectedFormId ? (
+  <>
+    {!isLoading && activeTab === "forms" && (
+      <div className="bg-[#ffffff] p-2 rounded-2xl shadow-lg">
+        {formsData.length > 0 ? (
+          <div>
+            {/* 🔎 Search + Filters */}
+            <div className="flex flex-col md:flex-row justify-between items-center mb-4 gap-3">
+              {/* Search Field */}
+              <input
+                type="text"
+                placeholder="Search by phone..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="border border-gray-300 rounded-lg px-3 py-2 w-64 focus:outline-none focus:ring-2 focus:ring-[#262626]"
+              />
 
-
-
-
-{!isLoading && activeTab === 'forms' && (
-  <div className="bg-[#ffffff] p-2 rounded-2xl shadow-lg">
-    {formsData.length > 0 ? (
-      <div>
-        {/* 🔎 Search + Filters */}
-        <div className="flex flex-col md:flex-row justify-between items-center mb-4 gap-3">
-          {/* Search Field */}
-          <input
-            type="text"
-            placeholder="Search by name..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="border border-gray-300 rounded-lg px-4 py-2 w-64 focus:outline-none focus:ring-2 focus:ring-[#262626]"
-          />
-
-          {/* Filters */}
-          <div className="flex gap-3">
-            {/* Filter by Date */}
-
-                  <div className="relative">
-            <select
-  value={dateFilter}
-  onChange={(e) => setDateFilter(e.target.value)}
- className="appearance-none w-full border border-gray-300 rounded-lg px-4 py-2 pr-10 focus:outline-none"
+              {/* Filters */}
+              <div className="flex gap-3">
+                {/* Date Filter */}
+             <div className="flex gap-3">
+  {/* Date Filter as dropdown */}
+<div className="relative" ref={dateRef}>
+  {/* Dropdown Input */}
+  <div
+  className="appearance-none w-full border border-gray-300 rounded-lg px-4 py-2 pr-10 focus:outline-none cursor-pointer"
+  onClick={() => setOpen(!open)}
 >
-  <option value="" disabled hidden>
-    Filter by Date
-  </option>
-  <option value="1y">All</option>
-  <option value="1y">Last 1 Year</option>
-  <option value="6m">Last 6 Months</option>
-  <option value="3m">Last 3 Months</option>
-  <option value="1m">Last 1 Month</option>
-  <option value="1w">Last 1 Week</option>
-</select>
-<div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-    <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
-  </div>
-  </div>
+  {dateRange[0].startDate
+    ? dateRange[0].endDate
+      ? `${dateRange[0].startDate.toDateString()} → ${dateRange[0].endDate.toDateString()}`
+      : dateRange[0].startDate.toDateString()
+    : "Filter by Date"}
+</div>
 
 
-            {/* Filter by Service */}
-        <div className="relative">
-  <select
-    value={serviceFilter}
-    onChange={(e) => setServiceFilter(e.target.value)}
-    className="appearance-none w-full border border-gray-300 rounded-lg px-4 py-2 pr-10 focus:outline-none"
-  >
-    <option value="" disabled hidden>
-      Filter by Service
-    </option>
-    <option value="">All Services</option>
-    {[...new Set(formsData.map((form) => form.serviceCalculator))].map(
-      (service, index) => (
-        <option key={index} value={service}>
-          {service}
-        </option>
-      )
-    )}
-  </select>
+  {/* Down Arrow */}
   <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-    <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+    <svg
+      className="fill-current h-4 w-4"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 20 20"
+    >
+      <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+    </svg>
+  </div>
+
+  {/* Calendar dropdown */}
+  {open && (
+    <div className="absolute z-50 mt-1 bg-white shadow-lg rounded-lg">
+      <DateRange
+  editableDateInputs={true}
+  moveRangeOnFirstSelection={false}
+  ranges={dateRange}
+  onChange={(item) => {
+    const { startDate, endDate } = item.selection;
+    setDateRange([
+      {
+        startDate,
+        endDate: endDate || startDate, // single-day support
+        key: "selection",
+      },
+    ]);
+  }}
+ />
+
+    </div>
+  )}
+</div>
+
+
+  {/* Service Filter */}
+  <div className="relative">
+    <select
+      value={serviceFilter}
+      onChange={(e) => setServiceFilter(e.target.value)}
+      className="appearance-none w-full border border-gray-300 rounded-lg px-4 py-2 pr-10 focus:outline-none"
+    >
+      <option value="" disabled hidden>
+        Filter by Service
+      </option>
+      <option value="">All Services</option>
+      {(() => {
+        const serviceCounts: Record<string, number> = {};
+        formsData.forEach((form) => {
+          const service = form.serviceCalculator || "N/A";
+          serviceCounts[service] = (serviceCounts[service] || 0) + 1;
+        });
+        return [...new Set(formsData.map((form) => form.serviceCalculator || "N/A"))].map(
+          (service, index) => (
+            <option className="capitalize" key={index} value={service}>
+              {service} ({serviceCounts[service] || 0})
+            </option>
+          )
+        );
+      })()}
+    </select>
+    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+      <svg
+        className="fill-current h-4 w-4"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 20 20"
+      >
+        <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+      </svg>
+    </div>
   </div>
 </div>
-          </div>
-        </div>
 
-        {/* 📌 Table or No User Found */}
-        {filteredForms.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="w-full table-auto text-center">
-              <thead className="border-b bg-[#ffffff] text-[#1D1D1B]">
-                <tr>
-                  <th className="py-3 px-4">SR No.</th>
-                  <th className="py-3 px-4">Date</th>
-                  <th className="py-3 px-4">Name</th>
-                  <th className="py-3 px-4">Service</th>
-                  <th className="py-3 px-4">Final Price</th>
-                  <th className="py-3 px-4">Contact Details</th>
-                  <th className="py-3 px-4">Action</th>
-                </tr>
-              </thead>
-              <tbody className="bg-[#fcfcf9] text-[#000]">
-                {filteredForms.map((form, index) => (
-                  <tr
-                    key={form._id}
-                    className="border-b border-gray-800 last:border-b-0"
-                  >
-                    <td className="py-4 px-4">{index + 1}</td>
-                    <td className="py-4 px-4">
-                      {format(new Date(form.createdAt), "dd/MM/yyyy")}
-                    </td>
-                    <td className="py-4 px-4 capitalize">
-                      {form.name || "N/A"}
-                    </td>
-                    <td className="py-4 px-4 capitalize">
-                      {form.serviceCalculator || "N/A"}
-                    </td>
-                    <td className="py-4 px-4">
-                      {form.finalPrice
-                        ? `₹${form.finalPrice.toLocaleString("en-IN")}`
-                        : "N/A"}
-                    </td>
-                    <td className="py-4 px-4">
-                      <div>{form.email || "N/A"}</div>
-                      <div>{form.phone || "N/A"}</div>
-                    </td>
-                    <td className="py-4 px-4">
-                      <button
-                        onClick={() =>
-                          window.open(`/admin/form-preview/${form._id}`, "_blank")
-                        }
-                        className="rounded-[5px] bg-[#262626] shadow-[2px_2px_0px_0px_#F9B31B] 
-                                   flex justify-center items-center gap-[10px] px-[20px] py-[6px] 
-                                   text-[#F9B31B] font-semibold transition-colors"
-                      >
-                        Preview
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <div className="text-center py-10 text-gray-500 font-medium">
-            No user found with this name.
-          </div>
-        )}
-      </div>
-    ) : (
-      <div className="text-center py-10 text-gray-400">
-        <p>No form submissions found.</p>
-      </div>
-    )}
+              </div>
+            </div>
+
+            {/* 📌 Table */}
+            {filteredForms.length > 0 ? (
+              <div className="overflow-x-auto max-h-[calc(100vh-200px)]">
+                <table className="w-full table-fixed text-center text-xs">
+                  <thead className="border-b bg-[#ffffff] text-[#1D1D1B] text-sm font-semibold">
+                    <tr>
+                      <th className="py-2 px-2 w-12">SR No.</th>
+                      <th className="py-2 px-2 w-15">Date</th>
+                      <th className="py-2 px-1 w-15">Name</th>
+                      <th className="py-2 px-2 w-17">Service</th>
+                      <th className="py-2 px-2 w-20">Questions</th>
+                      <th className="py-2 px-2 w-20">Final Price</th>
+                      <th className="py-2 px-2 w-20">Contact</th>
+                      <th className="py-2 px-2 w-20">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-[#fcfcf9] text-[#000] ">
+                    {(() => {
+                      const serviceCounter: Record<string, number> = {};
+// Count total submissions per service first
+const totalServiceCounts: Record<string, number> = {};
+filteredForms.forEach((form) => {
+  const service = form.serviceCalculator || "N/A";
+  totalServiceCounts[service] = (totalServiceCounts[service] || 0) + 1;
+});
+
+return currentForms.map((form, index) => {
+
+  const service = form.serviceCalculator || "N/A";
+  // Start numbering from bottom
+  const serviceNumber = totalServiceCounts[service] - (serviceCounter[service] || 0);
+  serviceCounter[service] = (serviceCounter[service] || 0) + 1;
+  const serviceWithNumber = `${service} ${serviceNumber}`; // <-- added space
+
+                        return (
+                          <tr key={form._id} className="border-b border-gray-300 last:border-b-0 align-top">
+                            <td className="py-1.5 px-2 text-center align-middle">
+  {(indexOfFirstLead + index + 1)}
+</td>
+
+                            <td className="py-1.5 px-2 text-center align-middle">{format(new Date(form.createdAt), "dd/MM/yyyy")}</td>
+                            <td className="py-1.5 px-2 capitalize text-left align-middle">{form.name || "N/A"}</td>
+                            <td className="py-1.5 px-1 capitalize text-left align-middle">{serviceWithNumber}</td>
+                            <td className="py-1.5 px-2 text-left align-middle">
+                              {Array.isArray(form.quote) && form.quote.length > 0 ? (
+                                form.quote.slice(0, 3).map((item: any, i: number) => (
+                                  <div key={i} className="text-[11px] truncate">
+                                    <strong>{item.type}</strong> - {item.value}
+                                  </div>
+                                ))
+                              ) : (
+                                <div className="text-[11px] text-gray-500">N/A</div>
+                              )}
+                            </td>
+                            <td className="py-1.5 px-2 text-center align-middle">
+                              {form.finalPrice ? `₹${form.finalPrice.toLocaleString("en-IN")}` : "N/A"}
+                            </td>
+                            <td className="py-1.5 px-2 text-[11px] text-left align-middle">
+                              <div>{form.email || "N/A"}</div>
+                              <div>{form.phone || "N/A"}</div>
+                            </td>
+                            <td className="py-1.5 px-15 text-center align-middle">
+                              <button
+                                onClick={() => setSelectedFormId(form._id)}
+                                className="rounded-[4px] bg-[#262626] shadow-[1px_1px_0px_0px_#F9B31B] 
+                                           flex justify-center items-center px-5 py-2 
+                                           text-[#F9B31B] text-[11px] font-semibold"
+                              >
+                                Preview
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      });
+                    })()}
+                  </tbody>
+                </table>
+                {/* Pagination Controls */}
+{totalPages > 1 && (
+  <div className="flex justify-center items-center mt-4 gap-2">
+    <button
+      onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+      disabled={currentPage === 1}
+      className="px-3 py-1 border rounded disabled:opacity-50"
+    >
+      Prev
+    </button>
+
+    {[...Array(totalPages)].map((_, i) => (
+      <button
+        key={i}
+        onClick={() => setCurrentPage(i + 1)}
+        className={`px-3 py-1 border rounded ${
+          currentPage === i + 1 ? "bg-[#262626] text-white" : ""
+        }`}
+      >
+        {i + 1}
+      </button>
+    ))}
+
+    <button
+      onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+      disabled={currentPage === totalPages}
+      className="px-3 py-1 border rounded disabled:opacity-50"
+    >
+      Next
+    </button>
   </div>
 )}
 
-
+              </div>
+            ) : (
+              <div className="text-center py-10 text-gray-500 font-medium">
+                No user found with this name.
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="text-center py-10 text-gray-400">
+            <p>No form submissions found.</p>
+          </div>
+        )}
+      </div>
+    )}
+  </>
+) : (
+  <div className="fixed inset-0 z-50 bg-white overflow-auto">
+    <FormPreview id={selectedFormId} onBack={() => setSelectedFormId(null)} />
+  </div>
+)}
 
 
 
@@ -852,7 +1000,7 @@ const handleAddOrUpdateQuestion = () => {
           <div className="bg-[#ffffff] p-2 rounded-2xl shadow-lg">
             <div className="overflow-x-auto">
               <table className="w-full text-left table-auto">
-                <thead className="border-b bg-[#ffffff] text-[#1D1D1B]">
+                <thead className="border-b bg-[#ffffff] text-[#1D1D1B] text-sm font-semibold">
                   <tr>
                     <th className="py-3 px-4">SR No.</th>
                     <th className="py-3 px-4">Calculators Name</th>
@@ -868,16 +1016,16 @@ const handleAddOrUpdateQuestion = () => {
     <React.Fragment key={route.id}>
       {/* Main route row */}
       <tr className="border-b border-gray-800 last:border-b-0">
-        <td className="py-4 px-4 align-top">{idx + 1}</td>
-        <td className="py-4 px-4 align-top">{route.name}</td>
-        <td className="py-4 px-4 align-top">
+        <td className=" px-4 align-middle ">{idx + 1}</td>
+        <td className=" px-4 align-middle capitalize">{route.name}</td>
+        <td className=" px-4 align-middle">
           <a href={route.link || `/${route.name}`} target="_blank" rel="noopener noreferrer"
-             className="text-[#F9B31B] flex items-center gap-2">
+             className="text-[#F9B31B] flex items-center gap-2 capitalize">
             {route.link || `${route.name}`}
              <ExternalLink size={16} />
           </a>
         </td>
-<td className="py-4 px-4">
+<td className=" px-4">
   {route.dateCreated
     ? format(new Date(route.dateCreated), 'dd/MM/yyyy')
     : "Unknown"}
@@ -887,7 +1035,7 @@ const handleAddOrUpdateQuestion = () => {
 
 
 
-        <td className="py-4 px-4 align-top text-center">
+        <td className=" p-2 align-middle text-center">
           <button
             onClick={() => handleEditRoute(route)}
             className=" text-[#F9B31B] px-3 py-1 rounded-lg  transition-colors"
@@ -931,7 +1079,7 @@ const handleAddOrUpdateQuestion = () => {
     <BarChart
       data={usersData.map(u => ({
         name: u.name,
-        signups: 1
+        signups: 1,
       }))}
     >
       <XAxis dataKey="name" hide />
@@ -954,21 +1102,30 @@ const handleAddOrUpdateQuestion = () => {
 
 
     {/* Routes Distribution (Top Right) */}
-   <div className="bg-[#ffffff] p-2 rounded-2xl shadow-lg text-black">
+{/* Routes Distribution (Top Right) */}
+<div className="bg-[#ffffff] p-2 rounded-2xl shadow-lg text-black">
   <h2 className="text-xl font-semibold mb-4 ml-5">Calculators Overview</h2>
+
   <ResponsiveContainer width="100%" height={300}>
     <PieChart>
       <Pie
-        data={questionsData.map((q) => ({
-          name: q.name,
-          value: q.questions.length,
-        }))}
+        data={(() => {
+          const serviceCounts: Record<string, number> = {};
+          formsData.forEach((form) => {
+            const service = form.serviceCalculator || "N/A";
+            serviceCounts[service] = (serviceCounts[service] || 0) + 1;
+          });
+
+          return Object.entries(serviceCounts).map(([service, count]) => ({
+            name: service,
+            value: count,
+          }));
+        })()}
         dataKey="value"
         outerRadius={100}
-        fill="#3b82f6"
         label
       >
-        {questionsData.map((_, index) => (
+        {formsData.map((_, index) => (
           <Cell
             key={index}
             fill={[
@@ -982,18 +1139,22 @@ const handleAddOrUpdateQuestion = () => {
       </Pie>
       <Tooltip
         contentStyle={{
-          backgroundColor: "#1D1D1B", // dark tooltip background
+          backgroundColor: "#1D1D1B",
           border: "none",
           borderRadius: "0.5rem",
           color: "#fff",
+          textTransform: "capitalize",
         }}
-        itemStyle={{ color: "#fff" }} // tooltip text color
-        cursor={{ fill: "rgba(255,255,255,0.1)" }} // soft hover cursor
+        itemStyle={{ color: "#fff" ,textTransform: "capitalize", }}
+        cursor={{ fill: "rgba(255,255,255,0.1)" }}
       />
-      <Legend />
+      <Legend wrapperStyle={{
+          textTransform: "capitalize",   // 🔹 Legend capitalized
+        }} />
     </PieChart>
   </ResponsiveContainer>
 </div>
+
 
  
     {/* Form Submissions (Bottom, Full Width, Area Chart) */}
@@ -1054,7 +1215,7 @@ const handleAddOrUpdateQuestion = () => {
           <div className="bg-[#ffffff] p-2 rounded-2xl shadow-lg borde">
             <div className="overflow-x-auto">
               <table className="w-full text-left table-auto">
-                <thead className=" border-b bg-[#ffffff] text-[#1D1D1B]">
+                <thead className="border-b bg-[#ffffff] text-[#1D1D1B] text-sm font-semibold">
                   <tr>
                     <th className="py-3 px-4">Name</th>
                     <th className="py-3 px-4">Email</th>
@@ -1066,13 +1227,13 @@ const handleAddOrUpdateQuestion = () => {
                 <tbody className=" bg-[#fcfcf9] text-[#000]">
                   {usersData.map((user) => (
                     <tr key={user.id} className="border-b border-gray-800 last:border-b-0">
-                      <td className="py-4 px-4">{user.name}</td>
-                      <td className="py-4 px-4">{user.email}</td>
-                      <td className="py-4 px-4">
+                      <td className="px-4 align-middle">{user.name}</td>
+                      <td className="px-4 align-middle">{user.email}</td>
+                      <td className="px-4 align-middle">
   {user.signupDate !== "Unknown" ? user.signupDate : "No Date Available"}
 </td>
 
-                      <td className="py-4 px-4">
+                      <td className="py-2 px-4">
                         <div className="relative inline-block text-left">
                           <select
                             value={user.role}
@@ -1085,7 +1246,7 @@ const handleAddOrUpdateQuestion = () => {
                           <ChevronDown size={16} className="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none text-white" />
                         </div>
                       </td>
-                      <td className="py-4 px-4 flex justify-center">
+                      <td className="py-2 px-4 flex justify-center">
                         <button
                           onClick={() => handleDeleteUser(user.id)}
                           className="p-2 rounded-lg text-red-400 hover:bg-red-900 transition-colors"
@@ -1488,7 +1649,7 @@ const handleAddOrUpdateQuestion = () => {
           </div>
         )}
       </main>
-    </div>
+    </div> 
   );
 };
 

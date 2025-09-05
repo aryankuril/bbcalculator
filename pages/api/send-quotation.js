@@ -36,9 +36,10 @@ await transporter.sendMail({
         <p style="margin:0;">Priyank Shah | <strong>Head Bloke</strong></p>
         <p style="margin:0;">+91 98191 67856 | Follow <a href="https://www.instagram.com/bombay_blokes/" target="_blank" style="color:#0073e6; text-decoration:none;">@bombay_blokes</a>. Stay Updated!</p>
       </div>
-      <img src="https://i.postimg.cc/J4X4Bx6Q/BB-Email-Sign.png" 
-           alt="Bombay Blokes Signature" 
-           style="display:block; width:100%; max-width:400px; height:auto; border:0; margin:0 0 10px 0;">
+        <img src="cid:emailsign" 
+             alt="Signature" 
+             style="max-width:400px; height:auto;" />
+      
     </div>
   `,
   attachments: [
@@ -46,8 +47,15 @@ await transporter.sendMail({
       filename: 'quotation.pdf',
       content: pdfBuffer,
     },
+    {
+      filename: 'emailsign.png',
+      path: 'public/images/emailsign.png',  // <-- your local file
+      cid: 'emailsign' // same as in src="cid:emailsign"
+    },
+    
   ],
 });
+
 
 
 

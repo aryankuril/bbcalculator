@@ -260,11 +260,9 @@ useEffect(() => {
 }, [selectedOptions, visibleQuestions, currentVisibleIdx, questions]);
 
 
-// ... existing useEffect
 useEffect(() => {
   if (visibleQuestions.length === 0 || costItems.length === 0 || totalEstimate === 0) return;
 
-  // Only run if we don't already have an estimateId
   if (typeof window !== "undefined" && !localStorage.getItem("estimateId")) {
     (async () => {
       try {
@@ -272,15 +270,13 @@ useEffect(() => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            // Add these two new fields to the submission
-            serviceCalculator: department, 
+            serviceCalculator: department,
             finalPrice: totalEstimate,
-            // Keep the rest of the existing fields
-            name: null, 
-            phone: null, 
-            email: null, 
-            quote: costItems, 
-            total: totalEstimate 
+            name: "N/A",
+            phone: "N/A",
+            email: "N/A",
+            quote: costItems,
+            total: totalEstimate,
           }),
         });
 
@@ -289,11 +285,12 @@ useEffect(() => {
           localStorage.setItem("estimateId", data.estimateId);
         }
       } catch (error) {
-        console.error("❌ Error saving blank estimate:", error);
+        console.error("❌ Error saving placeholder estimate:", error);
       }
     })();
   }
-}, [visibleQuestions.length, costItems, totalEstimate, department]); // Add 'department' to the dependency array
+}, [visibleQuestions.length, costItems, totalEstimate, department]);
+
 
 
   // --- RENDER LOGIC STARTS HERE ---
@@ -349,11 +346,11 @@ const handleOptionSelect = (opt: Option) => {
 
 const handleSubmit = async () => {
   if (!validate()) return;
-  const { name, phone, email } = formData;
-  const estimateId =
-    typeof window !== "undefined" ? localStorage.getItem("estimateId") : null;
 
-  setIsSubmitting(true); // start loading
+  const { name, phone, email } = formData;
+  const estimateId = typeof window !== "undefined" ? localStorage.getItem("estimateId") : null;
+
+  setIsSubmitting(true);
 
   try {
     const res = await fetch("/api/submit-form", {
@@ -367,19 +364,19 @@ const handleSubmit = async () => {
         finalPrice: totalEstimate,
         quote: costItems,
         total: totalEstimate,
-        estimateId,
+        estimateId, // important: existing lead ID
       }),
     });
 
     const data = await res.json();
     if (res.ok) {
-      console.log("✅ Final Form Submitted:", formData);
+      console.log("✅ Form submitted:", formData);
       setToastMessage("✅ Thank you! We'll connect with you soon.");
       setTimeout(() => setToastMessage(""), 4000);
       setShowCallForm(false);
       setDisableCallBtn(true);
 
-      localStorage.removeItem("estimateId"); // cleanup
+      localStorage.removeItem("estimateId"); // cleanup after submission
     } else {
       alert(`❌ Error: ${data.message}`);
     }
@@ -387,13 +384,10 @@ const handleSubmit = async () => {
     console.error("❌ Submission error:", err);
     alert("Something went wrong while submitting.");
   } finally {
-    setIsSubmitting(false); // stop loading
+    setIsSubmitting(false);
   }
 };
-
-
-
-
+  
 
 const handleEmailSubmit = async () => {
   if (!email) {

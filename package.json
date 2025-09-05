@@ -25,16 +25,19 @@
     "puppeteer": "^24.15.0",
     "puppeteer-core": "^10.4.0",
     "react": "^19.0.0",
+    "react-date-range": "^2.0.1",
     "react-dom": "^19.0.0",
     "react-icons": "^5.5.0",
     "react-router-dom": "^7.8.1",
-    "recharts": "^3.1.2"
+    "recharts": "^3.1.2",
+    "resend": "^6.0.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20.19.9",
     "@types/react": "^19",
+    "@types/react-date-range": "^1.4.10",
     "@types/react-dom": "^19",
     "autoprefixer": "^10.4.21",
     "eslint": "^9",

@@ -1,4 +1,4 @@
-// pages/api/submitForm.js (or wherever your handler is)
+// pages/api/submitForm.js
 
 import clientPromise from "../../lib/mongodb";
 import nodemailer from "nodemailer";
@@ -20,12 +20,12 @@ export default async function handler(req, res) {
     const client = await clientPromise;
     const db = client.db("test");
 
-    // Case 1: Blank estimate
-    if (!estimateId && (!name || !phone || !email)) {
+    // Case 1: Placeholder estimate (user just reached Estimates section)
+    if (!estimateId) {
       const result = await db.collection("formSubmissions").insertOne({
-        name: null,
-        phone: null,
-        email: null,
+        name: name || "N/A",
+        phone: phone || "N/A",
+        email: email || "N/A",
         quote,
         total,
         serviceCalculator,
@@ -33,18 +33,21 @@ export default async function handler(req, res) {
         createdAt: new Date(),
       });
 
-      return res.status(200).json({ message: "Blank estimate stored", estimateId: result.insertedId });
+      return res.status(200).json({
+        message: "Placeholder estimate stored",
+        estimateId: result.insertedId,
+      });
     }
 
-    // Case 2: Update existing estimate
-    if (estimateId && name && phone && email) {
+    // Case 2: Update existing estimate (form submitted by user)
+    if (estimateId) {
       await db.collection("formSubmissions").updateOne(
         { _id: new ObjectId(estimateId) },
         {
           $set: {
-            name,
-            phone,
-            email,
+            name: name || "N/A",
+            phone: phone || "N/A",
+            email: email || "N/A",
             quote,
             total,
             serviceCalculator,
@@ -54,7 +57,7 @@ export default async function handler(req, res) {
         }
       );
 
-      // Generate PDF
+      // Generate PDF (optional)
       // const pdfStream = await renderToStream(<QuotationPDF costItems={quote} total={total} />);
       // const chunks = [];
       // for await (const chunk of pdfStream) chunks.push(chunk);
@@ -70,22 +73,24 @@ export default async function handler(req, res) {
       });
 
       await transporter.sendMail({
-        from: process.env.EMAIL_USER,          // sender (your account)
+        from: process.env.EMAIL_USER,          // sender
         to: "aryankuril09@gmail.com",          // admin inbox
-        replyTo: email,                        // 👈 when admin replies, it goes to user
+        replyTo: email,                        // reply goes to user
         subject: "New Inquiry - " + serviceCalculator,
         html: `
-          <p><strong>Name:</strong> ${name}</p>
-          <p><strong>Phone:</strong> ${phone}</p>
-          <p><strong>Email:</strong> ${email}</p>
+          <p><strong>Name:</strong> ${name || "N/A"}</p>
+          <p><strong>Phone:</strong> ${phone || "N/A"}</p>
+          <p><strong>Email:</strong> ${email || "N/A"}</p>
           <p><strong>Service:</strong> ${serviceCalculator}</p>
           <p><strong>Final Price:</strong> ₹${Number(finalPrice).toLocaleString("en-IN")}</p>
           ${quotationTableHTML(quote, total)}
-         
         `,
       });
 
-      return res.status(200).json({ message: "Form updated and email sent!", estimateId });
+      return res.status(200).json({
+        message: "Form updated and email sent!",
+        estimateId,
+      });
     }
 
     return res.status(400).json({ message: "Invalid submission" });
