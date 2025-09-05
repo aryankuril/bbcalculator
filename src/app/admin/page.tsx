@@ -28,7 +28,7 @@ import { format } from "date-fns"; // install if not already
 import { DateRange } from "react-date-range";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
-import { DateRangePicker, RangeKeyDict } from "react-date-range";
+
 
 type DateRangeType = {
   startDate: Date | null;
@@ -156,14 +156,10 @@ const [selectedFormId, setSelectedFormId] = useState<string | null>(null);
   // State for a custom modal to handle confirmations, etc.
   const [modal, setModal] = useState({ isOpen: false, message: '', onConfirm: () => {} });
   const [currentPage, setCurrentPage] = useState(1);
-const leadsPerPage = 25;
-
-  // State to handle loading status
+  const leadsPerPage = 25;
   const [isLoading, setIsLoading] = useState(false);
-
-const [searchTerm, setSearchTerm] = useState("");
-const [dateFilter, setDateFilter] = useState("");
-const [serviceFilter, setServiceFilter] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [serviceFilter, setServiceFilter] = useState("");
 
 const [dateRange, setDateRange] = useState<DateRangeType[]>([
   { startDate: null, endDate: null, key: "selection" },
@@ -907,7 +903,7 @@ return currentForms.map((form, index) => {
                             <td className="py-1.5 px-1 capitalize text-left align-middle">{serviceWithNumber}</td>
                             <td className="py-1.5 px-2 text-left align-middle">
                               {Array.isArray(form.quote) && form.quote.length > 0 ? (
-                                form.quote.slice(0, 3).map((item: any, i: number) => (
+                                form.quote.slice(0, 3).map((item: string, i: number) => (
                                   <div key={i} className="text-[11px] truncate">
                                     <strong>{item.type}</strong> - {item.value}
                                   </div>
