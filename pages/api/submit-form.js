@@ -1,9 +1,6 @@
 // pages/api/submitForm.js
-
 import clientPromise from "../../lib/mongodb";
 import nodemailer from "nodemailer";
-// import { renderToStream } from "@react-pdf/renderer";
-// import QuotationPDF from "../../lib/QuotationPDF";
 import quotationTableHTML from "../../lib/quotationTableHTML";
 import { ObjectId } from "mongodb";
 

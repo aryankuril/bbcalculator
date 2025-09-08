@@ -37,7 +37,7 @@ const Landing = () => {
       </div>
 
       <button
-        className="mt-6 inline-flex items-center font-poppins justify-center gap-[10px] px-[30px] py-[10px] rounded-[5px] text-white text-[16px] sm:text-[18px]"
+        className="cursor-pointer mt-6 inline-flex items-center font-poppins justify-center gap-[10px] px-[30px] py-[10px] rounded-[5px] text-white text-[16px] sm:text-[18px]"
         style={{
           background: "#262626",
           boxShadow: "2px 2px 0px 0px #F9B31B",

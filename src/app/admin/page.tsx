@@ -169,18 +169,20 @@ const dateRef = useRef<HTMLDivElement>(null);
 // 📌 Filtering logic
 // 1️⃣ Filter forms first
 const filteredForms = formsData.filter((form) => { 
-  const nameMatch = form.name?.toLowerCase().includes(searchTerm.toLowerCase());
-  const matchesPhone = form.phone?.toLowerCase().includes(searchTerm.toLowerCase());
+  const lowerSearchTerm = searchTerm.toLowerCase();
+
+  const nameMatch = form.name?.toLowerCase().includes(lowerSearchTerm) ?? false;
+  const phoneMatch = form.phone?.toLowerCase().includes(lowerSearchTerm) ?? false;
   const serviceMatch = !serviceFilter || form.serviceCalculator === serviceFilter;
 
   const formDate = new Date(form.createdAt);
   const { startDate, endDate } = dateRange[0];
 
   let dateMatch = true;
-
   if (startDate && endDate) {
     const start = new Date(startDate);
     start.setHours(0, 0, 0, 0);
+
     const end = new Date(endDate);
     end.setHours(23, 59, 59, 999);
 
@@ -190,8 +192,9 @@ const filteredForms = formsData.filter((form) => {
     dateMatch = current >= start && current <= end;
   }
 
-  return nameMatch && matchesPhone && serviceMatch && dateMatch;
+  return (nameMatch || phoneMatch) && serviceMatch && dateMatch;
 });
+
 
 // 2️⃣ Pagination
 const indexOfLastLead = currentPage * leadsPerPage;
@@ -970,7 +973,7 @@ return currentForms.map((form, index) => {
               </div>
             ) : (
               <div className="text-center py-10 text-gray-500 font-medium">
-                No user found with this name.
+                No user found with this Phone number.
               </div>
             )}
           </div>

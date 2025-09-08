@@ -395,13 +395,23 @@ const handleEmailSubmit = async () => {
     return;
   }
 
+  if (!department) {
+    alert("Please select a service.");
+    return;
+  }
+
   setIsSending(true); // start loading
 
   try {
     const res = await fetch("/api/send-quotation", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, quote: costItems, total: totalEstimate }),
+      body: JSON.stringify({
+        email,
+        quote: costItems,
+        total: totalEstimate,
+        serviceCalculator: department,  // Pass the department/service name
+      }),
     });
 
     const data = await res.json();
@@ -424,7 +434,6 @@ const handleEmailSubmit = async () => {
   }
 };
 
-  
 
 
 
@@ -663,7 +672,7 @@ const handleEmailSubmit = async () => {
         }
       }}
       disabled={currentVisibleIdx === 0}
-      className={`w-[130px] flex items-center justify-center gap-2 py-[10px] rounded-[5px] italic
+      className={` cursor-pointer w-[130px] flex items-center justify-center gap-2 py-[10px] rounded-[5px] italic
         border shadow-[2px_2px_0px_0px_#262626] transition-colors text-[16px] font-[400]
         ${
           currentVisibleIdx > 0
@@ -684,7 +693,7 @@ const handleEmailSubmit = async () => {
         }
       }}
       disabled={!selectedOptions[originalIndex]}
-      className={`w-[130px] flex items-center justify-center gap-2 py-[10px] rounded-[5px] font-medium
+      className={` cursor-pointer w-[130px] flex items-center justify-center gap-2 py-[10px] rounded-[5px] font-medium
         border-2 transition-colors
         ${
           selectedOptions[originalIndex]
@@ -972,7 +981,7 @@ const handleEmailSubmit = async () => {
                 {!showCallForm ? (
   <button
     onClick={() => setShowCallForm(true)}
-    className="w-full mb-3 py-[8px] px-[23px] lg:mt-4 rounded-[5px] bg-[#262626] shadow-[2px_2px_0px_0px_#F9B31B] text-white text-[16px] font-[400] italic flex justify-center items-center gap-[10px] self-stretch transition-all"
+    className="cursor-pointer w-full mb-3 py-[8px] px-[23px] lg:mt-4 rounded-[5px] bg-[#262626] shadow-[2px_2px_0px_0px_#F9B31B] text-white text-[16px] font-[400] italic flex justify-center items-center gap-[10px] self-stretch transition-all"
    disabled={disableCallBtn}
   >
     Schedule Free Call
@@ -1075,7 +1084,7 @@ const handleEmailSubmit = async () => {
                       setShowEmailInput(true);
                       setDisableEmailBtn(true);
                     }}
-                    className="w-full py-[8px] px-[23px] rounded-[5px] border border-[#1E1E1E] bg-white text-black text-[16px] font-[400] italic shadow-[2px_2px_0px_0px_#1E1E1E] flex justify-center items-center gap-[10px] self-stretch transition disabled:opacity-50"
+                    className=" cursor-pointer w-full py-[8px] px-[23px] rounded-[5px] border border-[#1E1E1E] bg-white text-black text-[16px] font-[400] italic shadow-[2px_2px_0px_0px_#1E1E1E] flex justify-center items-center gap-[10px] self-stretch transition disabled:opacity-50"
                     disabled={disableEmailBtn}
                   >
                     Email Me The Quote
@@ -1119,7 +1128,7 @@ const handleEmailSubmit = async () => {
                 }
             }}
             disabled={currentVisibleIdx === 0}
-            className={`w-[130px] items-center justify-center gap-2 py-[10px] rounded-[5px] italic
+            className={`cursor-pointer w-[130px] items-center justify-center gap-2 py-[10px] rounded-[5px] italic
                 border shadow-[2px_2px_0px_0px_#262626] transition-colors text-[16px] font-[400]
                 sm:flex hidden
                 ${
@@ -1143,7 +1152,7 @@ const handleEmailSubmit = async () => {
                 }
             }}
             disabled={!selectedOptions[originalIndex]}
-            className={`w-[130px] items-center justify-center gap-2 py-[10px] rounded-[5px] font-medium
+            className={`cursor-pointer w-[130px] items-center justify-center gap-2 py-[10px] rounded-[5px] font-medium
                 border-2 transition-colors
                 sm:flex hidden
                 ${
