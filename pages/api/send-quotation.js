@@ -29,7 +29,15 @@ export default async function handler(req, res) {
     console.log('Transporter verified');
 
     const serviceNameSlug = serviceCalculator.trim().toLowerCase().replace(/\s+/g, '-');
-    const serviceNameTitle = serviceCalculator.trim();
+    const serviceNameTitle = serviceCalculator
+  .trim()
+  .toLowerCase()
+  .split(' ')
+  .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+  .join(' ');
+
+const subject = `Your ${serviceNameTitle} Quotation from Bombay Blokes`;
+
 
     const imagePath = path.join(process.cwd(), 'public', 'images', 'emailsign.png');
 
