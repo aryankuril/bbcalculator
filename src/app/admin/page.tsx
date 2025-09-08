@@ -161,11 +161,17 @@ const [selectedFormId, setSelectedFormId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [serviceFilter, setServiceFilter] = useState("");
 
-const [dateRange, setDateRange] = useState<DateRangeType[]>([
-  { startDate: null, endDate: null, key: "selection" },
-]);
+
+const dateRef = useRef(null);
 const [open, setOpen] = useState(false);
-const dateRef = useRef<HTMLDivElement>(null);
+
+const [dateRange, setDateRange] = useState<Range[]>([
+  {
+    startDate: undefined,
+    endDate: undefined,
+    key: 'selection',
+  },
+]);
 // 📌 Filtering logic
 // 1️⃣ Filter forms first
 const filteredForms = formsData.filter((form) => { 
@@ -804,13 +810,14 @@ const handleAddOrUpdateQuestion = () => {
     const { startDate, endDate } = item.selection;
     setDateRange([
       {
-        startDate,
-        endDate: endDate || startDate, // single-day support
-        key: "selection",
+        startDate: startDate || undefined,
+        endDate: endDate || undefined,
+        key: 'selection',
       },
     ]);
   }}
- />
+/>
+
 
     </div>
   )}
@@ -903,7 +910,7 @@ return currentForms.map((form, index) => {
                             <td className="py-1.5 px-1 capitalize text-left align-middle">{serviceWithNumber}</td>
                             <td className="py-1.5 px-2 text-left align-middle">
                               {Array.isArray(form.quote) && form.quote.length > 0 ? (
-                                form.quote.slice(0, 3).map((item: string, i: number) => (
+                                form.quote.slice(0, 3).map((item: any, i: number) => (
                                   <div key={i} className="text-[11px] truncate">
                                     <strong>{item.type}</strong> - {item.value}
                                   </div>
