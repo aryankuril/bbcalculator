@@ -30,11 +30,11 @@ import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 
 
-// type DateRangeType = {
-//   startDate: Date | null;
-//   endDate: Date | null;
-//   key: string;
-// };
+type DateRangeType = {
+  startDate: Date | null;
+  endDate: Date | null;
+  key: string;
+};
 
 type DependentOn = {
   questionIndex: number;
@@ -903,7 +903,7 @@ return currentForms.map((form, index) => {
                             <td className="py-1.5 px-1 capitalize text-left align-middle">{serviceWithNumber}</td>
                             <td className="py-1.5 px-2 text-left align-middle">
                               {Array.isArray(form.quote) && form.quote.length > 0 ? (
-                                form.quote.slice(0, 3).map((item: QuoteItem, i: number) => (
+                                form.quote.slice(0, 3).map((item: QuoteItem, i: number) => ( 
                                   <div key={i} className="text-[11px] truncate">
                                     <strong>{item.type}</strong> - {item.value}
                                   </div>
