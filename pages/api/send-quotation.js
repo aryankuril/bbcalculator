@@ -36,9 +36,6 @@ export default async function handler(req, res) {
   .map(word => word.charAt(0).toUpperCase() + word.slice(1))
   .join(' ');
 
-const subject = `Your ${serviceNameTitle} Quotation from Bombay Blokes`;
-
-
     const imagePath = path.join(process.cwd(), 'public', 'images', 'emailsign.png');
 
     await transporter.sendMail({
