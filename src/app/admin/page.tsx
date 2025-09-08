@@ -30,11 +30,11 @@ import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 
 
-type DateRangeType = {
-  startDate: Date | null;
-  endDate: Date | null;
-  key: string;
-};
+// type DateRangeType = {
+//   startDate: Date | null;
+//   endDate: Date | null;
+//   key: string;
+// };
 
 type DependentOn = {
   questionIndex: number;
@@ -161,17 +161,11 @@ const [selectedFormId, setSelectedFormId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [serviceFilter, setServiceFilter] = useState("");
 
-
-const dateRef = useRef(null);
-const [open, setOpen] = useState(false);
-
-const [dateRange, setDateRange] = useState<Range[]>([
-  {
-    startDate: undefined,
-    endDate: undefined,
-    key: 'selection',
-  },
+const [dateRange, setDateRange] = useState<DateRangeType[]>([
+  { startDate: null, endDate: null, key: "selection" },
 ]);
+const [open, setOpen] = useState(false);
+const dateRef = useRef<HTMLDivElement>(null);
 // 📌 Filtering logic
 // 1️⃣ Filter forms first
 const filteredForms = formsData.filter((form) => { 
@@ -810,14 +804,13 @@ const handleAddOrUpdateQuestion = () => {
     const { startDate, endDate } = item.selection;
     setDateRange([
       {
-        startDate: startDate || undefined,
-        endDate: endDate || undefined,
-        key: 'selection',
+        startDate,
+        endDate: endDate || startDate, // single-day support
+        key: "selection",
       },
     ]);
   }}
-/>
-
+ />
 
     </div>
   )}
@@ -910,7 +903,7 @@ return currentForms.map((form, index) => {
                             <td className="py-1.5 px-1 capitalize text-left align-middle">{serviceWithNumber}</td>
                             <td className="py-1.5 px-2 text-left align-middle">
                               {Array.isArray(form.quote) && form.quote.length > 0 ? (
-                                form.quote.slice(0, 3).map((item: any, i: number) => (
+                                form.quote.slice(0, 3).map((item: QuoteItem, i: number) => (
                                   <div key={i} className="text-[11px] truncate">
                                     <strong>{item.type}</strong> - {item.value}
                                   </div>
