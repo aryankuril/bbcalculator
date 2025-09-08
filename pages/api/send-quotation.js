@@ -1,6 +1,7 @@
 import nodemailer from 'nodemailer';
 import { renderToBuffer } from '@react-pdf/renderer';
 import QuotationPDF from '../../lib/QuotationPDF';
+import path from 'path';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
@@ -12,26 +13,31 @@ export default async function handler(req, res) {
   }
 
   try {
+    console.log('Generating PDF...');
     const pdfBuffer = await renderToBuffer(<QuotationPDF costItems={quote} total={total} />);
+    console.log('PDF generated successfully');
 
     const transporter = nodemailer.createTransport({
       service: 'Gmail',
       auth: {
-        user: process.env.EMAIL_USER || 'aryankuril09@gmail.com',
-        pass: process.env.EMAIL_PASS || 'your-app-password',
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
       },
     });
 
-    // Clean up service name for filename and subject
+    await transporter.verify();
+    console.log('Transporter verified');
+
     const serviceNameSlug = serviceCalculator.trim().toLowerCase().replace(/\s+/g, '-');
     const serviceNameTitle = serviceCalculator.trim();
 
+    const imagePath = path.join(process.cwd(), 'public', 'images', 'emailsign.png');
+
     await transporter.sendMail({
-      from: process.env.EMAIL_USER || 'aryankuril09@gmail.com',
+      from: process.env.EMAIL_USER,
       to: email,
       subject: `Your ${serviceNameTitle} Quotation from Bombay Blokes`,
-      html: `
-        <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+      html: `<div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
           <p>Hi,</p>
 
           <p>Thank you for your interest in our services. Please find your detailed quotation attached as a PDF for your reference.</p>
@@ -58,18 +64,10 @@ export default async function handler(req, res) {
           <div style="margin-top: 20px;">
             <img src="cid:emailsign" alt="Signature" style="max-width:400px; height:auto; display:block;" />
           </div>
-        </div>
-      `,
+        </div>`,
       attachments: [
-        {
-          filename: `${serviceNameSlug}-quotation.pdf`,  // e.g., website-development-quotation.pdf
-          content: pdfBuffer,
-        },
-        {
-          filename: 'emailsign.png',
-          path: 'public/images/emailsign.png',
-          cid: 'emailsign',
-        },
+        { filename: `${serviceNameSlug}-quotation.pdf`, content: pdfBuffer },
+        { filename: 'emailsign.png', path: imagePath, cid: 'emailsign' },
       ],
     });
 
