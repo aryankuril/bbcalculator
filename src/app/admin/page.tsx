@@ -31,8 +31,8 @@ import "react-date-range/dist/theme/default.css";
 
 
 type DateRangeType = {
-  startDate: Date | null;
-  endDate: Date | null;
+  startDate?: Date;
+  endDate?: Date;
   key: string;
 };
 
@@ -162,7 +162,7 @@ const [selectedFormId, setSelectedFormId] = useState<string | null>(null);
   const [serviceFilter, setServiceFilter] = useState("");
 
 const [dateRange, setDateRange] = useState<DateRangeType[]>([
-  { startDate: null, endDate: null, key: "selection" },
+  { startDate: undefined, endDate: undefined, key: 'selection' },
 ]);
 const [open, setOpen] = useState(false);
 const dateRef = useRef<HTMLDivElement>(null);
@@ -795,25 +795,24 @@ const handleAddOrUpdateQuestion = () => {
 
   {/* Calendar dropdown */}
   {open && (
-    <div className="absolute z-50 mt-1 bg-white shadow-lg rounded-lg">
-      <DateRange
-  editableDateInputs={true}
-  moveRangeOnFirstSelection={false}
-  ranges={dateRange}
-  onChange={(item) => {
-    const { startDate, endDate } = item.selection;
-    setDateRange([
-      {
-        startDate,
-        endDate: endDate || startDate, // single-day support
-        key: "selection",
-      },
-    ]);
-  }}
- />
-
-    </div>
-  )}
+  <div className="absolute z-50 mt-1 bg-white shadow-lg rounded-lg">
+    <DateRange
+      editableDateInputs={true}
+      moveRangeOnFirstSelection={false}
+      ranges={dateRange}
+      onChange={(item) => {
+        const { startDate, endDate } = item.selection;
+        setDateRange([
+          {
+            startDate,
+            endDate: endDate || startDate,
+            key: 'selection',
+          },
+        ]);
+      }}
+    />
+  </div>
+)}
 </div>
 
 
