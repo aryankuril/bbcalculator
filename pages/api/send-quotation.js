@@ -47,7 +47,7 @@ export default async function handler(req, res) {
 
           <p>Thank you for your interest in our services. Please find your detailed quotation attached as a PDF for your reference.</p>
 
-          <p>At <strong>Bombay Blokes</strong>, we are committed to helping businesses like yours reach new heights. With over 9 years of experience and 200+ successful brand partnerships, our expert team specializes in Marketing, Design, Production, and Development. We work passionately to deliver profitable solutions that help your business grow faster and smarter.</p>
+          <p>At <strong>Bombay Blokes</strong>, we are committed to helping businesses like yours reach new heights. With over 9 years of experience and 200+ successful brand partnerships, our expert team specializes in Performancemarketing, Social Media, Design, SEO, and Development. We work passionately to deliver profitable solutions that help your business grow faster and smarter.</p>
 
           <p>We believe that a partnership with us will take your company to the next level and help you achieve outstanding results in today's competitive market.</p>
 
