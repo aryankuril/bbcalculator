@@ -1,57 +1,59 @@
-import nodemailer from 'nodemailer';
-import { renderToBuffer } from '@react-pdf/renderer';
-import QuotationPDF from '../../lib/QuotationPDF';
+import fs from 'fs';
 import path from 'path';
+import quotationTableHTML from '../../lib/quotationTableHTML';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
   const { email, quote, total, serviceCalculator } = req.body;
 
-  if (!email || !quote || !total || !serviceCalculator) {
-    return res.status(400).json({ message: 'Missing email, quote, total, or serviceCalculator' });
+  console.log('📥 Request body:', req.body);
+  console.log('🌟 Type Checks:', {
+    emailType: typeof email,
+    quoteIsArray: Array.isArray(quote),
+    totalType: typeof total,
+    serviceCalculatorType: typeof serviceCalculator,
+  });
+
+  // Validate inputs
+  if (
+    typeof email !== 'string' ||
+    !Array.isArray(quote) ||
+    quote.length === 0 ||
+    typeof total !== 'number' ||
+    isNaN(total) ||
+    typeof serviceCalculator !== 'string'
+  ) {
+    return res.status(400).json({
+      success: false,
+      message: 'Missing or invalid email, quote, total, or serviceCalculator',
+      received: { email, quote, total, serviceCalculator }
+    });
   }
 
   try {
-    console.log('Generating PDF...');
-    const pdfBuffer = await renderToBuffer(<QuotationPDF costItems={quote} total={total} />);
-    console.log('PDF generated successfully');
-
-    const transporter = nodemailer.createTransport({
-      service: 'Gmail',
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
-
-    await transporter.verify();
-    console.log('Transporter verified');
-
-    const serviceNameSlug = serviceCalculator.trim().toLowerCase().replace(/\s+/g, '-');
     const serviceNameTitle = serviceCalculator
-  .trim()
-  .toLowerCase()
-  .split(' ')
-  .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-  .join(' ');
+      .trim()
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
 
-    const imagePath = path.join(process.cwd(), 'public', 'images', 'emailsign.png');
 
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: email,
-      subject: `Your ${serviceNameTitle} Quotation from Bombay Blokes`,
-      html: `<div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+    const payload = {
+      app_id: process.env.ONESIGNAL_APP_ID,
+      include_email_tokens: [email],
+      email_subject: `Your ${serviceNameTitle} Quotation from Bombay Blokes`,
+      email_body: `
+        <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
           <p>Hi,</p>
 
-          <p>Thank you for your interest in our services. Please find your detailed quotation attached as a PDF for your reference.</p>
+          <p>Thank you for your interest in our services. Please find your detailed quotation below for your reference.</p>
 
-          <p>At <strong>Bombay Blokes</strong>, we are committed to helping businesses like yours reach new heights. With over 9 years of experience and 200+ successful brand partnerships, our expert team specializes in Performancemarketing, Social Media, Design, SEO, and Development. We work passionately to deliver profitable solutions that help your business grow faster and smarter.</p>
-
-          <p>We believe that a partnership with us will take your company to the next level and help you achieve outstanding results in today's competitive market.</p>
+          <p>At <strong>Bombay Blokes</strong>, we are committed to helping businesses like yours reach new heights. With over 9 years of experience and 200+ successful brand partnerships, our expert team specializes in Performancemarketing, Social Media, Design, SEO, and Development.</p>
 
           <p>If you have any questions or need further assistance, feel free to get in touch.</p>
+          
+          ${quotationTableHTML(quote, total)}
 
           <div style="margin-top: 30px;">
             <p style="margin:0;">Warm regards,</p>
@@ -66,19 +68,32 @@ export default async function handler(req, res) {
             </p>
           </div>
 
-          <div style="margin-top: 20px;">
-            <img src="cid:emailsign" alt="Signature" style="max-width:400px; height:auto; display:block;" />
-          </div>
-        </div>`,
-      attachments: [
-        { filename: `${serviceNameSlug}-quotation.pdf`, content: pdfBuffer },
-        { filename: 'emailsign.png', path: imagePath, cid: 'emailsign' },
-      ],
+          
+        </div>
+      `,     
+    };
+
+    console.log('🌐 Sending OneSignal API request with payload:', payload);
+
+    const response = await fetch('https://onesignal.com/api/v1/notifications', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Basic ${process.env.ONESIGNAL_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
     });
 
-    return res.status(200).json({ message: 'Quotation sent successfully!' });
+    const data = await response.json();
+    console.log('✅ OneSignal API Response:', data);
+
+    if (response.ok) {
+      return res.status(200).json({ success: true, data });
+    } else {
+      return res.status(response.status).json({ success: false, data });
+    }
   } catch (error) {
-    console.error('❌ Email send error:', error);
-    return res.status(500).json({ message: 'Failed to send email.', error: error.message });
+    console.error('❌ API Error:', error);
+    return res.status(500).json({ success: false, message: error.message });
   }
 };

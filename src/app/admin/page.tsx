@@ -346,14 +346,11 @@ useEffect(() => {
 };
 
 
-  const handleDeptInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    if (/[^a-z]/.test(value)) {
-      alert('Only lowercase letters (a–z) are allowed. No spaces, numbers, or special characters.');
-    }
-    const onlySmallLetters = value.replace(/[^a-z]/g, '');
-    setNewDept(onlySmallLetters);
-  };
+ const handleDeptInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const value = e.target.value;
+  setNewDept(value);
+};
+
 
 const handleAddDepartment = () => {
   if (!newDept) return;
@@ -438,35 +435,40 @@ const handleAddOrUpdateQuestion = () => {
 
 
   const handleAddOrUpdateOption = (questionIndex: number) => {
-    if (!selectedDept) return;
-    if (!option.title.trim()) {
-      alert("Title is required.");
-      return;
-    }
-    if (!option.price.trim()) {
-      alert("Price is required.");
-      return;
-    }
-    if (isNaN(Number(option.price))) {
-      alert("Price must be a valid number.");
-      return;
-    }
+  if (!selectedDept) return;
 
-    const updatedQuestions = [...formState[selectedDept]];
-    const options = [...updatedQuestions[questionIndex].options];
-    if (editingOptionIndex !== null) {
-      options[editingOptionIndex] = option;
-      setEditingOptionIndex(null);
-    } else {
-      options.push({ ...option });
-    }
+  if (!option.title.trim()) {
+    alert("Title is required.");
+    return;
+  }
 
-    updatedQuestions[questionIndex].options = options;
-    const updatedForm = { ...formState, [selectedDept]: updatedQuestions };
-    setFormState(updatedForm);
-    autoSaveToMongo(selectedDept, new Date().toISOString());
-    setOption({ icon: '', title: '', subtitle: '', price: '' });
+  let price = option.price.trim();
+  if (price === '' || isNaN(Number(price))) {
+    price = '0';  // Default price to '0' if empty or invalid
+  }
+
+  const updatedQuestions = [...formState[selectedDept]];
+  const options = [...updatedQuestions[questionIndex].options];
+
+  const optionWithDefaultPrice = {
+    ...option,
+    price: price,  // Ensure price is set to valid number or '0'
   };
+
+  if (editingOptionIndex !== null) {
+    options[editingOptionIndex] = optionWithDefaultPrice;
+    setEditingOptionIndex(null);
+  } else {
+    options.push(optionWithDefaultPrice);
+  }
+
+  updatedQuestions[questionIndex].options = options;
+  const updatedForm = { ...formState, [selectedDept]: updatedQuestions };
+  setFormState(updatedForm);
+  autoSaveToMongo(selectedDept, new Date().toISOString());
+  setOption({ icon: '', title: '', subtitle: '', price: '' });
+};
+
 
   useEffect(() => {
     const saved = localStorage.getItem('formState');
@@ -1265,39 +1267,40 @@ return currentForms.map((form, index) => {
           <div className="bg-white/50 backdrop-blur-md p-6 rounded-2xl shadow-lg border border-gray-300">
             <h2 className="text-2xl font-semibold mb-4">Services Management</h2>
             <div className="mb-6 flex flex-col sm:flex-row gap-4">
-              <input
-                type="text"
-                placeholder="Add or edit department"
-                value={newDept}
-                onChange={handleDeptInput}
-                className="border border-gray-300 bg-white p-2 rounded-lg text-black w-full sm:w-auto focus:ring-2 focus:ring-[#FFD54F] focus:border-transparent"
-              />
-              {selectedDept ? (
-                <button
-                  onClick={() => {
-                    if (!newDept.trim()) {
-                      showAlert("Please enter a department name.");
-                      return;
-                    }
-                    autoSaveToMongo(newDept, new Date().toISOString());
-                    setSelectedDept(null);
-                    setNewDept('');
-                    showAlert("✅ Department updated successfully!");
-                  }}
-  className="rounded-[5px] bg-[#F9B31B] shadow-[2px_2px_0_0_#262626] flex justify-center items-center gap-[10px] px-[30px] py-[10px] text-[#262626] font-semibold transition-colors w-full sm:w-auto"
-                >
-                  Update Department
-                </button>
-              ) : (
-                <button
-  onClick={handleAddDepartment}
-  className="rounded-[5px] bg-[#262626] shadow-[2px_2px_0px_0px_#F9B31B] flex justify-center items-center gap-[10px] px-[30px] py-[10px] text-[#F9B31B] font-semibold transition-colors w-full sm:w-auto"
->
-  Add Department
-</button>
+  <input
+    type="text"
+    placeholder="Add or edit department"
+    value={newDept}
+    onChange={handleDeptInput}
+    className="border border-gray-300 bg-white p-2 rounded-lg text-black w-full sm:w-auto focus:ring-2 focus:ring-[#FFD54F] focus:border-transparent"
+  />
 
-              )}
-            </div>
+  {selectedDept ? (
+    <button
+      onClick={() => {
+        if (!newDept.trim()) {
+          showAlert("Please enter a department name.");
+          return;
+        }
+        autoSaveToMongo(newDept, new Date().toISOString());
+        setSelectedDept(null);
+        setNewDept('');
+        showAlert("✅ Department updated successfully!");
+      }}
+      className="rounded-[5px] bg-[#F9B31B] shadow-[2px_2px_0_0_#262626] flex justify-center items-center gap-[10px] px-[30px] py-[10px] text-[#262626] font-semibold transition-colors w-full sm:w-auto"
+    >
+      Update Department
+    </button>
+  ) : (
+    <button
+      onClick={handleAddDepartment}
+      className="rounded-[5px] bg-[#262626] shadow-[2px_2px_0px_0px_#F9B31B] flex justify-center items-center gap-[10px] px-[30px] py-[10px] text-[#F9B31B] font-semibold transition-colors w-full sm:w-auto"
+    >
+      Add Department
+    </button>
+  )}
+</div>
+
 
             <div className="mb-8">
               <div className="flex flex-wrap gap-2">
@@ -1574,24 +1577,25 @@ return currentForms.map((form, index) => {
                           className="bg-white border border-gray-300 p-2 rounded-lg"
                         />
                         <input
-                          type="text"
-                          placeholder="Price"
-                          value={option.price}
-                          onChange={(e) => setOption({ ...option, price: e.target.value })}
-                          className="bg-white border border-gray-300 p-2 rounded-lg"
-                        />
-                      </div>
-                      <button
-                      onClick={() => handleAddOrUpdateOption(qIndex)}
+    type="text"
+    placeholder="Price"
+    value={option.price}
+    onChange={(e) => setOption({ ...option, price: e.target.value })}
+    className="bg-white border border-gray-300 p-2 rounded-lg"
+  />
+</div>
+
+<button
+  onClick={() => handleAddOrUpdateOption(qIndex)}
   className={`rounded-[5px] flex justify-center items-center gap-[10px] px-[30px] py-[10px] font-semibold transition-colors w-full sm:w-auto
     ${
       editingOptionIndex !== null
         ? "bg-[#F9B31B] shadow-[2px_2px_0px_0px_#262626] text-[#262626]"
         : "bg-[#262626] shadow-[2px_2px_0px_0px_#F9B31B] text-[#F9B31B]"
     }`}
-                      >
-                        {editingOptionIndex !== null ? 'Save Option' : 'Add Option'}
-                      </button>
+>
+  {editingOptionIndex !== null ? 'Save Option' : 'Add Option'}
+</button>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">

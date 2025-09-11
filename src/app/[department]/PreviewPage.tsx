@@ -390,49 +390,65 @@ const handleSubmit = async () => {
   
 
 const handleEmailSubmit = async () => {
-  if (!email) {
-    alert("Please enter a valid email address.");
+  if (!email.trim()) {
+    alert('Please enter a valid email address.');
     return;
   }
 
-  if (!department) {
-    alert("Please select a service.");
+  if (!department.trim()) {
+    alert('Please select a service.');
     return;
   }
 
-  setIsSending(true); // start loading
+  if (!Array.isArray(costItems) || costItems.length === 0) {
+    alert('Please add cost items before sending.');
+    return;
+  }
+
+  if (!totalEstimate || Number(totalEstimate) === 0) {
+    alert('Total estimate cannot be empty or zero.');
+    return;
+  }
+
+  setIsSending(true);
 
   try {
-    const res = await fetch("/api/send-quotation", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email,
-        quote: costItems,
-        total: totalEstimate,
-        serviceCalculator: department,  // Pass the department/service name
-      }),
+    const payload = {
+      email: email.trim(),
+      quote: costItems,
+      total: Number(totalEstimate),
+      serviceCalculator: department.trim(),
+    };
+
+    console.log('📤 Sending email payload:', payload);
+
+    const res = await fetch('/api/send-quotation', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
     });
 
     const data = await res.json();
-    console.log("API response:", data);
 
-    if (res.ok) {
-      setToastMessage("✅ Quotation sent successfully!");
-      setTimeout(() => setToastMessage(""), 4000);
+    console.log('✅ Email API response:', data);
+
+    if (res.ok && data.success) {
+      setToastMessage('✅ Quotation sent successfully!');
+      setTimeout(() => setToastMessage(''), 4000);
       setShowEmailInput(false);
-      setEmail("");
+      setEmail('');
       setDisableEmailBtn(false);
     } else {
-      alert("❌ Failed to send email.");
+      alert(`❌ Failed to send email: ${data.message || 'Unknown error'}`);
     }
   } catch (err) {
-    console.error("❌ Error sending email:", err);
-    alert("Something went wrong while sending the email.");
+    console.error('❌ Email send error:', err);
+    alert('Something went wrong while sending the email.');
   } finally {
-    setIsSending(false); // stop loading
+    setIsSending(false);
   }
 };
+
 
 
 
@@ -795,7 +811,7 @@ const handleEmailSubmit = async () => {
                           />
                         )}
                         <div>
-                          <h4 className="text-[#111827] font-poppins md:text-[13px] lg:text-[14px] font-[600]">
+                          <h4 className="text-[#111827] font-poppins md:text-[13px] lg:text-[13px] font-[600]">
                             {opt.title}
                           </h4>
                           {opt.subtitle && opt.subtitle.trim() !== '' ? (
