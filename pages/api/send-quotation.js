@@ -1,5 +1,4 @@
-import fs from 'fs';
-import path from 'path';
+
 import quotationTableHTML from '../../lib/quotationTableHTML';
 
 export default async function handler(req, res) {
@@ -52,7 +51,7 @@ export default async function handler(req, res) {
           <p>At <strong>Bombay Blokes</strong>, we are committed to helping businesses like yours reach new heights. With over 9 years of experience and 200+ successful brand partnerships, our expert team specializes in Performancemarketing, Social Media, Design, SEO, and Development.</p>
 
           <p>If you have any questions or need further assistance, feel free to get in touch.</p>
-          
+
           ${quotationTableHTML(quote, total)}
 
           <div style="margin-top: 30px;">
