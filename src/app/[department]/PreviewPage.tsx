@@ -740,7 +740,7 @@ const handleEmailSubmit = async () => {
             >
               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
                 <div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 lg:w-[700px]">
                     <h3 className="text-[24px] font-poppins font-[700] text-black">
                       {currentQuestion.questionText}
                     </h3>
