@@ -589,7 +589,7 @@ const handleEmailSubmit = async () => {
               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="text-[24px] font-poppins font-[700] text-black">
+                    <h3 className="lg:text-[24px] text-[20px] font-poppins font-[700] text-black">
                       {currentQuestion.questionText}
                     </h3>
                     {currentQuestion.questionIcon?.startsWith("data:image") ? (
@@ -651,7 +651,7 @@ const handleEmailSubmit = async () => {
         {/* This div wraps the title, allowing you to control its overflow. */}
         <div className="w-full text-center">
           {/* We've added `truncate` to handle long titles. */}
-          <h4 className="md:text-[16px] lg:text-[16px] font-bold font-poppins text-black truncate">
+          <h4 className="md:text-[16px] lg:text-[16px] text-[12px] font-bold font-poppins text-black truncate">
             {opt.title}
           </h4>
         </div>
@@ -675,7 +675,7 @@ const handleEmailSubmit = async () => {
       </li>
     ))}
   </ul>
-) : null}
+) : null} 
     </button>
   );
 })}
@@ -748,7 +748,7 @@ const handleEmailSubmit = async () => {
               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
                 <div>
                   <div className="flex items-center gap-2 lg:w-[700px]">
-                    <h3 className="text-[24px] font-poppins font-[700] text-black">
+                    <h3 className="lg:text-[24px] text-[20px] font-poppins font-[700] text-black">
                       {currentQuestion.questionText}
                     </h3>
                     {currentQuestion.questionIcon?.startsWith("data:image") ? (
@@ -818,7 +818,7 @@ const handleEmailSubmit = async () => {
                           />
                         )}
                         <div>
-                          <h4 className="text-[#111827] font-poppins md:text-[13px] lg:text-[13px] font-[600]">
+                          <h4 className="text-[#111827] font-poppins md:text-[13px] lg:text-[13px] text-[13px] font-[600]">
                             {opt.title}
                           </h4>
                           {opt.subtitle && opt.subtitle.trim() !== '' ? (
