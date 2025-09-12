@@ -623,55 +623,62 @@ const handleEmailSubmit = async () => {
 
               <div className="grid grid-cols-1 md:grid-cols-3 lg:gap-10 gap-5">
             {currentQuestion.options.map((opt, i) => {
-            const active = selectedOptions[originalIndex]?.title === opt.title;
-                  return (
-                    <button
-                      key={i}
-                      type="button"
-                      onClick={() => handleOptionSelect(opt)}
+  const active = selectedOptions[originalIndex]?.title === opt.title;
+  return (
+    <button
+      key={i}
+      type="button"
+      onClick={() => handleOptionSelect(opt)}
+      className={`flex flex-col justify-between gap-2 rounded-[8px] border transition-colors px-4 py-4 text-left w-full lg:w-[280px] h-[180px] relative ${
+        active
+          ? "bg-[#F9B31B] border-[#1E1E1E] text-white shadow-[2px_2px_0px_0px_#1E1E1E]"
+          : "bg-white border-[#1E1E1E] text-[#1E1E1E] hover:bg-[#FFE19F]"
+      }`}
+    >
+      {/* This container ensures consistent spacing for the icon and title. */}
+      <div className="flex flex-col items-center justify-center w-full relative">
+        {/* This div *always* renders, reserving a fixed space for the icon. */}
+        <div className="w-10 h-10 mb-2 flex items-center justify-center">
+          {opt.icon && (
+            opt.icon.startsWith("data:image") ? (
+              <img src={opt.icon} alt="icon" className="w-full h-full object-contain" />
+            ) : (
+              <span>{opt.icon}</span>
+            )
+          )}
+        </div>
 
-                      className={`flex flex-col justify-between gap-2 rounded-[8px] border transition-colors px-4 py-4 text-left w-full lg:w-[280px] h-[180px] relative ${
-                        active
-                          ? "bg-[#F9B31B] border-[#1E1E1E] text-white shadow-[2px_2px_0px_0px_#1E1E1E]"
-                          : "bg-white border-[#1E1E1E] text-[#1E1E1E] hover:bg-[#FFE19F]"
-                      }`}
-                    >
-                      <div className="flex flex-col items-center justify-center w-full relative">
-                        {opt.icon && (
-                          <div className="w-10 h-10 mb-2">
-                            {opt.icon.startsWith("data:image") ? (
-                              <img src={opt.icon} alt="icon" className="w-full h-full" />
-                            ) : (
-                              <span>{opt.icon}</span>
-                            )}
-                          </div>
-                        )}
-                        <h4 className="md:text-[16px] lg:text-[16px] font-bold font-poppins text-center text-black">
-                          {opt.title}
-                        </h4>
-                        <span
-                          className={`absolute top-0 right-0 border rotate-[18deg] text-black border-black px-2 py-0.5 text-xs font-semibold rounded-md `}
-                          style={{
-                            borderRadius: "5px",
-                            border: "2px solid #000",
-                          }}
-                        > 
+        {/* This div wraps the title, allowing you to control its overflow. */}
+        <div className="w-full text-center">
+          {/* We've added `truncate` to handle long titles. */}
+          <h4 className="md:text-[16px] lg:text-[16px] font-bold font-poppins text-black truncate">
+            {opt.title}
+          </h4>
+        </div>
 
-                        {/*  */}
-                            ₹{Number(opt.price).toLocaleString("en-IN")}
+        {Number(opt.price) > 0 && (
+          <span
+            className={`absolute top-0 right-0 border rotate-[18deg] text-black border-black px-2 py-0.5 text-xs font-semibold rounded-md`}
+            style={{ borderRadius: "5px", border: "2px solid #000" }}
+          >
+            ₹{Number(opt.price).toLocaleString("en-IN")}
+          </span>
+        )}
+      </div>
 
-                        </span>
-                      </div>
-                      {opt.subtitle && opt.subtitle.trim() !== '' ? (
-                        <ul className=" md:text-[12px] lg:text-[14px] text-[15px] leading-tight font-poppins text-[#444] list-disc ml-5 space-y-1">
-                          {opt.subtitle.split("|").map((item, i) => (
-                            <li key={i}>{item.trim()}</li>
-                          ))}
-                        </ul>
-                      ) : null}
-                    </button>
-                  );
-                })}
+      {opt.subtitle && opt.subtitle.trim() !== '' ? (
+
+  <ul className="flex flex-wrap md:text-[12px] lg:text-[14px] text-[15px] leading-tight font-poppins text-[#444] list-disc ml-5 ">
+    {opt.subtitle.split("|").map((item, i) => (
+      <li key={i} className="basis-1/2 flex-shrink-0 break-words">
+        {item.trim()}
+      </li>
+    ))}
+  </ul>
+) : null}
+    </button>
+  );
+})}
 
 {currentStep !== 99 && (
   <div className="flex justify-center max-w-4xl mx-auto gap-13 lg:hidden">
@@ -832,7 +839,7 @@ const handleEmailSubmit = async () => {
     active ? 'text-white' : 'text-[#111827]'
   }`}
 >
-  ₹{Number(opt.price).toLocaleString("en-IN")}
+  {Number(opt.price) > 0 ? `₹${Number(opt.price).toLocaleString("en-IN")}` : ''}
 </span>
 
                     </button>
