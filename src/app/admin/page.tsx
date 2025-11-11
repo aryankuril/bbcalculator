@@ -237,6 +237,44 @@ const handleDeleteQuestion = (dept: string, questionIndex: number) => {
 };
 
 
+const handleReorderQuestions = (result) => {
+  if (!result.destination) return;
+
+  const reordered = Array.from(formState[selectedDept]);
+  const [removed] = reordered.splice(result.source.index, 1);
+  reordered.splice(result.destination.index, 0, removed);
+
+  setFormState(prev => ({
+    ...prev,
+    [selectedDept]: reordered,
+  }));
+
+  // ✅ Auto-save to backend
+  autoSaveToMongo(selectedDept, new Date().toISOString());
+};
+
+const moveQuestionUp = (dept: string, index: number) => {
+  if (index === 0) return; // already at top
+
+  const updated = [...formState[dept]];
+  [updated[index - 1], updated[index]] = [updated[index], updated[index - 1]];
+
+  setFormState(prev => ({ ...prev, [dept]: updated }));
+  autoSaveToMongo(dept, new Date().toISOString());
+  showAlert("✅ Question moved up!");
+};
+
+const moveQuestionDown = (dept: string, index: number) => {
+  if (index === formState[dept].length - 1) return; // already bottom
+
+  const updated = [...formState[dept]];
+  [updated[index + 1], updated[index]] = [updated[index], updated[index + 1]];
+
+  setFormState(prev => ({ ...prev, [dept]: updated }));
+  autoSaveToMongo(dept, new Date().toISOString());
+  showAlert("✅ Question moved down!");
+};
+
   // A useEffect hook to fetch data from the backend when the activeTab changes
  useEffect(() => {
     const fetchData = async () => {
@@ -1263,7 +1301,8 @@ return currentForms.map((form, index) => {
           </div>
         )}
 
-       {!isLoading && activeTab === 'departments' && (
+       
+{!isLoading && activeTab === 'departments' && (
           <div className="bg-white/50 backdrop-blur-md p-6 rounded-2xl shadow-lg border border-gray-300">
             <h2 className="text-2xl font-semibold mb-4">Services Management</h2>
             <div className="mb-6 flex flex-col sm:flex-row gap-4">
@@ -1478,43 +1517,69 @@ return currentForms.map((form, index) => {
                 {formState[selectedDept]?.map((q, qIndex) => (
                   <div key={qIndex} className="mb-6 p-6 border border-gray-300  rounded-2xl bg-white/50 backdrop-blur-md relative">
                     <div className="absolute top-4 right-4 flex gap-2">
-                      <button
-                        className="p-2 rounded-lg text-[#FFD54F] hover:bg-gray-300 transition-colors"
-                        title="Edit Question"
-                        onClick={() => {
-                          setQuestionForm({
-                            text: q.questionText,
-                            icon: q.questionIcon,
-                            subText: q.questionSubText,
-                            type: q.type,
-                            isDependent: q.isDependent,
-                            dependentOn: q.dependentOn,
-                          });
-                          if (q.isDependent && Array.isArray(q.dependentOn) && q.dependentOn.length > 0) {
-                            const qIdx = q.dependentOn[0].questionIndex;
-                            setSelectedDependencyQuestion(qIdx);
-                            setSelectedDependencyOptions(q.dependentOn.map(dep => dep.optionIndex));
-                          } else {
-                            setSelectedDependencyQuestion(null);
-                            setSelectedDependencyOptions([]);
-                          }
-                          setEditingQuestionIndex(qIndex);
-                        }}
-                      >
-                        <Edit size={18} />
-                      </button>
-                      <button
-                        className="p-2 rounded-lg text-red-600 hover:bg-gray-300 transition-colors"
-                        title="Delete Question"
-                        onClick={() => {
-                          showAlert('Are you sure you want to delete this question?', () => {
-                            handleDeleteQuestion(selectedDept, qIndex);
-                          });
-                        }}
-                      >
-                        <Trash size={18} />
-                      </button>
-                    </div>
+
+  {/* Move Up */}
+  <button
+    className="p-2 rounded-lg text-blue-600 hover:bg-gray-300 transition-colors"
+    title="Move Up"
+    disabled={qIndex === 0}
+    onClick={() => moveQuestionUp(selectedDept, qIndex)}
+  >
+    ↑
+  </button>
+
+  {/* Move Down */}
+  <button
+    className="p-2 rounded-lg text-blue-600 hover:bg-gray-300 transition-colors"
+    title="Move Down"
+    disabled={qIndex === formState[selectedDept].length - 1}
+    onClick={() => moveQuestionDown(selectedDept, qIndex)}
+  >
+    ↓
+  </button>
+
+  {/* Edit */}
+  <button
+    className="p-2 rounded-lg text-[#FFD54F] hover:bg-gray-300 transition-colors"
+    title="Edit Question"
+    onClick={() => {
+      setQuestionForm({
+        text: q.questionText,
+        icon: q.questionIcon,
+        subText: q.questionSubText,
+        type: q.type,
+        isDependent: q.isDependent,
+        dependentOn: q.dependentOn,
+      });
+      if (q.isDependent && Array.isArray(q.dependentOn) && q.dependentOn.length > 0) {
+        const qIdx = q.dependentOn[0].questionIndex;
+        setSelectedDependencyQuestion(qIdx);
+        setSelectedDependencyOptions(q.dependentOn.map(dep => dep.optionIndex));
+      } else {
+        setSelectedDependencyQuestion(null);
+        setSelectedDependencyOptions([]);
+      }
+      setEditingQuestionIndex(qIndex);
+    }}
+  >
+    <Edit size={18} />
+  </button>
+
+  {/* Delete */}
+  <button
+    className="p-2 rounded-lg text-red-600 hover:bg-gray-300 transition-colors"
+    title="Delete Question"
+    onClick={() => {
+      showAlert('Are you sure you want to delete this question?', () => {
+        handleDeleteQuestion(selectedDept, qIndex);
+      });
+    }}
+  >
+    <Trash size={18} />
+  </button>
+
+</div>
+
 
                     <div className="flex items-start gap-4 mb-4">
                       {q.questionIcon && (
@@ -1533,6 +1598,7 @@ return currentForms.map((form, index) => {
                             Depends on Q{q.dependentOn[0].questionIndex + 1} — Option(s): {q.dependentOn.map(d => d.optionIndex + 1).join(', ')}
                           </p>
                         )}
+
                       </div>
                     </div>
 
@@ -1638,6 +1704,7 @@ return currentForms.map((form, index) => {
                               <span className="text-4xl mb-2 block">{opt.icon}</span>
                             )
                           )}
+                          
                           <h5 className="font-semibold text-lg">{opt.title}</h5>
                           <p className="text-sm text-gray-500">{opt.subtitle}</p>
                           <p className="text-xl font-bold mt-2 text-[#FFD54F]">₹{opt.price}</p>
