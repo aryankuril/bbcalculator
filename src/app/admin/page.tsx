@@ -11,9 +11,9 @@ import {
   Edit,
   Trash,
   ChevronDown,
-   ChevronRight,
+  ChevronRight,
   Building,
-   BarChart3,   // ✅ icon
+  BarChart3,  
 } from 'lucide-react';
 
 import { motion } from "framer-motion";
@@ -1289,7 +1289,7 @@ return currentForms.map((form, index) => {
       }}
       className="rounded-[5px] bg-[#F9B31B] shadow-[2px_2px_0_0_#262626] flex justify-center items-center gap-[10px] px-[30px] py-[10px] text-[#262626] font-semibold transition-colors w-full sm:w-auto"
     >
-      Update Department
+      Update Depaartment
     </button>
   ) : (
     <button
