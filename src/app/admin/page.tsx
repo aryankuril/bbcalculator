@@ -258,7 +258,7 @@ const moveQuestionDown = (dept: string, index: number) => {
   autoSaveToMongo(dept, new Date().toISOString());
   showAlert("✅ Question moved down!");
 };
-
+// 
   // A useEffect hook to fetch data from the backend when the activeTab changes
  useEffect(() => {
     const fetchData = async () => {
