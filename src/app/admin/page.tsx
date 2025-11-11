@@ -237,22 +237,6 @@ const handleDeleteQuestion = (dept: string, questionIndex: number) => {
 };
 
 
-const handleReorderQuestions = (result) => {
-  if (!result.destination) return;
-
-  const reordered = Array.from(formState[selectedDept]);
-  const [removed] = reordered.splice(result.source.index, 1);
-  reordered.splice(result.destination.index, 0, removed);
-
-  setFormState(prev => ({
-    ...prev,
-    [selectedDept]: reordered,
-  }));
-
-  // ✅ Auto-save to backend
-  autoSaveToMongo(selectedDept, new Date().toISOString());
-};
-
 const moveQuestionUp = (dept: string, index: number) => {
   if (index === 0) return; // already at top
 
