@@ -3,8 +3,8 @@ import Link from "next/link";
 
 export default function Footer() {
   return (
-    <footer className="w-full bg-white border-t border-gray-200">
-      <div className="max-w-7xl  mx-auto px-6 mt-3 py-5">
+    <footer className="w-full  bg-white border-t border-gray-200">
+      <div className=" mt-3 py-5 container">
         {/* Top Section */}
         <div className="grid grid-cols-1 md:grid-cols-3 items-start lg:gap-8 gap-4 text-left">
           {/* Logo */}
@@ -41,37 +41,31 @@ export default function Footer() {
           {/* Links */}
          <div className="flex flex-wrap items-start gap-1 md:gap-3 md:order-2">
   <Link
-    href="https://bombayblokes.com/"
+    href="https://bombayblokes.com"
     className="hover:text-[#F9B31B] transition-colors border-r border-gray-400 pr-2"
   >
     Home
   </Link>
   <Link
-    href="https://bombayblokes.com/our-clients/"
+    href="https://bombayblokes.com/clients"
     className="hover:text-[#F9B31B] transition-colors border-r border-gray-400 pr-2"
   >
     Our Clients
   </Link>
   <Link
-    href="https://bombayblokes.com/contact/"
+    href="https://bombayblokes.com/contactus"
     className="hover:text-[#F9B31B] transition-colors border-r border-gray-400 pr-2"
   >
     Contact
   </Link>
   <Link
-    href="https://bombayblokes.com/client-registration/"
+    href="https://bombayblokes.com/client-registration"
     className="hover:text-[#F9B31B] transition-colors border-r border-gray-400 pr-2"
   >
     Client Registration
   </Link>
   <Link
-    href="https://bombayblokes.com/service-affiliates/"
-    className="hover:text-[#F9B31B] transition-colors border-r border-gray-400 pr-2"
-  >
-    Service Affiliates
-  </Link>
-  <Link
-    href="https://bombayblokes.com/service-affiliates/"
+    href="https://bombayblokes.com/blogs"
     className="hover:text-[#F9B31B] transition-colors"
   >
     Blogs

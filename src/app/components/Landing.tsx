@@ -1,6 +1,6 @@
 import React from 'react'
 import Image from 'next/image';
-
+import Button from "./Button";
 
 const Landing = () => {
   return (
@@ -36,7 +36,14 @@ const Landing = () => {
         </span>
       </div>
 
-      <button
+
+       <Button
+                      href="https://bombayblokes.com/estimates-calculator"
+                      text="Calculate Now"
+                      className="relative justify-center text-black  transition-colors"
+                    />
+
+      {/* <button
         className="cursor-pointer mt-6 inline-flex items-center font-poppins justify-center gap-[10px] px-[30px] py-[10px] rounded-[5px] text-white text-[16px] sm:text-[18px]"
         style={{
           background: "#262626",
@@ -46,7 +53,7 @@ const Landing = () => {
           onClick={() => window.location.href = "https://estimates.bombayblokes.com/website"}
       >
         Calculate Now
-      </button>
+      </button> */}
     </div>
 
     {/* Image Section */}

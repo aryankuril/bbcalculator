@@ -3,7 +3,7 @@ import { useEffect, useState,  useCallback,useMemo ,useRef} from 'react';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import Testimonials from '../components/testimonials'; 
-import Header from '../components/Header'
+import Navbar from '../components/Navbar';
 import Footer from '../components/Footer'
 
 
@@ -457,7 +457,7 @@ const handleEmailSubmit = async () => {
   return (
 
     <div ref={firstSectionRef}>
-      <Header/>
+      <Navbar/>
         {toastMessage && (
   <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-4 py-2 rounded shadow-md z-50">
     {toastMessage}

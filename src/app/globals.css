@@ -16,6 +16,7 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --color-highlight: #fab31e;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -30,4 +31,98 @@ body {
   background: linear-gradient(180deg, rgba(255,255,255,0.28) 18%, rgba(252,220,84,0.24) 100%);
   /* color: var(--foreground); */
   font-family: 'Poppins';
+}
+
+
+
+.container,
+.container-fluid,
+.container-xxl,
+.container-xl,
+.container-lg,
+.container-md,
+.container-sm {
+    width: 100%;
+    padding-right: 0px !important;
+    padding-left: 0px !important;
+    margin-right: auto !important;
+    margin-left: auto !important;
+}
+
+@media screen and (min-width: 0px) and (max-width: 750px) {
+
+    .container-sm,
+    .container {
+        width: 100%;
+        padding-right: 20px !important;
+        padding-left: 20px !important;
+        margin-right: auto !important;
+        margin-left: auto !important;
+    }
+
+}
+
+@media (min-width: 576px) {
+
+    .container-sm,
+    .container {
+        max-width: 540px;
+    }
+}
+
+@media (min-width: 768px) {
+
+    .container-md,
+    .container-sm,
+    .container {
+        max-width: 960px;
+
+    }
+}
+
+@media (min-width: 992px) {
+
+    .container-lg,
+    .container-md,
+    .container-sm,
+    .container {
+        max-width: 1000px;
+
+    }
+}
+
+@media (min-width: 1200px) {
+
+    .container-xl,
+    .container-lg,
+    .container-md,
+    .container-sm,
+    .container {
+        max-width: 1200px;
+
+    }
+}
+
+@media (min-width: 1400px) {
+
+    .container-xxl,
+    .container-xl,
+    .container-lg,
+    .container-md,
+    .container-sm,
+    .container {
+        max-width: 1400px;
+    }
+}
+
+@media (min-width: 1600px) {
+
+    .container-xxl,
+    .container-xl,
+    .container-lg,
+    .container-md,
+    .container-sm,
+    .container {
+        max-width: 1600px;
+    }
 }

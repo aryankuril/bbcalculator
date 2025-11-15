@@ -4,7 +4,7 @@
 
 import React from 'react'
 import Landing from './components/Landing';
-import Header from './components/Header'
+import Navbar from './components/Navbar';
 import Footer from './components/Footer'
 // import Navbar from './components/Navbar';
 
@@ -20,7 +20,7 @@ export default function Home() {
   return (
     <div >
   {/* <Navbar role={role} /> */}
-      <Header/>
+      <Navbar/>
       <Landing/>
       <Footer/>
     </div>
