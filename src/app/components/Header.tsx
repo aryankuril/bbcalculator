@@ -232,7 +232,7 @@ export default function DesktopNav() {
             {/* HAMBURGER */}
             <div className="flex items-center gap-4">
               <Button
-                href="/contactus"
+                href="https://bombayblokes.com/contactus"
                 text="Start Growing"
                 className="relative justify-center text-black  transition-colors"
               />
