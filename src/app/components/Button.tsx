@@ -78,31 +78,32 @@ const Button: React.FC<ButtonProps> = ({
       <span ref={textRef} className="flex items-center">
         {chars.map((char, idx) => (
           <span
-            key={idx}
-            className="relative block overflow-hidden lg:h-7 h-6 w-auto"
-            style={{ transitionDelay: `${idx * 30}ms` }}
-          >
-            <>
-              {/* top */}
-              <span
-                className={`block transform transition-transform duration-300 ease-in-out ${
-                  hovered && !disabled ? "-translate-y-7" : "translate-y-0"
-                }`}
-              >
-                {char}
-              </span>
+  key={idx}
+  className="relative block overflow-hidden lg:h-7 h-6 w-auto"
+  style={{ transitionDelay: `${idx * 30}ms` }}
+>
+  <>
+    {/* top */}
+    <span
+      className={`block transform transition-transform duration-300 ease-in-out ${
+        hovered && !disabled ? "-translate-y-7" : "translate-y-0"
+      }`}
+    >
+      {char}
+    </span>
 
-              {/* bottom */}
-              <span
-                className={`block absolute left-0 top-0 transform transition-transform duration-300 ease-in-out ${
-                  hovered && !disabled ? "translate-y-0" : "translate-y-7"
-                }`}
-                aria-hidden
-              >
-                {char}
-              </span>
-            </>
-          </span>
+    {/* bottom */}
+    <span
+      className={`block absolute left-0 top-0 transform transition-transform duration-300 ease-in-out ${
+        hovered && !disabled ? "translate-y-0" : "translate-y-7"
+      }`}
+      aria-hidden
+    >
+      {char}
+    </span>
+  </>
+</span>
+
         ))}
 
         <span className="text-[18px] font-normal select-none ml-1">+</span>
