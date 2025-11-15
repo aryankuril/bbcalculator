@@ -6,13 +6,13 @@ import { useState, useRef, useEffect, useCallback } from "react";
 
 interface ButtonProps {
   text: string;
-  href?: string;           // optional link
-  onClick?: () => void;    // click handler
+  href?: string;
+  onClick?: () => void;
   className?: string;
-  disabled?: boolean; 
-  target?: string; // for external links
-  rel?: string;    // for external links
-   type?: "button" | "submit" | "reset";
+  disabled?: boolean;
+  target?: string;
+  rel?: string;
+  type?: "button" | "submit" | "reset";
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -29,7 +29,6 @@ const Button: React.FC<ButtonProps> = ({
   const textRef = useRef<HTMLSpanElement | null>(null);
   const [textWidth, setTextWidth] = useState(0);
 
-  // Measure width (include some padding)
   const measure = useCallback(() => {
     if (textRef.current) {
       setTextWidth(textRef.current.offsetWidth + 32);
@@ -40,31 +39,24 @@ const Button: React.FC<ButtonProps> = ({
     measure();
   }, [text, measure]);
 
-  // Re-measure on resize (helps responsive cases)
   useEffect(() => {
     window.addEventListener("resize", measure);
     return () => window.removeEventListener("resize", measure);
   }, [measure]);
 
-  // ensure non-breaking spaces preserved
   const chars = (text ?? "").split("").map((char) =>
     char === " " ? "\u00A0" : char
   );
 
-  // click handler that resets hovered and sets a short active state
   const handleClick = () => {
     if (disabled) return;
-    // ensure hover resets on click so the hover animation doesn't stick
     setHovered(false);
-
-    // quick active feedback
     setActive(true);
     setTimeout(() => setActive(false), 160);
 
     if (onClick) onClick();
   };
 
-  // Common event handlers (pointer covers mouse and touch)
   const handlePointerEnter = () => !disabled && setHovered(true);
   const handlePointerLeave = () => {
     !disabled && setHovered(false);
@@ -73,16 +65,15 @@ const Button: React.FC<ButtonProps> = ({
   const handlePointerDown = () => !disabled && setActive(true);
   const handlePointerUp = () => !disabled && setActive(false);
   const handleBlur = () => {
-    // when focus leaves, make sure hover/active cleared
     setHovered(false);
     setActive(false);
   };
 
   const content = (
     <div
-      className={`relative z-10 px-4 py-2 h-12 flex items-center uppercase body3 ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
-      // ensure children transforms work (Tailwind requires transform when using translate utilities in some setups)
-      // adding `transform` to the parent makes translate utilities applied on children behave consistently.
+      className={`relative z-10 px-4 py-2 h-12 flex items-center uppercase body3 ${
+        disabled ? "opacity-50 cursor-not-allowed" : ""
+      }`}
     >
       <span ref={textRef} className="flex items-center">
         {chars.map((char, idx) => (
@@ -91,10 +82,7 @@ const Button: React.FC<ButtonProps> = ({
             className="relative block overflow-hidden lg:h-7 h-6 w-auto"
             style={{ transitionDelay: `${idx * 30}ms` }}
           >
-            {/* top (outgoing) */}
             <span
-              // ensure `transform` is available - `transform` utility isn't required on every Tailwind setup,
-              // but adding it to the element where translate- utilities are used is safe.
               className={`block transform transition-transform duration-300 ease-in-out ${
                 hovered && !disabled ? "-translate-y-7" : "translate-y-0"
               }`}
@@ -102,7 +90,6 @@ const Button: React.FC<ButtonProps> = ({
               {char}
             </span>
 
-            {/* bottom (incoming) */}
             <span
               className={`block absolute left-0 top-0 transform transition-transform duration-300 ease-in-out ${
                 hovered && !disabled ? "translate-y-0" : "translate-y-7"
@@ -114,7 +101,6 @@ const Button: React.FC<ButtonProps> = ({
           </span>
         ))}
 
-        {/* plus sign — kept outside the per-char animation */}
         <span className="text-[18px] font-normal select-none ml-1">+</span>
       </span>
     </div>
@@ -128,9 +114,7 @@ const Button: React.FC<ButtonProps> = ({
       onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}
       onBlur={handleBlur}
-      // keep focusable container semantics if keyboard-used; but underlying button/link will receive focus
     >
-      {/* Background animation. pointer-events-none prevents it from blocking mouse/pointer leave events. */}
       <div
         className={`absolute top-1/2 -translate-y-1/2 rounded-full transition-all duration-300 ease-in-out h-12 bg-[var(--color-highlight)] pointer-events-none`}
         style={{
@@ -141,14 +125,16 @@ const Button: React.FC<ButtonProps> = ({
         }}
       />
 
-      {/* Render external link (<a>) or internal Next Link or native button */}
+      {/* ✅ ESLint-safe JSX, no unused-expression error */}
       {href ? (
         target ? (
           <a
             href={href}
             target={target}
             rel={rel}
-            className={disabled ? "pointer-events-none relative z-10" : "relative z-10"}
+            className={
+              disabled ? "pointer-events-none relative z-10" : "relative z-10"
+            }
             onClick={handleClick}
             onBlur={handleBlur}
           >
@@ -157,7 +143,9 @@ const Button: React.FC<ButtonProps> = ({
         ) : (
           <Link
             href={disabled ? "#" : href}
-            className={disabled ? "pointer-events-none relative z-10" : "relative z-10"}
+            className={
+              disabled ? "pointer-events-none relative z-10" : "relative z-10"
+            }
             onClick={handleClick}
             onBlur={handleBlur}
           >
