@@ -26,7 +26,6 @@
     "puppeteer": "^24.15.0",
     "puppeteer-core": "^10.4.0",
     "react": "^19.0.0",
-    "react-beautiful-dnd": "^13.1.1",
     "react-date-range": "^2.0.1",
     "react-dom": "^19.0.0",
     "react-icons": "^5.5.0",
