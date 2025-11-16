@@ -3,10 +3,10 @@ import Link from "next/link";
 
 export default function Footer() {
   return (
-    <footer className="w-full  bg-white border-t border-gray-200">
-      <div className=" mt-3 py-5 container">
+    <footer className="w-full h-full  bg-white border-t border-gray-200">
+      <div className=" mt-3 py-5 lg:pb-0 pb-23 container  h-full">
         {/* Top Section */}
-        <div className="grid grid-cols-1 md:grid-cols-3 items-start lg:gap-8 gap-4 text-left">
+        <div className="grid grid-cols-1 md:grid-cols-3 items-start lg:gap-8 gap-4 text-left ">
           {/* Logo */}
           <div className="flex justify-start">
             <Link href="https://bombayblokes.com/">
@@ -37,7 +37,7 @@ export default function Footer() {
         </div>
 
         {/* Bottom Section */}
-        <div className="mt-6 border-t pt-4 lg:pt-1 flex flex-col gap-4 md:flex-row md:justify-between md:items-center text-gray-500 text-sm">
+        <div className="mt-6 border-t pt-4 lg:pt-1 flex flex-col gap-2 md:flex-row md:justify-between md:items-center text-gray-500 text-sm">
           {/* Links */}
          <div className="flex flex-wrap items-start gap-1 md:gap-3 md:order-2">
   <Link
@@ -73,7 +73,7 @@ export default function Footer() {
 </div>
 
           {/* Copyright */}
-          <p className="text-left md:order-1 mt-2 ">
+          <p className="text-left md:order-1  ">
             Copyright ©2023 Bombay Blokes. All rights reserved.
           </p>
         </div>
