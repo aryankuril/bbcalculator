@@ -77,7 +77,7 @@ export default async function handler(req, res) {
       // -------------------------
       const adminPayload = {
         app_id: process.env.ONESIGNAL_APP_ID,
-        include_email_tokens: ['aryan@bombayblokes.com'],
+        include_email_tokens: ["hello@bombayblokes.com", "bdm@bombayblokes.com"],
         email_subject: `New Inquiry - ${serviceNameTitle}`,
         email_body: `
           <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
@@ -111,7 +111,7 @@ export default async function handler(req, res) {
       const clientPayload = {
         app_id: process.env.ONESIGNAL_APP_ID,
         include_email_tokens: [email], // send to client
-        email_subject: `Thank you for reaching out!`,
+        email_subject: `Your ${serviceNameTitle} Quotation From Bombay Blokes`,
         email_body: `
           <!DOCTYPE html>
 <html>
@@ -470,7 +470,7 @@ export default async function handler(req, res) {
   </body>
 </html>
         `,
-        email_reply_to: 'aryan@bombayblokes.com',
+        email_reply_to: 'hello@bombayblokes.com',
       };
 
       console.log('📤 Sending client email...');

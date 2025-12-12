@@ -41,7 +41,7 @@ export default async function handler(req, res) {
     const payload = {
       app_id: process.env.ONESIGNAL_APP_ID,
       include_email_tokens: [email],
-      email_subject: `Your ${serviceNameTitle} Quotation from Bombay Blokes`,
+      email_subject: `Your ${serviceNameTitle} Quotation From Bombay Blokes`,
       email_body: `
         <!DOCTYPE html>
 <html>
