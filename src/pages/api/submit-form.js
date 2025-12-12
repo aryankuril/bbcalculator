@@ -1,5 +1,5 @@
-import quotationTableHTML from '../../lib/quotationTableHTML';
-import clientPromise from '../../lib/mongodb';
+import quotationTableHTML from '../../../lib/quotationTableHTML';
+import clientPromise from '../../../lib/mongodb';
 import { ObjectId } from 'mongodb';
 
 export default async function handler(req, res) {

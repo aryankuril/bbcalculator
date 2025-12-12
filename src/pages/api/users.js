@@ -3,7 +3,7 @@
 // 
 // import { MongoClient } from 'mongodb';
 import { ObjectId } from 'mongodb';
-import clientPromiseUntyped from '../../lib/mongodb';
+import clientPromiseUntyped from '../../../lib/mongodb';
 
 const clientPromise = clientPromiseUntyped;
 

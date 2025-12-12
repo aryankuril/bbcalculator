@@ -2,7 +2,7 @@
 // This API route handles fetching form submission data.
 
 // import { MongoClient } from 'mongodb';
-import clientPromiseUntyped from '../../lib/mongodb';
+import clientPromiseUntyped from '../../../lib/mongodb';
 
 const clientPromise = clientPromiseUntyped;
 
