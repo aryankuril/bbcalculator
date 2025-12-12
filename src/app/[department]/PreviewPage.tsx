@@ -51,9 +51,9 @@ export default function PreviewPage() {
   const [formData, setFormData] = useState({ name: "", phone: "", email: "" });
   const [errors, setErrors] = useState({ name: "", phone: "", email: "" });
   const [toastMessage, setToastMessage] = useState("");
-  const [_showEmailInput, setShowEmailInput] = useState(false);
-  const [email, setEmail] = useState("");
-  const [_disableEmailBtn, setDisableEmailBtn] = useState(false);
+  // const [_showEmailInput, setShowEmailInput] = useState(false);
+  // const [email, setEmail] = useState("");
+  // const [_disableEmailBtn, setDisableEmailBtn] = useState(false);
   const [disableCallBtn, setDisableCallBtn] = useState(false);
   const [percent, setPercent] = useState(0);
   const [currentVisibleIdx, setCurrentVisibleIdx] = useState(0);
@@ -69,7 +69,7 @@ const footerRef = useRef<HTMLDivElement | null>(null);
 
 const [currentSection, setCurrentSection] = useState(0); 
 // 0 = hero, 1 = second section, 2 = footer
-const [_isSending, setIsSending] = useState(false);
+// const [_isSending, setIsSending] = useState(false);
 const [isSubmitting, setIsSubmitting] = useState(false);
 
 

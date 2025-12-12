@@ -123,7 +123,7 @@ const AdminPanel = () => {
   const [formState, setFormState] = useState<Record<string, Question[]>>({});
   const [selectedDept, setSelectedDept] = useState<string | null>(null);
   const [lastSavedDept, setLastSavedDept] = useState<string | null>(null);
-  const [deptName, _setDeptName] = useState<string>("");
+  const [deptName] = useState<string>("");
 const [metaTitles, setMetaTitles] = useState<Record<string, string>>({});
 
   const [usersData, setUsersData] = useState<User[]>([]);
@@ -178,7 +178,8 @@ const [open, setOpen] = useState(false);
 const dateRef = useRef<HTMLDivElement>(null);
 
 
-const [_questions, setQuestions] = useState<QuestionType[]>([]);
+const [, setQuestions] = useState<QuestionType[]>([]);
+
 
 
 // Fetch questions on load
