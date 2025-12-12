@@ -82,9 +82,9 @@ type QuestionType = {
   _id?: string;
   title: string;
   subtitle?: string;
-  options?: any[];
+  options?: unknown[];
   order: number;
-  [key: string]: any;
+  [key: string]: unknown;
 };
 
 
@@ -123,7 +123,7 @@ const AdminPanel = () => {
   const [formState, setFormState] = useState<Record<string, Question[]>>({});
   const [selectedDept, setSelectedDept] = useState<string | null>(null);
   const [lastSavedDept, setLastSavedDept] = useState<string | null>(null);
-  const [deptName, setDeptName] = useState<string>("");
+  const [deptName, _setDeptName] = useState<string>("");
 const [metaTitles, setMetaTitles] = useState<Record<string, string>>({});
 
   const [usersData, setUsersData] = useState<User[]>([]);
@@ -178,7 +178,7 @@ const [open, setOpen] = useState(false);
 const dateRef = useRef<HTMLDivElement>(null);
 
 
-const [questions, setQuestions] = useState<QuestionType[]>([]);
+const [_questions, setQuestions] = useState<QuestionType[]>([]);
 
 
 // Fetch questions on load
@@ -330,28 +330,7 @@ const handleDeleteQuestion = (dept: string, questionIndex: number) => {
 };
 
 
-const moveQuestionUp = (dept: string, index: number) => {
-  if (index === 0) return; // already at top
 
-  const updated = [...formState[dept]];
-  [updated[index - 1], updated[index]] = [updated[index], updated[index - 1]];
-
-  setFormState(prev => ({ ...prev, [dept]: updated }));
-  autoSaveToMongo(dept, new Date().toISOString());
-  showAlert("✅ Question moved up!");
-};
-
-const moveQuestionDown = (dept: string, index: number) => {
-  if (index === formState[dept].length - 1) return; // already bottom
-
-  const updated = [...formState[dept]];
-  [updated[index + 1], updated[index]] = [updated[index], updated[index + 1]];
-
-  setFormState(prev => ({ ...prev, [dept]: updated }));
-  autoSaveToMongo(dept, new Date().toISOString());
-  showAlert("✅ Question moved down!");
-};
-// 
   // A useEffect hook to fetch data from the backend when the activeTab changes
  useEffect(() => {
     const fetchData = async () => {

@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState,  useCallback,useMemo ,useRef} from 'react';
 import { useParams } from 'next/navigation';
-import Image from 'next/image';
 import Testimonials from '../components/testimonials'; 
 import Button from "../components/Button"
 
@@ -52,12 +51,12 @@ export default function PreviewPage() {
   const [formData, setFormData] = useState({ name: "", phone: "", email: "" });
   const [errors, setErrors] = useState({ name: "", phone: "", email: "" });
   const [toastMessage, setToastMessage] = useState("");
-  const [showEmailInput, setShowEmailInput] = useState(false);
+  const [_showEmailInput, setShowEmailInput] = useState(false);
   const [email, setEmail] = useState("");
-  const [disableEmailBtn, setDisableEmailBtn] = useState(false);
+  const [_disableEmailBtn, setDisableEmailBtn] = useState(false);
   const [disableCallBtn, setDisableCallBtn] = useState(false);
   const [percent, setPercent] = useState(0);
-    const [currentVisibleIdx, setCurrentVisibleIdx] = useState(0);
+  const [currentVisibleIdx, setCurrentVisibleIdx] = useState(0);
   const [showCallForm, setShowCallForm] = useState(false);
 
   const totalQuestions = visibleQuestions.length;
@@ -70,7 +69,7 @@ const footerRef = useRef<HTMLDivElement | null>(null);
 
 const [currentSection, setCurrentSection] = useState(0); 
 // 0 = hero, 1 = second section, 2 = footer
-const [isSending, setIsSending] = useState(false);
+const [_isSending, setIsSending] = useState(false);
 const [isSubmitting, setIsSubmitting] = useState(false);
 
 
@@ -380,72 +379,7 @@ const handleSubmit = async () => {
     setIsSubmitting(false);
   }
 };
-  
-
-const handleEmailSubmit = async () => {
-  if (!email.trim()) {
-    alert('Please enter a valid email address.');
-    return;
-  }
-
-  if (!department.trim()) {
-    alert('Please select a service.');
-    return;
-  }
-
-  if (!Array.isArray(costItems) || costItems.length === 0) {
-    alert('Please add cost items before sending.');
-    return;
-  }
-
-  if (!totalEstimate || Number(totalEstimate) === 0) {
-    alert('Total estimate cannot be empty or zero.');
-    return;
-  }
-
-  setIsSending(true);
-
-  try {
-    const payload = {
-      email: email.trim(),
-      quote: costItems,
-      total: Number(totalEstimate),
-      serviceCalculator: department.trim(),
-    };
-
-    console.log('📤 Sending email payload:', payload);
-
-    const res = await fetch('/api/send-quotation', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-
-    const data = await res.json();
-
-    console.log('✅ Email API response:', data);
-
-    if (res.ok && data.success) {
-      setToastMessage('✅ Quotation sent successfully!');
-      setTimeout(() => setToastMessage(''), 4000);
-      setShowEmailInput(false);
-      setEmail('');
-      setDisableEmailBtn(false);
-    } else {
-      alert(`❌ Failed to send email: ${data.message || 'Unknown error'}`);
-    }
-  } catch (err) {
-    console.error('❌ Email send error:', err);
-    alert('Something went wrong while sending the email.');
-  } finally {
-    setIsSending(false);
-  }
-};
-
-
-
-
-
+   
 
   return (
 
@@ -979,7 +913,7 @@ const handleEmailSubmit = async () => {
 </h3>
 
           <p className="text-[#1E1E1E] text-[15px] font-[300]">
-            Here's What It'll Take to Build Your Vision
+            Here&lsquos What It&lsquoll Take to Build Your Vision
           </p>
         </div>
 
