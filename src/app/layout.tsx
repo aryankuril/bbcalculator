@@ -2,10 +2,8 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import PageLoader from "./components/PageLoader";
-import FallingFlowers from "./components/FallingFlowers";
 import Taxi from "./components/Taxi"
 import Whatsapp from "./components/Whatsapp";
-import localFont from "next/font/local"; 
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -44,7 +42,7 @@ export default function RootLayout({
       <Whatsapp/>
               <PageLoader>
         {children}
-        <FallingFlowers />
+    
         <Taxi/>
       </PageLoader>
       </body>
