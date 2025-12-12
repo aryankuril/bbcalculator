@@ -20,7 +20,7 @@
     "lucide-react": "^0.536.0",
     "mongodb": "4.0",
     "mongoose": "^8.16.4",
-    "next": "15.3.5",
+    "next": "^16.0.10",
     "nodemailer": "^7.0.5",
     "pdfkit": "^0.17.1",
     "puppeteer": "^24.15.0",
