@@ -2,24 +2,28 @@ import { useState, useEffect, useRef } from "react";
 
 const testimonials = [
   {
+    maintext: 'WOWO',
     text: `“Had an amazing journey working with Bombay Blokes, never felt like I was working with an outside agency!”`,
     name: "Kaushik Shah",
     company: "India Grooming Club",
     img: "/images/Ellipse.png",
   },
   {
+     maintext: 'Amazing',
     text: `“The team delivered outstanding results on time and exceeded our expectations!”`,
     name: "Anita Patel",
     company: "Creative Minds",
     img: "/images/Ellipse.png",
   },
   {
+      maintext: 'amazing',
     text: `“Highly recommend their services, professional and friendly throughout.”`,
     name: "Ravi Kumar",
     company: "Tech Solutions",
     img: "/images/Ellipse.png",
   },
   {
+      maintext: 'amazing',
     text: `“A fantastic partner for all our creative needs. The quality of work is unparalleled.”`,
     name: "Priya Sharma",
     company: "Marketing Innovators",
@@ -59,8 +63,9 @@ export default function TestimonialCarousel() {
   // }
 
   return (
-    <div className=" max-w-xl mx-auto mt-15 font-poppins relative">
-      {/* Carousel viewport */}
+    <div className=" w-full lg:mt-5 mt-2 font-poppins relative">
+
+
       <div className="overflow-hidden w-full">
        <div
   className="flex transition-transform duration-500 ease-in-out"
@@ -68,10 +73,10 @@ export default function TestimonialCarousel() {
     transform: `translateX(-${currentIndex * 100}%)`,
   }}
 >
-  {testimonials.map(({ text, name, company, img }, index) => (
+   {testimonials.map(({ maintext, text, name, company, img }, index) => (
     <div
       key={index}
-      className="flex-shrink-0 w-full flex justify-center" // full slide width, center card
+      className="flex-shrink-0 w-full " // full slide width, center card
     >
       <div
         className="w-[95%] px-4 py-4 relative border border-yellow-400 rounded-lg shadow-sm bg-white"
@@ -81,11 +86,15 @@ export default function TestimonialCarousel() {
           boxShadow: "2px 2px 0 0 #F9B31B",
         }}
       >
-        <p className="text-center text-[#1E1E1E] text-base font-medium leading-snug">
+                <h3 className=" text-[#F9B31B] font-medium mb-2 leading-snug text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl">
+  {maintext}
+</h3>
+
+        <p className=" text-[#1E1E1E] text-base font-medium leading-snug items-start mb-5">
           {text}
         </p>
 
-        <div className="flex items-center gap-3 justify-center mt-3">
+        <div className="flex items-center gap-3  mt-3">
           <img
             src={img}
             alt={name}

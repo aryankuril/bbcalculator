@@ -18,27 +18,33 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const db = client.db('test');
     const collection = db.collection('questions');
 
+    // ⭐ IMPORTANT: assign order if not present
+    const orderedQuestions = questions.map((q: any, index: number) => ({
+      ...q,
+      order: q.order ?? index,       // preserve existing, else assign new
+    }));
+
     const existingDoc = await collection.findOne({ name });
 
     if (!existingDoc) {
-      // Create new document
+      // Create new department + questions
       await collection.insertOne({
         name,
-        questions,
+        questions: orderedQuestions,
         includedItems,
         metaTitle: metaTitle || '',
         dateCreated: dateCreated ? new Date(dateCreated) : new Date(),
       });
     } else {
-      // Update existing document (now includes metaTitle)
+      // Update existing document
       await collection.updateOne(
         { name },
         {
           $set: {
-             name,
-            questions,
+            name,
+            questions: orderedQuestions.sort((a: any, b: any) => a.order - b.order),
             includedItems,
-            metaTitle: metaTitle || existingDoc.metaTitle || '', // keep old if not provided
+            metaTitle: metaTitle || existingDoc.metaTitle || '',
           },
         }
       );

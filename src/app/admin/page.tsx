@@ -1,4 +1,5 @@
 "use client"
+import axios from "axios";
 import React, { useState, useEffect ,useRef} from 'react';
 import { useRouter } from 'next/navigation';
 import FormPreview from '../components/FormPreview';
@@ -74,7 +75,16 @@ type FormSubmission = {
   createdAt: string;
   serviceCalculator?: string; 
   finalPrice?: number; 
-  quote?: QuoteItem[];  // 👈 add this
+  quote?: QuoteItem[];  // 👈 add this 
+};
+
+type QuestionType = {
+  _id?: string;
+  title: string;
+  subtitle?: string;
+  options?: any[];
+  order: number;
+  [key: string]: any;
 };
 
 
@@ -113,13 +123,13 @@ const AdminPanel = () => {
   const [formState, setFormState] = useState<Record<string, Question[]>>({});
   const [selectedDept, setSelectedDept] = useState<string | null>(null);
   const [lastSavedDept, setLastSavedDept] = useState<string | null>(null);
+  const [deptName, setDeptName] = useState<string>("");
 const [metaTitles, setMetaTitles] = useState<Record<string, string>>({});
 
   const [usersData, setUsersData] = useState<User[]>([]);
 // const [questionsData, setQuestionsData] = useState<QuestionData[]>([]);
 const [formsData, setFormsData] = useState<FormSubmission[]>([]);
 const [questionsData, setQuestionsData] = useState<QuestionsRoute[]>([]);
-
  const [questionForm, setQuestionForm] = useState<{
     text: string;
     icon: string;
@@ -166,7 +176,90 @@ const [dateRange, setDateRange] = useState<DateRangeType[]>([
 ]);
 const [open, setOpen] = useState(false);
 const dateRef = useRef<HTMLDivElement>(null);
-// 📌 Filtering logic
+
+
+const [questions, setQuestions] = useState<QuestionType[]>([]);
+
+
+// Fetch questions on load
+useEffect(() => {
+  if (!deptName) return;
+  fetchQuestions();
+}, [deptName]);
+
+const fetchQuestions = async () => {
+  try {
+    const res = await axios.get(`/api/get-questions?dept=${deptName}`);
+    setQuestions(res.data.questions); // sorted
+  } catch (err) {
+    console.log("Fetch error:", err);
+  }
+};
+
+// Move UP
+const moveUp = (index: number) => {
+  if (index === 0 || !selectedDept) return;
+
+  const updatedDept = [...formState[selectedDept]];
+
+  // swap
+  [updatedDept[index - 1], updatedDept[index]] = 
+  [updatedDept[index], updatedDept[index - 1]];
+
+  setFormState({
+    ...formState,
+    [selectedDept]: updatedDept,
+  });
+};
+
+
+// Move DOWN
+const moveDown = (index: number) => {
+  if (!selectedDept) return;
+
+  const updatedDept = [...formState[selectedDept]];
+
+  if (index === updatedDept.length - 1) return;
+
+  // swap
+  [updatedDept[index + 1], updatedDept[index]] = 
+  [updatedDept[index], updatedDept[index + 1]];
+
+  setFormState({
+    ...formState,
+    [selectedDept]: updatedDept,
+  });
+};
+
+
+
+// Save Order
+const saveOrder = async () => {
+  if (!selectedDept) {
+    alert("Please select a department first.");
+    return;
+  }
+
+  try {
+    await axios.post("/api/save-question", {
+      name: selectedDept,
+      questions: formState[selectedDept].map((q, i) => ({
+        ...q, 
+        order: i
+      })),
+      isDraft: true,
+    });
+
+    alert("Order saved!");
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+
+
+
+
 // 1️⃣ Filter forms first
 const filteredForms = formsData.filter((form) => { 
   const lowerSearchTerm = searchTerm.toLowerCase();
@@ -522,7 +615,8 @@ const handleAddOrUpdateQuestion = () => {
   }
    const CustomModal: React.FC<CustomModalProps> = ({ message, onConfirm, onClose }) => {
     return (
-      <div  style={{ background: "linear-gradient(153deg, #EBEBEB 23.63%, #FFD54F 140.11%)" }} 
+      <div  
+      // style={{ background: "linear-gradient(153deg, #EBEBEB 23.63%, #FFD54F 140.11%)" }} 
       className="fixed inset-0 z-50 flex items-center justify-center bg-opacity-75">
         <div className="bg-black p-8 rounded-xl shadow-lg border border-gray-700 w-full max-w-sm mx-4">
           <p className="text-white text-lg font-medium mb-6">{message}</p>
@@ -624,7 +718,8 @@ const handleAddOrUpdateQuestion = () => {
 
   return (
   <div className="flex min-h-screen text-gray-900 font-sans antialiased"
-     style={{ background: "linear-gradient(153deg, #EBEBEB 23.63%, #FFD54F 140.11%)" }}>
+    //  style={{ background: "linear-gradient(153deg, #EBEBEB 23.63%, #FFD54F 140.11%)" }}
+     >
   {modal.isOpen && (
     <CustomModal
       message={modal.message}
@@ -1496,31 +1591,35 @@ return currentForms.map((form, index) => {
                   >
                     {editingQuestionIndex !== null ? 'Save Question' : 'Add Question'}
                   </button>
+                               <button
+        onClick={saveOrder}
+        className="mt-5 px-5 py-2 bg-green-600 text-white rounded"
+      >
+        Save Order
+      </button>
                 </div>
 
                 {formState[selectedDept]?.map((q, qIndex) => (
                   <div key={qIndex} className="mb-6 p-6 border border-gray-300  rounded-2xl bg-white/50 backdrop-blur-md relative">
                     <div className="absolute top-4 right-4 flex gap-2">
 
-  {/* Move Up */}
-  <button
-    className="p-2 rounded-lg text-blue-600 hover:bg-gray-300 transition-colors"
-    title="Move Up"
-    disabled={qIndex === 0}
-    onClick={() => moveQuestionUp(selectedDept, qIndex)}
+<div className="flex gap-2">
+              <button
+    onClick={() => moveUp(qIndex)}
+    className="px-3 py-1 bg-blue-500 rounded text-white"
   >
-    ↑
+    ⬆
   </button>
 
-  {/* Move Down */}
   <button
-    className="p-2 rounded-lg text-blue-600 hover:bg-gray-300 transition-colors"
-    title="Move Down"
-    disabled={qIndex === formState[selectedDept].length - 1}
-    onClick={() => moveQuestionDown(selectedDept, qIndex)}
+    onClick={() => moveDown(qIndex)}
+    className="px-3 py-1 bg-blue-500 rounded text-white"
   >
-    ↓
+    ⬇
   </button>
+            </div>
+
+
 
   {/* Edit */}
   <button

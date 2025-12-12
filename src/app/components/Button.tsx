@@ -114,7 +114,7 @@ const Button: React.FC<ButtonProps> = ({
   return (
     <div
       className={`relative inline-block select-none ${className}`}
-      onPointerEnter={handlePointerEnter}
+      onPointerEnter={handlePointerEnter}  
       onPointerLeave={handlePointerLeave}
       onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}

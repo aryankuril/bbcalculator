@@ -3,10 +3,7 @@ import { useEffect, useState,  useCallback,useMemo ,useRef} from 'react';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import Testimonials from '../components/testimonials'; 
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer'
-
-
+import Button from "../components/Button"
 
 
 type Dependency = {
@@ -50,7 +47,7 @@ export default function PreviewPage() {
   // const [totals, setTotals] = useState(0);
   const [costItems, setCostItems] = useState<CostItem[]>([]);
   const [includedItems] = useState([
-    "Dedicated Project Manager", "Unlimited Revisions", " Expert Team Collaboration", "Quality Assurance Guaranteed"
+    "Dedicated Project Manager", "Unlimited Revisions", " Expert Team Collaboration", "Quality Assurance Guaranteed" 
   ]);
   const [formData, setFormData] = useState({ name: "", phone: "", email: "" });
   const [errors, setErrors] = useState({ name: "", phone: "", email: "" });
@@ -296,12 +293,8 @@ useEffect(() => {
   // --- RENDER LOGIC STARTS HERE ---
   // Early return statements should only come after all hooks have been called
   // ------- What to render now? -----------
-if (!department || !questions || questions.length === 0)
-  return (
-    <div className="flex items-center justify-center min-h-[100vh]  bg-white">
-      <img src="/BB-web-chai-1.gif" alt="Loading..." className="w-60 h-60" />
-    </div>
-  );
+if (!department || !questions || questions?.length === 0) return null;
+
 
 if (visibleQuestions.length === 0)
   return (
@@ -457,9 +450,10 @@ const handleEmailSubmit = async () => {
   return (
 
     <div ref={firstSectionRef}>
-      <Navbar/>
+      {/* <Navbar/>
+<Firstsection/> */}
         {toastMessage && (
-  <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-4 py-2 rounded shadow-md z-50">
+          <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-4 py-2 rounded shadow-md z-50">
     {toastMessage}
   </div>
 )}
@@ -467,57 +461,15 @@ const handleEmailSubmit = async () => {
         className="w-full h-full relative bg-no-repeat bg-center bg-cover  py-10 md:py-0 lg:px-15 px-0 "
       >
         <div 
-        style={{ minHeight: "100vh", touchAction: "pan-y" /* allow vertical scroll gestures */ }}
-         className=" max-w-8xl mx-auto w-full flex flex-col-reverse md:flex-row items-center justify-between gap-8 relative z-10 lg:top-0 top-10">
+        style={{ touchAction: "pan-y" /* allow vertical scroll gestures */ }}
+         className=" max-w-8xl mx-auto w-full flex flex-col-reverse md:flex-row items-center justify-between gap-8 relative z-10 ">
           
-
-          {/* Text Section */}
-          <div className="text-center md:text-left px-5 py-10 snap-start mt-20 space-y-4 w-full md:w-1/2 z-20 md:static absolute top-10 left-1/2 md:top-auto md:left-auto transform md:transform-none -translate-x-1/2 -translate-y-1/2 md:translate-x-0 md:translate-y-0">
-           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[300px] md:w-[400px] h-[300px] lg:h-[500px] -mt-10 lg:-mt-35">
-  <img
-    src="/images/hero2.png"
-    alt="Desk Illustration"
-    className="w-full h-full object-contain md:object-contain  md:opacity-100"
-  />
-</div>
-
-            <h1 className="text-[34px] sm:text-[28px] md:text-5xl  text-black leading-tight">
-              Estimate Your Project
-              
-            </h1>
-      
-            <div className="flex md:flex-row  items-center justify-center md:justify-start gap-3 sm:gap-5 ">
-             <span
-                className="relative flex items-center justify-center w-[93px] h-[43px] text-[26px] sm:text-[32px] md:text-[35px]  text-black text-center capitalize font-Poppins px-2 py-1 rounded-[5px]"
-                  style={{ background: "#F9B31B", letterSpacing: "0.2px" }}
-                 >
-                  Cost
-                 <Image
-                 src="/images/Highlight.png"
-                alt="highlight"
-                 width={25}
-                 height={25}
-                 className="absolute -top-5 -right-5"
-                 />
-                </span>
-      
-              <span className="text-[24px] sm:text-[28px] md:text-5xl  text-black">
-                Instantly
-              </span>
-            </div>      
-          </div>
+ 
                               
              <section 
-               className="w-full px-4  flex flex-col items-center  py-20 lg:mt-8 mt-60 ">
-        <h2 className="text-center font-poppins text-[25px] sm:text-[28px] md:text-5xl  leading-normal tracking-[-0.8px] capitalize text-black">
-          Plan Your Project, Step By Step
-        </h2>
-        <div className="flex items-center gap-2 text-sm text-gray-600">
-          <span className="text-center font-poppins text-[20px] font-[400] leading-normal text-[#797474]">
-            Calculate your digital dream
-          </span>
-        </div>
-        <div ref={secondSectionRef} className="w-full max-w-6xl max-h-7xl lg:mt-12 mt-8">
+               className="w-full px-4  flex flex-col items-center lg:mt-8 ">
+       
+        <div ref={secondSectionRef} className="w-full  max-h-7xl lg:mt-12 mt-8">
         <div className="flex flex-col gap-2">
   {/* Progress Wrapper (relative so car is inside) */}
   <div className="flex gap-3 relative items-center">
@@ -552,7 +504,7 @@ const handleEmailSubmit = async () => {
         bottom: '1px',
       }}
     >
-      <img src="/images/taxi1.png" alt="Car" className="lg:h-[65px] h-[45px] lg:w-[70px] w-[50px]" />
+      <img src="/images/flyinglady.png" alt="Car" className="lg:h-[65px] h-[45px] lg:w-[70px] w-[50px]" />
     </div>
   </div>
 </div>
@@ -580,8 +532,8 @@ const handleEmailSubmit = async () => {
                   flex flex-col gap-6
                   lg:mt-5  mt-5 mb-5
                   w-full
-                  max-w-[908px]
-                  p-5 md:p-[40px_40px]
+                   
+                  p-5 md:p-[30px_30px]
                   bg-white rounded-[8px] border border-[#1E1E1E]
                   shadow-[6px_5px_0px_0px_#262626]
                 "
@@ -621,7 +573,7 @@ const handleEmailSubmit = async () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 lg:gap-10 gap-5">
+              <div className="grid grid-cols-1 md:grid-cols-4 lg:gap-10 gap-5">
             {currentQuestion.options.map((opt, i) => {
   const active = selectedOptions[originalIndex]?.title === opt.title;
   return (
@@ -680,14 +632,22 @@ const handleEmailSubmit = async () => {
   );
 })}
 
-{currentStep !== 99 && (
-  <div className="flex justify-center max-w-4xl mx-auto gap-13 lg:hidden">
+
+
+              </div>
+ {currentStep !== 99 && (
+  <div className="w-full flex justify-between items-center  gap-3
+    
+  ">
+
+    {/* Previous Button */}
     <button
       onClick={() => {
         if (currentVisibleIdx > 0 && questions && visibleQuestions.length > 0) {
           const newSelectedOptions = { ...selectedOptions };
           const origIdx = questions.findIndex(
-            (q) => q.questionText === visibleQuestions[currentVisibleIdx].questionText
+            (q) =>
+              q.questionText === visibleQuestions[currentVisibleIdx].questionText
           );
           newSelectedOptions[origIdx] = null;
           setSelectedOptions(newSelectedOptions);
@@ -695,16 +655,24 @@ const handleEmailSubmit = async () => {
         }
       }}
       disabled={currentVisibleIdx === 0}
-      className={` cursor-pointer w-[130px] flex items-center justify-center gap-2 py-[10px] rounded-[5px] italic
-        border shadow-[2px_2px_0px_0px_#262626] transition-colors text-[16px] font-[400]
+      className={`
+        cursor-pointer
+        w-[120px] sm:w-[130px] md:w-[150px] /* responsive width */
+        py-2 sm:py-3                      /* responsive height */
+        text-[14px] sm:text-[16px]        /* responsive text */
+        flex items-center justify-center gap-2 rounded-[5px] italic
+        border shadow-[2px_2px_0px_0px_#262626] transition-colors
         ${
           currentVisibleIdx > 0
             ? "bg-[#F9B31B] border-[#262626] text-[#262626]"
             : "bg-gray-200 border-gray-200 text-gray-400 cursor-not-allowed shadow-none"
-        }`}
+        }
+      `}
     >
       Previous
     </button>
+
+    {/* Next Button */}
     <button
       onClick={() => {
         if (currentVisibleIdx === visibleQuestions.length - 1) {
@@ -716,30 +684,34 @@ const handleEmailSubmit = async () => {
         }
       }}
       disabled={!selectedOptions[originalIndex]}
-      className={` cursor-pointer w-[130px] flex items-center justify-center gap-2 py-[10px] rounded-[5px] font-medium
+      className={`
+        cursor-pointer
+        w-[120px] sm:w-[130px] md:w-[150px]   /* responsive width */
+        py-2 sm:py-3                         /* responsive padding */
+        text-[14px] sm:text-[16px]           /* responsive font */
+        flex items-center justify-center gap-2 rounded-[5px] font-medium
         border-2 transition-colors
         ${
           selectedOptions[originalIndex]
             ? "bg-black border-black text-white hover:bg-[#1a1a1a] shadow-[2px_2px_0px_0px_#F9B31B]"
-            : "bg-black border-black text-white hover:bg-[#1a1a1a] shadow-[2px_2px_0px_0px_#F9B31B]"
-        }`}
+            : "bg-gray-300 border-gray-300 text-gray-500 cursor-not-allowed"
+        }
+      `}
     >
       {currentVisibleIdx === visibleQuestions.length - 1
         ? "See Estimate"
         : "Next"}
     </button>
+
   </div>
 )}
-
-              </div>
-              
             </div>
           ) : (
             <div
               className="
                   flex flex-col gap-6
                   lg:mt-5  mt-5 mb-5
-                  w-full max-w-[908px]
+                  w-full  
                   p-5 md:p-[30px_30px]
                   bg-white rounded-[8px] border border-[#1E1E1E]
                   shadow-[6px_5px_0px_0px_#262626]
@@ -757,6 +729,8 @@ const handleEmailSubmit = async () => {
                       <span>{currentQuestion.questionIcon}</span>
                     )}
                   </div>
+
+                  
                   <p className="text-[#797474] font-poppins text-[16px] font-[400]">
                     {currentQuestion.questionSubText}
                   </p>
@@ -780,80 +754,112 @@ const handleEmailSubmit = async () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                 {currentQuestion.options.map((opt, i) => {
             const active = selectedOptions[originalIndex]?.title === opt.title;
                   return (
                     
-                    <button
-                      key={i}
-                      type="button"
-                     onClick={() => handleOptionSelect(opt)}
-
-                      className={`flex items-center justify-between gap-4 rounded-[8px] border transition-colors px-3 py-3 text-left w-full ${
-                       opt.subtitle?.trim() ? "h-[72px]" : "h-[50px]"
-                      } ${
-                        active
-                          ? "bg-[#F9B31B] border-[#1E1E1E] text-white shadow-[2px_2px_0px_0px_#1E1E1E]"
-                          : "bg-white border-[#1E1E1E] text-[#1E1E1E] hover:bg-[#FFE19F]"
-                      }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        {opt.icon ? (
-                          <span className="relative inline-flex items-center justify-center w-8 h-5 -top-1">
-                            <div className="relative  ">
-                              {opt.icon.startsWith("data:image") ? (
-                                <img src={opt.icon} alt="icon" className="w-6 h-6" />
-                              ) : (
-                                <span>{opt.icon}</span>
-                              )}
-                            </div>
-                          </span>
-                        ) : (
-                          
-                          <span
-                            className={`w-[12px] h-[12px] rounded-full  border-[2px] ${
-                              active ? "bg-black border-black" : "border-[#F9B31B]"
-                            }`}
-                          />
-                        )}
-                        <div>
-                          <h4 className="text-[#111827] font-poppins md:text-[13px] lg:text-[13px] text-[13px] font-[600]">
-                            {opt.title}
-                          </h4>
-                          {opt.subtitle && opt.subtitle.trim() !== '' ? (
-                           <p
-  className={`font-poppins lowercase font-[500] 
-    md:text-[10px] lg:text-[12px] text-[15px] 
-    leading-[1.2] 
-    ${active ? "text-[#111827]" : "text-[#111827]"}
+                   <button
+  key={i}
+  type="button"
+  onClick={() => handleOptionSelect(opt)}
+  className={`
+    flex items-start gap-4 rounded-[8px] border transition-colors px-3 py-3 text-left w-full
+    ${active
+      ? "bg-[#F9B31B] border-[#1E1E1E] text-white shadow-[2px_2px_0px_0px_#1E1E1E]"
+      : "bg-white border-[#1E1E1E] text-[#1E1E1E] hover:bg-[#FFE19F]"
+    }
   `}
 >
-                              {opt.subtitle}
-                            </p>
-                          ) : null}
-                        </div>
-                      </div>
-                      <span
-  className={`md:text-[13px] lg:text-[14px] font-[500] leading-normal font-poppins ${
-    active ? 'text-white' : 'text-[#111827]'
-  }`}
->
-  {Number(opt.price) > 0 ? `₹${Number(opt.price).toLocaleString("en-IN")}` : ''}
-</span>
 
-                    </button>
+  {/* LEFT SIDE */}
+<div className="flex gap-2 w-full">
+
+  {/* LEFT COLUMN (icon + title + price + line + subtitle all together) */}
+  <div className="flex flex-col w-full">
+
+    {/* TOP ROW: ICON + TITLE + PRICE */}
+    <div className="flex items-center justify-between w-full">
+
+      {/* ICON */}
+      {opt.icon ? (
+        <span className="inline-flex items-center justify-center w-6 h-6 mr-2">
+          {opt.icon.startsWith("data:image") ? (
+            <img src={opt.icon} alt="icon" className="w-5 h-5" />
+          ) : (
+            <span>{opt.icon}</span>
+          )}
+        </span>
+      ) : (
+        <span
+          className={`w-[12px] h-[12px] rounded-full border-[2px] ${
+            active ? "bg-black border-black" : "border-[#F9B31B]"
+          }`}
+        />
+      )}
+
+      {/* TITLE */}
+      <h4 className="flex-1 text-[#111827] font-poppins text-[13px] font-[600] ml-2">
+        {opt.title}
+      </h4>
+
+      {/* PRICE */}
+      <span
+        className={`text-[14px] font-[500] ${
+          active ? "text-white" : "text-[#111827]"
+        }`}
+      >
+        {Number(opt.price) > 0 ? `₹${Number(opt.price).toLocaleString("en-IN")}` : ""}
+      </span>
+    </div>
+
+    {/* FULL-WIDTH LINE BELOW ICON + TITLE */}
+    {opt.subtitle?.trim() && (
+      <div
+        className={`w-full h-[2px] border-t border-dashed my-[6px] ${
+          active ? "border-black" : "border-[#F9B31B]"
+        }`}
+      ></div>
+    )}
+
+    {/* SUBTITLE */}
+    {opt.subtitle?.trim() && (
+     <p
+  className="
+    font-poppins font-[500] text-[14px] leading-[1.3] text-[#111827]
+    break-words whitespace-normal
+  "
+>
+  {opt.subtitle}
+</p>
+
+    )}
+
+  </div>
+</div>
+
+
+</button>
+
                   );
                 })}
 
-                {currentStep !== 99 && (
-  <div className="flex justify-center max-w-4xl mx-auto gap-13  lg:hidden">
+              
+              </div>
+
+             {currentStep !== 99 && (
+  <div className="w-full flex justify-between items-center  gap-3
+    
+  ">
+
+    {/* Previous Button */}
     <button
       onClick={() => {
         if (currentVisibleIdx > 0 && questions && visibleQuestions.length > 0) {
           const newSelectedOptions = { ...selectedOptions };
           const origIdx = questions.findIndex(
-            (q) => q.questionText === visibleQuestions[currentVisibleIdx].questionText
+            (q) =>
+              q.questionText === visibleQuestions[currentVisibleIdx].questionText
           );
           newSelectedOptions[origIdx] = null;
           setSelectedOptions(newSelectedOptions);
@@ -861,16 +867,24 @@ const handleEmailSubmit = async () => {
         }
       }}
       disabled={currentVisibleIdx === 0}
-      className={`w-[130px] flex items-center justify-center gap-2 py-[10px] rounded-[5px] italic
-        border shadow-[2px_2px_0px_0px_#262626] transition-colors text-[16px] font-[400]
+      className={`
+        cursor-pointer
+        w-[120px] sm:w-[130px] md:w-[150px] /* responsive width */
+        py-2 sm:py-3                      /* responsive height */
+        text-[14px] sm:text-[16px]        /* responsive text */
+        flex items-center justify-center gap-2 rounded-[5px] italic
+        border shadow-[2px_2px_0px_0px_#262626] transition-colors
         ${
           currentVisibleIdx > 0
             ? "bg-[#F9B31B] border-[#262626] text-[#262626]"
             : "bg-gray-200 border-gray-200 text-gray-400 cursor-not-allowed shadow-none"
-        }`}
+        }
+      `}
     >
       Previous
     </button>
+
+    {/* Next Button */}
     <button
       onClick={() => {
         if (currentVisibleIdx === visibleQuestions.length - 1) {
@@ -882,205 +896,238 @@ const handleEmailSubmit = async () => {
         }
       }}
       disabled={!selectedOptions[originalIndex]}
-      className={`w-[130px] flex items-center justify-center gap-2 py-[10px] rounded-[5px] font-medium
+      className={`
+        cursor-pointer
+        w-[120px] sm:w-[130px] md:w-[150px]   /* responsive width */
+        py-2 sm:py-3                         /* responsive padding */
+        text-[14px] sm:text-[16px]           /* responsive font */
+        flex items-center justify-center gap-2 rounded-[5px] font-medium
         border-2 transition-colors
         ${
           selectedOptions[originalIndex]
             ? "bg-black border-black text-white hover:bg-[#1a1a1a] shadow-[2px_2px_0px_0px_#F9B31B]"
-            : "bg-black border-black text-white hover:bg-[#1a1a1a] shadow-[2px_2px_0px_0px_#F9B31B]"
-        }`}
+            : "bg-gray-300 border-gray-300 text-gray-500 cursor-not-allowed"
+        }
+      `}
     >
       {currentVisibleIdx === visibleQuestions.length - 1
         ? "See Estimate"
         : "Next"}
     </button>
+
   </div>
 )}
 
-              </div>
+
             </div>
           )
         ) : (
-         <div
-    className="
-        flex flex-col gap-6
-        lg:mt-5  mt-3 mb-10
-        w-full
-        max-w-[908px]
-        p-4 md:p-[40px_40px]
-        bg-white rounded-[8px] border border-[#1E1E1E]
-        shadow-[6px_5px_0px_0px_#262626]
-    "
+        <div
+  className="
+    flex flex-col gap-10
+    lg:flex-row
+     lg:mt-5  mt-5
+    w-full
+    p-4 md:p-8
+    bg-white border border-[#1E1E1E]
+    rounded-[12px]
+    shadow-[6px_6px_0px_0px_#262626]
+  "
 >
-            <h2 className=" text-black text-2xl md:text-[24px] font-[700] text-center ">
-              Your Project Estimate
-            </h2>
-            <div
-              className="text-center py-4 rounded-md shadow-inner border"
-              style={{
-                borderRadius: "8px",
-                border: "1px solid #1E1E1E",
-                background: "#F9B31B",
-                boxShadow: "3px 3px 0px 0px #262626",
-              }}
-            >
-              <h3 className="text-white text-center font-poppins text-[24px] font-[700] capitalize tracking-tightest">
-                ₹{totalEstimate.toLocaleString()}
-              </h3>
-              <div className="flex items-center justify-center gap-1 text-center text-[#1E1E1E] font-[Poppins] text-[14px] font-[300] leading-normal">
-                <span>Here is What It will Take to Build Your Vision</span>
-                {/* <Form1 className="w-4 h-4" /> */}
-              </div>
-            </div>
-            <div className="flex flex-col md:flex-row gap-8">
-              <div className="md:w-1/2 space-y-10 ">
-                <div className="lg:ml-5 lg:mt-5">
-                  <h4 className=" text-black font-[Poppins] text-[24px] font-[700] leading-normal tracking-[-0.8px] capitalize mb-3 flex items-center gap-2">
-                    Whats Always Included
-                    {/* <Star className="w-4 h-4" /> */}
-                  </h4>
-                  <ul className="space-y-3">
-                    {includedItems.map((item, i) => (
-                      <li key={i} className="flex items-center gap-2 text-green-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8" fill="none">
-                          <circle cx="4" cy="4" r="4" fill="#76CA21" />
-                        </svg>
-                        <span className="text-[#1E1E1E] text-center font-[Poppins] text-[14px] font-[300]  leading-normal">
-                          {item}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-               {/* <div className="flex items-center  lg:mt-30 md:mt-20 gap-5 self-stretch rounded-[8px] border border-[#FFC250] bg-white shadow-[2px_2px_0px_0px_#F9B31B] p-5 md:p-[20px_15px]"> */}
-                   <Testimonials />
-                {/* </div> */}
-              </div>
-              <div
-                className="
-                    flex flex-col
-                   min-h-[400px] max-w-[424px] w-full
+  {/* LEFT SECTION (Price + Cost Summary card) */}
+<div className="w-full lg:w-1/2 flex flex-col ">
 
-                    p-5 md:p-[20px_20px]
-                    bg-white rounded-[8px] border border-[#1E1E1E]
-                    shadow-[6px_5px_0px_0px_#262626]
-                  "
-              >
-                <h2 className=" flex text-[24px] font-[700] mb-3 gap-2  text-black font-[Poppins] leading-normal tracking-[-0.8px] capitalize">
-                  Cost Summary <span>
-                    {/* <img
-                    src="/images/buldings.svg"
-                    alt="Profile"
-                    className="w-5 h-5 mt-2 "
-                  /> */}
-                  </span>
-                </h2>
-                {costItems.map((item, index) => (
-                  <div key={index} className="flex justify-between items-start mb-2">
-                    <p>
+    {/* Cost Summary (Black card like reference) */}
+{/* FLIP WRAPPER */}
+<div className="relative w-full perspective">
+  <div
+    className={`
+      duration-700 preserve-3d relative 
+      ${showCallForm ? "rotate-y-180" : ""}
+    `}
+  >
 
-                       <span className="text-[#1E1E1E] text-center font-[Poppins] text-[14px] font-[700] leading-normal not-italic">
+    {/* FRONT SIDE (YOUR COST CARD) */}
+    <div className="backface-hidden">
+      <div 
+        className="
+          relative
+          flex flex-col
+          w-full
+          lg:p-8 p-5
+          bg-[#1B1B1B]
+          rounded-[20px] 
+          overflow-hidden
+          text-white
+        "
+      >
+        {/* RIGHT BORDER */}
+        <div className="absolute right-0 top-0 h-full w-3 sm:w-5 md:w-5 candy-border"></div>
+
+        {/* Yellow Price Box */}
+        <div className="text-center py-5 rounded-[12px] bg-[#F9B31B]">
+         <h3 className="
+  text-white 
+  font-poppins 
+  font-[700]
+  text-[22px]       /* mobile */
+  sm:text-[24px]    /* small screens */
+  md:text-[26px]    /* tablets */
+  lg:text-[28px]    /* desktop */
+">
+  ₹{totalEstimate.toLocaleString()}/-
+</h3>
+
+          <p className="text-[#1E1E1E] text-[15px] font-[300]">
+            Here's What It'll Take to Build Your Vision
+          </p>
+        </div>
+
+        <h2 className="text-[22px] font-[700] mb-4 flex items-center gap-2 mt-4">
+          Cost Summary
+        </h2>
+
+        {costItems.map((item, index) => (
+          <div key={index} className="flex justify-between text-[15px] mb-3">
+                                <p>
+
+                       <span className="text-white text-center font-[Poppins] text-[14px] font-[700] leading-normal not-italic">
 {item.type}:
 </span>
 {" "}
-                      <span className="text-[#1E1E1E] font-[Poppins] text-[14px] font-[300] not-italic  leading-normal">
+                      <span className="text-white font-[Poppins] text-[14px] font-[300] not-italic  leading-normal">
                            {item.value}
                       </span>
                     </p>
-                    <p className="whitespace-nowrap text-[#1E1E1E] text-center font-[Poppins] text-[14px] font-[500] not-italic  leading-normal">
-                       ₹{item.price.toLocaleString("en-IN")}
-                    </p>
-                  </div>
-                ))}
-                <hr className="my-2 border-black" />
-                <div className="flex justify-between items-center mb-5">
-                  <p className="text-[#1E1E1E] text-center font-[Poppins] text-[14px] font-[700] not-italic  leading-normal">
-                    Estimated Cost:
-                  </p>
-                  <p className="text-[#1E1E1E] text-center font-[Poppins] text-[14px] font-[700] not-italic leading-normal">
-                   ₹{totalEstimate.toLocaleString()}
-                  </p>
-                </div>
-                {!showCallForm ? (
-  <button
+
+            <span className="font-[500] text-white">
+              ₹{item.price.toLocaleString()}
+            </span>
+          </div>
+        ))}
+
+        <hr className="my-3 border-[#F9B31B]" />
+
+        <div className="flex justify-between font-[700] text-[16px]">
+          <p>Estimated Cost:</p>
+          <p>₹{totalEstimate.toLocaleString()}</p>
+        </div>
+
+        {/* SCHEDULE BUTTON → FLIPS CARD */}
+        {!showCallForm ? (
+
+
+
+
+
+          <div className="w-full flex justify-center mt-3">
+  <Button
     onClick={() => setShowCallForm(true)}
-    className="cursor-pointer w-full mb-3 py-[8px] px-[23px] lg:mt-4 rounded-[5px] bg-[#262626] shadow-[2px_2px_0px_0px_#F9B31B] text-white text-[16px] font-[400] italic flex justify-center items-center gap-[10px] self-stretch transition-all"
-   disabled={disableCallBtn}
-  >
-    Schedule Free Call
-  </button>
-) : (
-  <>
-    {/* Inline Form */}
-   <div className="grid grid-cols-1 gap-3 mb-3 w-full">
-  {/* Name */}
+    disabled={disableCallBtn}
+    text="Schedule Free Call"
+    className="relative justify-center text-white transition-colors"
+  />
+</div>
+
+        ) : null}
+
+      
+      </div>
+    </div>
+
+    {/* BACK SIDE — YOUR FORM PAGE */}
+    <div className="absolute inset-0 rotate-y-180 backface-hidden ">
+  <div className="w-full h-auto min-h-full bg-[#1B1B1B] rounded-[20px] lg:p-8 p-5 text-white relative overflow-hidden">
+
+
+         {/* RIGHT BORDER */}
+        <div className="absolute right-0 top-0 h-full w-3 sm:w-5 md:w-5 candy-border rounded-r-[22px] overflow-hidden"></div>
+
+
+        <button
+          onClick={() => setShowCallForm(false)}
+          className="text-sm mb-3"
+        >
+          ← <span  className="underline " > See Quotation </span>
+        </button>
+
+        <h2 className="text-[22px] font-[700] mb-6 flex items-center gap-2">
+          Need Your Details 📒
+        </h2>
+
+        {/* INLINE FORM EXACTLY LIKE YOUR IMAGE */}
+           <div className="grid grid-cols-1 gap-6 mb-6 w-full">
+
+  {/* First Name */}
   <div className="flex flex-col gap-1 w-full">
-    <label htmlFor="name" className="text-sm font-medium text-black">
-      Name
-    </label>
+    {/* <label htmlFor="name" className="text-sm font-medium text-black"> Name </label> */}
+     <input 
+     type="text" 
+     id="name" 
+     name="name" 
+     value={formData.name}
+      onChange={(e) => setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value, })) }
+      className={`px-3 py-2 border-b bg-transparent text-white placeholder:text-white focus:outline-none 
+      focus:ring-0 
+      focus:border-[#F9B31B] ${
+        errors.name
+          ? "border-red-500 focus:ring-red-300"
+          : "border-[#F9B31B] focus:ring-[#F9B31B]"
+      }`}
+      placeholder="Name"
+    />
+   {errors.name && ( <p className="text-red-500 text-sm mt-1">{errors.name}</p> )}
+  </div>
+
+  {/* Last Name */}
+  <div className="flex flex-col gap-1 w-full">
+    {/* <label htmlFor="phone" className="text-sm font-medium text-black">
+      Phone
+    </label> */}
     <input
-      type="text"
-      id="name"
-      name="name"
-      value={formData.name}
+      type="tel"
+      id="phone"
+      name="phone"
+      value={formData.phone}
       onChange={(e) =>
         setFormData((prev) => ({
           ...prev,
           [e.target.name]: e.target.value,
         }))
       }
-      className={`px-3 py-2 border rounded-[8px] focus:outline-none focus:ring-2 text-[#1E1E1E] placeholder:text-[#1E1E1E] ${
-        errors.name
-          ? "border-red-500 focus:ring-red-300"
-          : "border-[#1E1E1E] focus:ring-[#F9B31B]"
-      }`}
-      placeholder="Enter your name"
-    />
-    {errors.name && (
-      <p className="text-red-500 text-sm mt-1">{errors.name}</p>
-    )}
-  </div>
-
-  {/* Phone */}
-  <div className="flex flex-col gap-1 w-full">
-    <label htmlFor="phone" className="text-sm font-medium text-black">
-      Phone
-    </label>
-    <input
-      type="tel"
-      id="phone"
-      name="phone"
-      value={formData.phone}
-      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-      className={`px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-[#1E1E1E] placeholder:text-[#1E1E1E] ${
+      className={`px-3 py-2 border-b bg-transparent text-white placeholder:text-white focus:outline-none 
+      focus:ring-0 
+      focus:border-[#F9B31B]  ${
         errors.phone
           ? "border-red-500 focus:ring-red-300"
-          : "border-[#1E1E1E] focus:ring-[#F9B31B]"
+          : "border-[#F9B31B] focus:ring-[#F9B31B]"
       }`}
-      placeholder="Enter your phone"
+      placeholder="Phone"
     />
-    {errors.phone && (
+   {errors.phone && (
       <p className="text-red-500 text-sm mt-1">{errors.phone}</p>
     )}
   </div>
 
   {/* Email */}
   <div className="flex flex-col gap-1 w-full">
-    <label htmlFor="email" className="text-sm font-medium text-black">
+    {/* <label htmlFor="email" className="text-sm font-medium text-white">
       Email
-    </label>
+    </label> */}
     <input
       type="email"
       id="email"
       name="email"
       value={formData.email}
       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-      className={`px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-[#1E1E1E] placeholder:text-[#1E1E1E] ${
+      className={`px-3 py-2 border-b bg-transparent text-white placeholder:text-white focus:outline-none 
+      focus:ring-0 
+      focus:border-[#F9B31B] ${
         errors.email
           ? "border-red-500 focus:ring-red-300"
-          : "border-[#1E1E1E] focus:ring-[#F9B31B]"
+          : "border-[#F9B31B] focus:ring-[#F9B31B]"
       }`}
-      placeholder="Enter your email"
+      placeholder="Email"
     />
     {errors.email && (
       <p className="text-red-500 text-sm mt-1">{errors.email}</p>
@@ -1089,113 +1136,72 @@ const handleEmailSubmit = async () => {
 </div>
 
 
-    {/* Submit Button */}
-    <button
-  onClick={handleSubmit}
-  className="w-full py-[8px] px-[23px] mb-3 rounded-[5px] bg-[#262626] shadow-[2px_2px_0px_0px_#F9B31B] text-white text-[16px] font-[400] italic flex justify-center items-center gap-[10px] self-stretch transition-all disabled:opacity-50"
-  disabled={isSubmitting}
->
+       <div className="w-full flex justify-end mt-3">
+  <button
+    onClick={handleSubmit}
+    className="py-[8px] px-[23px] rounded-[5px] bg-[#262626] 
+    shadow-[2px_2px_0px_0px_#F9B31B] text-white italic"
+  >
   {isSubmitting ? "Submitting..." : "Submit"}
-</button>
+  </button>
+</div>
 
-  </>
-)} 
 
-                {!showEmailInput ? (
-                  <button
-                    onClick={() => {
-                      setShowEmailInput(true);
-                      setDisableEmailBtn(true);
-                    }}
-                    className=" cursor-pointer w-full py-[8px] px-[23px] rounded-[5px] border border-[#1E1E1E] bg-white text-black text-[16px] font-[400] italic shadow-[2px_2px_0px_0px_#1E1E1E] flex justify-center items-center gap-[10px] self-stretch transition disabled:opacity-50"
-                    disabled={disableEmailBtn}
-                  >
-                    Email Me The Quote
-                  </button>
-                ) : (
-                  <div className="grid grid-cols-10 gap-3 items-center w-full">
-                    <input
-                      type="email"
-                      placeholder="Enter your email"
-                      className="col-span-7 p-2 border  border-[#1E1E1E] rounded w-full text-[#1E1E1E] placeholder:text-[#1E1E1E]"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                    />
-                    <button
-  onClick={handleEmailSubmit}
-  className="col-span-3 py-[8px] px-[12px] rounded-[5px] bg-[#262626] text-white font-[400] italic shadow-[2px_2px_0px_0px_#F9B31B] transition w-full disabled:opacity-50"
-  disabled={isSending}
->
-  {isSending ? "Sending..." : "Send"}
-</button>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-{currentStep !== 99 && (
-    <div className="flex justify-center max-w-4xl mx-auto p-4 lg:gap-160 gap-10">
-        {/* Previous Button */}
-        <button
-            onClick={() => {
-                if (currentVisibleIdx > 0 && questions && visibleQuestions.length > 0) {
-                    const newSelectedOptions = { ...selectedOptions };
-                    const origIdx = questions.findIndex(
-                        (q) =>
-                            q.questionText === visibleQuestions[currentVisibleIdx].questionText
-                    );
-                    newSelectedOptions[origIdx] = null;
-                    setSelectedOptions(newSelectedOptions);
-                    setCurrentVisibleIdx((prev) => prev - 1);
-                }
-            }}
-            disabled={currentVisibleIdx === 0}
-            className={`cursor-pointer w-[130px] items-center justify-center gap-2 py-[10px] rounded-[5px] italic
-                border shadow-[2px_2px_0px_0px_#262626] transition-colors text-[16px] font-[400]
-                sm:flex hidden
-                ${
-                    currentVisibleIdx > 0
-                        ? "bg-[#F9B31B] border-[#262626] text-[#262626]"
-                        : "bg-gray-200 border-gray-200 text-gray-400 cursor-not-allowed shadow-none"
-                }`}
-        >
-            Previous
-        </button>
-
-        {/* Next Button */}
-        <button
-            onClick={() => {
-                if (currentVisibleIdx === visibleQuestions.length - 1) {
-                    setCurrentStep(99);
-                } else {
-                    setCurrentVisibleIdx((prev) =>
-                        Math.min(visibleQuestions.length - 1, prev + 1)
-                    );
-                }
-            }}
-            disabled={!selectedOptions[originalIndex]}
-            className={`cursor-pointer w-[130px] items-center justify-center gap-2 py-[10px] rounded-[5px] font-medium
-                border-2 transition-colors
-                sm:flex hidden
-                ${
-                    selectedOptions[originalIndex]
-                        ? "bg-black border-black text-white hover:bg-[#1a1a1a] shadow-[2px_2px_0px_0px_#F9B31B]"
-                        : "bg-black border-black text-white hover:bg-[#1a1a1a] shadow-[2px_2px_0px_0px_#F9B31B]"
-                }`}
-        >
-            {currentVisibleIdx === visibleQuestions.length - 1
-                ? "See Estimate"
-                : "Next"}
-        </button>
+      </div>
     </div>
-)}
- 
+
+  </div>
+</div>
+
+  </div>
+
+  {/* RIGHT SECTION */}
+<div className="w-full lg:w-1/2 flex flex-col p-2">
+    {/* What's Always Included */}
+    <div>
+    <h4 className="
+  font-[700] 
+  mb-4 
+  flex 
+  items-center 
+  gap-2
+  text-[20px]      /* mobile */
+  sm:text-[22px]   /* small screens */
+  md:text-[24px]   /* tablets */
+  lg:text-[26px]   /* desktop */
+">
+  What’s Always Included
+</h4>
+
+
+      <ul className="space-y-3 mb-5">
+        {includedItems.map((item, i) => (
+          <li key={i} className="flex items-start gap-3">
+            <span className="w-3 h-3 bg-[#76CA21] rounded-full mt-1"></span>
+            <span className="text-[15px] text-[#1E1E1E] leading-[22px]">
+              {item}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+
+<div className="w-full h-[2px] border-t border-dashed border-[#F9B31B] my-[6px]"></div>
+
+   
+      <Testimonials />
+
+  </div>
+</div>
+
+        )}
+
+
       </section>    
         </div>     
       </div>
      <div ref={footerRef}>
-  <Footer />
+  {/* <Footer /> */}
 </div>
 
     </div>

@@ -8,12 +8,13 @@ type Question = {
   question: string;
   options: string[];
   answer: string;
+  order: number;   // ⭐ ADD THIS
 };
 
 type DataResponse = {
   questions: Question[];
-  metaTitle?: string; // ✅ Add metaTitle to the response
-  includedItems?: string[]; // <-- Include this in type
+  metaTitle?: string;
+  includedItems?: string[];
 };
 
 type ErrorResponse = {
@@ -43,15 +44,15 @@ export default async function handler(
       name: { $regex: new RegExp(`^${dept.trim()}$`, 'i') }
     });
 
-    const questions = result?.questions || [];
-    const includedItems = result?.includedItems || [];
-    const metaTitle = result?.metaTitle || ""; // <-- ADD THIS
+    const questions = result?.questions
+      ?.sort((a: Question, b: Question) => (a.order ?? 0) - (b.order ?? 0)) || [];
 
-    // RETURN all three
+    const includedItems = result?.includedItems || [];
+    const metaTitle = result?.metaTitle || "";
+
     return res.status(200).json({ questions, includedItems, metaTitle });
   } catch (error) {
     console.error('[GET /api/get-questions] Error:', error);
     return res.status(500).json({ message: 'Internal Server Error' });
   }
 }
-

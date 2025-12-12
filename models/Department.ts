@@ -15,7 +15,8 @@ const QuestionSchema = new mongoose.Schema({
   options: [OptionSchema],
   isDependent: { type: Boolean, default: false },  // ✅ new
   dependsOnQuestionIndex: Number,                  // ✅ new
-  dependsOnOptionIndex: Number                     // ✅ new
+  dependsOnOptionIndex: Number,
+  order: { type: Number, default: 0 } ,                 // ✅ new
 });
 
 

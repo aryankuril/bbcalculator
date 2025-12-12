@@ -3,9 +3,10 @@
 // import { useEffect, useState } from "react";
 
 import React from 'react'
-import Landing from './components/Landing';
 import Navbar from './components/Navbar';
+import Landing from './components/Landing';
 import Footer from './components/Footer'
+import SecondSection from './components/SecondSection';
 // import Navbar from './components/Navbar';
 
 export default function Home() {
@@ -22,6 +23,7 @@ export default function Home() {
   {/* <Navbar role={role} /> */}
       <Navbar/>
       <Landing/>
+      <SecondSection/>
       <Footer/>
     </div>
   );

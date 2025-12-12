@@ -20,9 +20,9 @@ export default function FormPreviewPage() {
     fetchForm();
   }, [id]);
 
-  if (!formData) return <div className="flex items-center justify-center min-h-[100vh]  bg-white">
-      <img src="/BB-web-chai-1.gif" alt="Loading..." className="w-60 h-60" />
-    </div>;
+  // if (!formData) return <div className="flex items-center justify-center min-h-[100vh]  bg-white">
+  //     {/* <img src="/BB-web-chai-1.gif" alt="Loading..." className="w-60 h-60" /> */}
+  //   </div>;
 
   return (
 <div className="min-h-screen flex items-center justify-center">

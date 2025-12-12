@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import PreviewPage from "./PreviewPage"; // client component
+import Preview from "./Preview"; // client component
 
 type GenerateMetadataParams = { params: Promise<{ department: string }> };
 
@@ -29,5 +29,5 @@ export async function generateMetadata({ params }: GenerateMetadataParams): Prom
 }
 
 export default function DepartmentPage() {
-  return <PreviewPage />;
+  return <Preview />;
 }

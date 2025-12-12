@@ -12,6 +12,14 @@
   font-style: normal;
 }
 
+@font-face {
+  font-family: 'VAG';
+  src: url('/fonts/VAG-Regular2.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+
 /* ✅ Theme Variables */
 :root {
   --background: #ffffff;
@@ -23,17 +31,24 @@
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    --color-highlight: #fab31e;
   }
 }
 
 /* ✅ Global Styles */
 body {
-  background: linear-gradient(180deg, rgba(255,255,255,0.28) 18%, rgba(252,220,84,0.24) 100%);
+  /* background: linear-gradient(180deg, rgba(255,255,255,0.28) 18%, rgba(252,220,84,0.24) 100%); */
+   @apply relative w-full min-h-screen overflow-x-hidden;
+background-image: url("/images/bg.svg");
+background-size: cover;
+background-attachment: fixed;
   /* color: var(--foreground); */
   font-family: 'Poppins';
 }
 
-
+.text-highlight {
+  color: var(--color-highlight);
+}
 
 .container,
 .container-fluid,
@@ -125,4 +140,62 @@ body {
     .container {
         max-width: 1600px;
     }
+}
+
+
+
+/* cadrdborder */
+.candy-border {
+  background: repeating-linear-gradient(
+    -45deg,
+    #b51117 0px,
+    #b51117 20px,
+    #0b601c 20px,
+    #0b601c 40px,
+    #b51117 40px,
+    #b51117 60px,
+    white 60px,
+    white 80px
+  );
+}
+
+
+
+
+/* servicesPage SeventhSection Text Animation */
+@keyframes highlight {
+  0% { color: #FAB31E; }
+  33.333% { color: #FAB31E; }
+  33.334% { color: #FFFFFF; }
+  100% { color: #FFFFFF; }
+}
+
+.animated-word {
+  color: #FFFFFF; /* default white */
+  animation: highlight 3s steps(1, end) infinite;
+  animation-fill-mode: both;
+  transition: none !important; /* prevent any global transitions */
+}
+
+/* Order: Connect → Collaborate → Grow */
+.animated-word:nth-child(1) { animation-delay: 0s; }
+.animated-word:nth-child(2) { animation-delay: 1s; }
+.animated-word:nth-child(3) { animation-delay: 2s; }
+
+
+
+
+/* flipcard */
+
+.perspective {
+  perspective: 1000px;
+}
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+.backface-hidden {
+  backface-visibility: hidden;
+}
+.rotate-y-180 {
+  transform: rotateY(180deg);
 }

@@ -43,7 +43,7 @@ export default function FormPreview({ id, onBack }: FormPreviewProps) {
   if (!formData) {
     return (
       <div className="flex items-center justify-center min-h-[100vh] bg-white">
-        <img src="/BB-web-chai-1.gif" alt="Loading..." className="w-60 h-60" />
+        {/* <img src="/BB-web-chai-1.gif" alt="Loading..." className="w-60 h-60" /> */}
       </div>
     );
   }
