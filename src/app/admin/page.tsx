@@ -181,7 +181,7 @@ const dateRef = useRef<HTMLDivElement>(null);
 const [, setQuestions] = useState<QuestionType[]>([]);
 
 
-
+// 
 // Fetch questions on load
 useEffect(() => {
   if (!deptName) return;
