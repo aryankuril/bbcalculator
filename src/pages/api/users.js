@@ -1,6 +1,6 @@
 // File: pages/api/users.js
 // This API route handles fetching, deleting, and updating users.
-
+// 
 // import { MongoClient } from 'mongodb';
 import { ObjectId } from 'mongodb';
 import clientPromiseUntyped from '../../lib/mongodb';
