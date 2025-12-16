@@ -328,7 +328,15 @@ const handleOptionSelect = (opt: Option) => {
     const tempErrors = { name: "", phone: "", email: "" };
     let isValid = true;
     if (!formData.name.trim()) { tempErrors.name = "Name is required."; isValid = false; }
-    if (!formData.phone.trim()) { tempErrors.phone = "Phone number is required."; isValid = false; } else if (!/^\d{10}$/.test(formData.phone)) { tempErrors.phone = "Phone number must be 10 digits."; isValid = false; }
+    if (!formData.phone.trim()) {
+  tempErrors.phone = "Phone number is required.";
+  isValid = false;
+} 
+else if (!/^[6-9]\d{9}$/.test(formData.phone)) {
+  tempErrors.phone = "Please enter a valid phone number";
+  isValid = false;
+}
+
     if (!formData.email.trim()) { tempErrors.email = "Email is required."; isValid = false; } else if (!/\S+@\S+\.\S+/.test(formData.email)) { tempErrors.email = "Email is not valid."; isValid = false; }
     setErrors(tempErrors);
     return isValid;
