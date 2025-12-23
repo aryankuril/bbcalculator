@@ -363,6 +363,7 @@ export default async function handler(req, res) {
               <td>
                 <img src="https://blokesarea.com/wp-content/uploads/2025/12/email-signature-2.png"
                      width="600" style="display:block; width:100%;">
+                     
               </td>
             </tr>
 
